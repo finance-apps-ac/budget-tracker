@@ -25,5 +25,5 @@ It launches full-screen with its own icon (PWA).
 - `manifest.webmanifest`, `icon-*.png`, `icon.svg` — installable-app metadata + icons
 
 ## License
-Proprietary — © 2026 [Your Name], all rights reserved. Viewable for reference only;
+Proprietary — © 2026 Anna Cardoso, all rights reserved. Viewable for reference only;
 no permission to copy, modify, or reuse. See `LICENSE`.
