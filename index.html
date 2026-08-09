@@ -27,7 +27,7 @@
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1"] };</script>
-<script src="supabase-sync.js?v=7"></script>
+<script src="supabase-sync.js?v=8"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -203,6 +203,15 @@
   function latestYear() { var y = years(); return y.length ? y[y.length - 1] : "2026"; }
   function persist() { store[curYear] = budget; localStorage.setItem(SKEY, JSON.stringify(store)); }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  // Sync hook: after the cloud layer writes new data to storage, re-read it and re-render in
+  // place (no page reload — reliable on iOS Safari, which caches reloaded pages).
+  window.__resyncApply = function () {
+    store = loadStore();
+    if (!store[curYear]) curYear = latestYear();
+    budget = store[curYear];
+    render();
+  };
 
   function row(name, vals) {
     var v = [];
