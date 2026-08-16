@@ -116,11 +116,17 @@
   .zero-line { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 3; opacity: .55; }
   .bar.gain { fill: var(--gain); } .bar.loss { fill: var(--loss); }
 
-  .grid-wrap { overflow-x: auto; margin-top: 12px; }
+  /* Scroll each table inside its own box so BOTH freeze-panes work in the same scroll area:
+     the Category column stays put when scrolling sideways, and the month header row (JAN…DEC)
+     stays put when scrolling down through many categories. */
+  .grid-wrap { overflow: auto; max-height: 70vh; margin-top: 12px; -webkit-overflow-scrolling: touch; }
   table { border-collapse: collapse; font-size: 12.5px; white-space: nowrap; }
-  th { text-align: right; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); font-weight: 600; padding: 8px 9px; border-bottom: 1px solid var(--border); }
+  /* Every header cell sticks to the top of the scroll box (frozen month row). */
+  th { text-align: right; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); font-weight: 600; padding: 8px 9px; border-bottom: 1px solid var(--border);
+       position: sticky; top: 0; z-index: 3; background: var(--surface); }
   th.cat, td.cat { text-align: left; position: sticky; left: 0; background: var(--surface-2); border-right: 1px solid var(--border); z-index: 2; min-width: 150px; }
-  th.cat { z-index: 3; background: var(--surface); }
+  /* The corner cell freezes on BOTH axes, so it sits above everything. */
+  th.cat { top: 0; left: 0; z-index: 4; background: var(--surface); }
   th.tot, td.tot { border-left: 1px solid var(--border); }
   td { padding: 5px 9px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
   tbody tr:hover td { background: var(--surface-2); }
