@@ -120,7 +120,11 @@
      the Category column stays put when scrolling sideways, and the month header row (JAN…DEC)
      stays put when scrolling down through many categories. */
   .grid-wrap { overflow: auto; max-height: 70vh; margin-top: 12px; -webkit-overflow-scrolling: touch;
-               scrollbar-width: thin; scrollbar-color: var(--border) transparent; scrollbar-gutter: stable; }
+               scrollbar-width: thin; scrollbar-color: var(--border) transparent; scrollbar-gutter: stable;
+               /* When scrolling settles, snap to whole rows (offset past the frozen header/total) so rows
+                  never come to rest half-cut at the top or bottom edge. Gentle (proximity), so it never fights you. */
+               scroll-snap-type: y proximity; scroll-padding-top: 34px; scroll-padding-bottom: 42px; }
+  .grid-wrap tbody tr:not(.total-row) { scroll-snap-align: start; }
   /* Slim, muted scrollbar that sits in its own gutter (no longer overlaps the ✕ column, no longer bright/bulky). */
   .grid-wrap::-webkit-scrollbar { width: 9px; height: 9px; }
   .grid-wrap::-webkit-scrollbar-track { background: transparent; }
