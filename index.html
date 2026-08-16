@@ -291,7 +291,34 @@
     document.getElementById("incomeTotal").textContent = money(sectionTotal(budget.income)) + " / yr";
     document.getElementById("expenseTotal").textContent = money(sectionTotal(budget.expenses)) + " / yr";
     bindInputs();
+    fitGrids();
   }
+
+  // Size each scroll box to hold a WHOLE number of category rows (frozen header + N rows + frozen total),
+  // so at rest no row is ever half-cut at the top or bottom edge. Falls back to natural height when
+  // everything already fits without scrolling.
+  function fitGrids() {
+    Array.prototype.forEach.call(document.querySelectorAll(".grid-wrap"), function (wrap) {
+      var thead = wrap.querySelector("thead");
+      var totalRow = wrap.querySelector(".total-row");
+      var bodyRows = wrap.querySelectorAll("tbody tr:not(.total-row)");
+      wrap.style.maxHeight = "";                       // reset before measuring
+      if (!thead || !totalRow || !bodyRows.length) return;
+      var rh = bodyRows[0].getBoundingClientRect().height;
+      var hh = thead.getBoundingClientRect().height;
+      var th = totalRow.getBoundingClientRect().height;
+      if (!rh) return;
+      var cap = Math.max(240, Math.round((window.innerHeight || 800) * 0.7));
+      var n = Math.floor((cap - hh - th) / rh);
+      if (n < 3) n = 3;
+      if (n >= bodyRows.length) return;                // all rows fit — leave it natural (no inner scroll)
+      wrap.style.maxHeight = (hh + n * rh + th) + "px";
+      wrap.style.scrollPaddingTop = hh + "px";         // snap rows exactly below the frozen header
+      wrap.style.scrollPaddingBottom = th + "px";      // and exactly above the frozen total
+    });
+  }
+  // Re-fit when the viewport size changes (rotate, resize, split view).
+  window.addEventListener("resize", function () { fitGrids(); });
 
   function renderTiles() {
     var inc = sectionTotal(budget.income), exp = sectionTotal(budget.expenses), net = inc - exp;
