@@ -151,8 +151,12 @@
   .catname:hover { border-color: var(--border); }
   .catname:focus { border-color: var(--accent); outline: none; background: var(--surface-2); }
   .rowtot { font-family: var(--font-mono); text-align: right; color: var(--ink-soft); }
-  .total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; color: var(--ink); }
-  .total-row td.cat { background: var(--surface); }
+  /* Pin the Total row to the bottom of the scroll box so the monthly totals stay visible while
+     scrolling (mirrors the frozen header on top). Extra bottom padding keeps the numbers clear
+     of the horizontal scrollbar. */
+  .total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; color: var(--ink);
+                  position: sticky; bottom: 0; z-index: 3; background: var(--surface); padding-bottom: 14px; }
+  .total-row td.cat { background: var(--surface); left: 0; z-index: 4; }
   .net-row td { font-weight: 700; border-top: 1px solid var(--border); }
   .del { color: var(--ink-faint); cursor: pointer; border: none; background: none; padding: 3px 6px; border-radius: 6px; font-size: 14px; }
   .del:hover { color: var(--loss); background: var(--loss-soft); }
