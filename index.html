@@ -45,7 +45,7 @@
     --accent: #2FD3E1; --accent-soft: #0E2C36;
     --gain: #2FE79B; --gain-soft: #0C2A23;
     --loss: #FF5C72; --loss-soft: #2C1622;
-    --violet: #9C6BFF;
+    --violet: #9C6BFF; --blue: #4AA3FF;
     --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.42);
     --radius: 14px;
     --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -59,7 +59,7 @@
     --accent:#0AA3B2; --accent-soft:#E1F4F6;
     --gain:#0E9C63; --gain-soft:#E4F6EE;
     --loss:#DE344E; --loss-soft:#FCE6EA;
-    --violet:#7A4DFF;
+    --violet:#7A4DFF; --blue:#2B82F6;
     --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
   }
   @media (prefers-color-scheme: light) {
@@ -69,7 +69,7 @@
       --accent:#0AA3B2; --accent-soft:#E1F4F6;
       --gain:#0E9C63; --gain-soft:#E4F6EE;
       --loss:#DE344E; --loss-soft:#FCE6EA;
-      --violet:#7A4DFF;
+      --violet:#7A4DFF; --blue:#2B82F6;
       --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
     }
   }
@@ -79,7 +79,7 @@
     --accent:#2FD3E1; --accent-soft:#0E2C36;
     --gain:#2FE79B; --gain-soft:#0C2A23;
     --loss:#FF5C72; --loss-soft:#2C1622;
-    --violet:#9C6BFF;
+    --violet:#9C6BFF; --blue:#4AA3FF;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.42);
   }
   .theme-btn { min-width: 38px; justify-content: center; font-size: 15px; line-height: 1; }
@@ -125,6 +125,14 @@
   .axis-text { fill: var(--ink-faint); font-size: 10px; font-family: var(--font-mono); }
   .zero-line { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 3; opacity: .55; }
   .bar.gain { fill: var(--gain); } .bar.loss { fill: var(--loss); }
+  /* Income / expenses / savings trend chart (blue / purple / green). Thin lines that
+     stay crisp at any width via non-scaling-stroke; soft fills underneath. */
+  .tr-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .tr-inc-line { stroke: var(--blue); }   .tr-inc-area { fill: var(--blue);   opacity: .15; }
+  .tr-exp-line { stroke: var(--violet); } .tr-exp-area { fill: var(--violet); opacity: .13; }
+  .tr-sav-line { stroke: var(--gain); }   .tr-sav-area { fill: var(--gain);   opacity: .16; }
+  .chart-legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 8px; font-size: 12px; color: var(--ink-soft); }
+  .chart-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
 
   /* Scroll each table inside its own box so BOTH freeze-panes work in the same scroll area:
      the Category column stays put when scrolling sideways, and the month header row (JAN…DEC)
@@ -219,6 +227,16 @@
     <p class="hint">Tap any amount to edit. Credit cards &amp; investments are excluded (tracked elsewhere).</p>
   </section>
 
+  <section class="card">
+    <div class="card-head"><h2>Income, expenses &amp; savings</h2><span class="card-sub" id="trendYear"></span></div>
+    <div class="chart-legend">
+      <span><i style="background:var(--blue)"></i>Total income</span>
+      <span><i style="background:var(--violet)"></i>Total expenses</span>
+      <span><i style="background:var(--gain)"></i>Monthly savings</span>
+    </div>
+    <div class="chart" id="trendChart"></div>
+  </section>
+
   <footer class="foot">Private to you — saved in this browser only, never uploaded.</footer>
 </div>
 
@@ -299,6 +317,8 @@
     document.getElementById("tagline").textContent = curYear + " Annual Budget";
     renderTiles();
     renderChart();
+    renderTrends();
+    document.getElementById("trendYear").textContent = curYear;
     renderGrid("income", "incomeTable");
     renderGrid("expenses", "expenseTable");
     document.getElementById("incomeTotal").textContent = money(sectionTotal(budget.income)) + " / yr";
@@ -368,6 +388,64 @@
     var grid = "";
     for (var g = 0; g <= 3; g++) { var val = min + (max - min) * g / 3, gy = y(val).toFixed(1); grid += '<line class="grid-line" x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '"/><text class="axis-text" x="' + (padL - 7) + '" y="' + gy + '" text-anchor="end" dominant-baseline="middle">' + money(val) + '</text>'; }
     host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Monthly net savings">' + grid + '<line class="zero-line" x1="' + padL + '" y1="' + zeroY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + zeroY.toFixed(1) + '"/>' + bars + '</svg>';
+  }
+
+  // A "nice" gridline step (1/2/5 × 10ⁿ) so value labels land on round numbers.
+  function niceStep(range, targetLines) {
+    var raw = range / Math.max(1, targetLines);
+    var pow = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var f = raw / pow;
+    var nice = f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10;
+    return nice * pow;
+  }
+
+  // Three overlapping series across the 12 months: total income (blue), total
+  // expenses (violet), monthly savings = income − expenses (green). Soft area fills
+  // to the zero baseline, thin lines on top, grey value gridlines, months beneath.
+  function renderTrends() {
+    var host = document.getElementById("trendChart");
+    if (!host) return;
+    var inc = [], exp = [], sav = [], all = [];
+    for (var m = 0; m < 12; m++) {
+      var i = colTotal(budget.income, m), e = colTotal(budget.expenses, m);
+      inc.push(i); exp.push(e); sav.push(i - e); all.push(i, e, i - e);
+    }
+    var W = 720, H = 300, padL = 54, padR = 16, padT = 16, padB = 34;
+    var rawMin = Math.min(0, Math.min.apply(null, all)), rawMax = Math.max(0, Math.max.apply(null, all));
+    if (rawMin === rawMax) rawMax = rawMin + 1;
+    var step = niceStep(rawMax - rawMin, 5);
+    var gmin = Math.floor(rawMin / step) * step, gmax = Math.ceil(rawMax / step) * step;
+    if (gmin === gmax) gmax = gmin + step;
+    var y = function (v) { return padT + (1 - (v - gmin) / (gmax - gmin)) * (H - padT - padB); };
+    var x = function (i) { return padL + (i / 11) * (W - padL - padR); };
+    var zeroY = y(0);
+
+    var grid = "";
+    for (var v = gmin; v <= gmax + step * 0.001; v += step) {
+      var gy = y(v).toFixed(1);
+      grid += '<line class="grid-line" x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '"/>' +
+              '<text class="axis-text" x="' + (padL - 8) + '" y="' + gy + '" text-anchor="end" dominant-baseline="middle">' + money(v) + '</text>';
+    }
+    var xlab = "";
+    for (var mm = 0; mm < 12; mm++)
+      xlab += '<text class="axis-text" x="' + x(mm).toFixed(1) + '" y="' + (H - 12) + '" text-anchor="middle">' + MON[mm] + '</text>';
+
+    function linePath(a) { return a.map(function (val, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(val).toFixed(1); }).join(" "); }
+    function areaPath(a) {
+      return "M" + x(0).toFixed(1) + " " + zeroY.toFixed(1) + " " +
+             a.map(function (val, i) { return "L" + x(i).toFixed(1) + " " + y(val).toFixed(1); }).join(" ") +
+             " L" + x(11).toFixed(1) + " " + zeroY.toFixed(1) + " Z";
+    }
+    var series =
+        '<path class="tr-inc-area" d="' + areaPath(inc) + '"/>' +
+        '<path class="tr-exp-area" d="' + areaPath(exp) + '"/>' +
+        '<path class="tr-sav-area" d="' + areaPath(sav) + '"/>' +
+        '<path class="tr-line tr-inc-line" d="' + linePath(inc) + '"/>' +
+        '<path class="tr-line tr-exp-line" d="' + linePath(exp) + '"/>' +
+        '<path class="tr-line tr-sav-line" d="' + linePath(sav) + '"/>';
+    host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Income, expenses and savings by month">' +
+      grid + '<line class="zero-line" x1="' + padL + '" y1="' + zeroY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + zeroY.toFixed(1) + '"/>' +
+      series + xlab + '</svg>';
   }
 
   function headRow() {
