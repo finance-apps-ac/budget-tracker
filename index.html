@@ -437,17 +437,21 @@
     var W = 720, H = 300, padL = 54, padR = 16, padT = 16, padB = 34;
     var rawMin = Math.min(0, Math.min.apply(null, all)), rawMax = Math.max(0, Math.max.apply(null, all));
     if (rawMin === rawMax) rawMax = rawMin + 1;
-    // Positive gridlines march up in nice steps from $0; below zero we extend only as far as
-    // the data actually dips (niceFloor), so a small deficit never pads the axis to −$2,000.
+    // Positive gridlines march up in nice steps from $0. Below zero: a SMALL dip (less than one
+    // step) just extends the scale a hair so the line shows — no labeled gridline (which would
+    // sit right on top of $0). A LARGER deficit gets its own step-aligned, labeled gridlines.
     var step = niceStep(rawMax || 1, 5) || 1;
     var gmax = Math.ceil(rawMax / step) * step; if (gmax <= 0) gmax = step;
-    var gmin = rawMin < 0 ? niceFloor(rawMin) : 0;
+    var gmin;
+    if (rawMin >= 0) gmin = 0;
+    else if (-rawMin < step) gmin = rawMin - step * 0.12;        // small dip: unlabeled breathing room
+    else gmin = Math.floor(rawMin / step) * step;                // large deficit: step-aligned floor
     var y = function (v) { return padT + (1 - (v - gmin) / (gmax - gmin)) * (H - padT - padB); };
     var x = function (i) { return padL + (i / 11) * (W - padL - padR); };
     var zeroY = y(0);
 
     var levels = [];
-    if (gmin < 0) levels.push(gmin);                       // one line at the actual floor
+    for (var nv = gmin; nv <= -step * 0.5; nv += step) levels.push(nv);   // labeled negatives only when a full step down
     for (var v = 0; v <= gmax + step * 0.001; v += step) levels.push(v);
     var grid = "", yTicks = [];
     levels.forEach(function (lv) {
