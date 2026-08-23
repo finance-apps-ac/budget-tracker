@@ -112,8 +112,9 @@
   .year-input { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; color: var(--ink); font-size: 13.5px; width: 84px; font-variant-numeric: tabular-nums; }
   .year-input:focus, select:focus { border-color: var(--accent); outline: none; }
 
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
   .tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 16px; box-shadow: var(--shadow); }
+  .tile.wide { grid-column: 1 / -1; }
   .tile .label { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--accent); font-weight: 600; }
   .tile .value { font-family: var(--font-mono); font-size: 23px; font-weight: 600; margin-top: 7px; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
   .tile .sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 3px; }
@@ -382,10 +383,10 @@
       { label: "Expenses", value: money(exp), cls: "", sub: "excl. cards + investing" },
       { label: "Net savings", value: signed(net), cls: net >= 0 ? "pos" : "neg", sub: "income − expenses" },
       { label: "Savings rate", value: (inc ? rate.toFixed(0) + "%" : "—"), cls: net >= 0 ? "pos" : "neg", sub: "of income kept" },
-      { label: "Avg / month", value: signed(months ? Math.round(netSum / months) : 0), cls: netSum >= 0 ? "pos" : "neg", sub: months + " active months" }
+      { label: "Avg / month", value: signed(months ? Math.round(netSum / months) : 0), cls: netSum >= 0 ? "pos" : "neg", sub: months + " active months", wide: true }
     ];
     document.getElementById("tiles").innerHTML = tiles.map(function (t) {
-      return '<div class="tile"><div class="label">' + t.label + '</div><div class="value ' + t.cls + '">' + t.value + '</div><div class="sub">' + t.sub + '</div></div>';
+      return '<div class="tile' + (t.wide ? ' wide' : '') + '"><div class="label">' + t.label + '</div><div class="value ' + t.cls + '">' + t.value + '</div><div class="sub">' + t.sub + '</div></div>';
     }).join("");
   }
 
