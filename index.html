@@ -206,8 +206,14 @@
 
   /* ---------- Calendar ---------- */
   .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .cal-title { font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
-  .cal-title .yr { color: var(--ink-faint); font-weight: 600; font-size: 15px; margin-left: 9px; letter-spacing: .5px; }
+  .cal-title { display: flex; align-items: baseline; gap: 6px; margin: 0; }
+  .cal-monsel, .cal-yrsel { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-color: transparent; border: none; cursor: pointer;
+    font-family: var(--font-ui); border-radius: 8px; padding: 2px 22px 2px 6px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 5 6 2.5 9 5M3 7 6 9.5 9 7' fill='none' stroke='%23647294' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 4px center; background-size: 11px; }
+  .cal-monsel { font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); }
+  .cal-yrsel { font-size: 15px; font-weight: 600; letter-spacing: .5px; color: var(--ink-faint); }
+  .cal-monsel:hover, .cal-yrsel:hover, .cal-monsel:focus, .cal-yrsel:focus { background-color: var(--surface-2); outline: none; }
   .cal-nav { display: flex; gap: 8px; }
   .cal-nav button { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 14px; color: var(--ink); cursor: pointer; font-size: 14px; }
   .cal-nav button:hover { border-color: var(--accent); }
@@ -340,7 +346,10 @@
 
   <div id="view-calendar" hidden>
     <div class="cal-head">
-      <h2 class="cal-title"><span id="calMon"></span><span class="yr" id="calYr"></span></h2>
+      <div class="cal-title">
+        <select id="calMonSel" class="cal-monsel" aria-label="Month"></select>
+        <select id="calYrSel" class="cal-yrsel" aria-label="Year"></select>
+      </div>
       <div class="cal-nav">
         <button id="calPrev" type="button" aria-label="Previous month">‹</button>
         <button id="calToday" type="button">Today</button>
@@ -760,8 +769,15 @@
 
   function renderCal() {
     if (!calView) { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; }
-    document.getElementById("calMon").textContent = MONF[calView.m];
-    document.getElementById("calYr").textContent = calView.y;
+    var msel = document.getElementById("calMonSel");
+    msel.innerHTML = MONF.map(function (nm, i) { return '<option value="' + i + '">' + nm + '</option>'; }).join("");
+    msel.value = String(calView.m);
+    var nowY = new Date().getFullYear();
+    var lo = Math.min(nowY, calView.y) - 4, hi = Math.max(nowY, calView.y) + 6, yopts = "";
+    for (var yy = lo; yy <= hi; yy++) yopts += '<option value="' + yy + '">' + yy + '</option>';
+    var ysel = document.getElementById("calYrSel");
+    ysel.innerHTML = yopts;
+    ysel.value = String(calView.y);
 
     var dow = document.getElementById("calDow"); dow.innerHTML = "";
     DOWL.forEach(function (x, i) { var c = document.createElement("div"); c.className = (i === 0 || i === 6) ? "we" : "wd"; c.textContent = x; dow.appendChild(c); });
@@ -780,14 +796,16 @@
       cell.className = "cal-cell " + ((dowi === 0 || dowi === 6) ? "we" : "wd");
       if (calView.y === today.getFullYear() && calView.m === today.getMonth() && dd === today.getDate()) cell.className += " today";
       cell.setAttribute("data-k", k);
-      var w = calData.work[k];
-      var chip = w ? ('<span class="cal-chip ' + (w.status === "work" ? "work" : "off") + '">' + (w.status === "work" ? "Work" : "Off") + '</span>') : "";
+      var explicit = calData.work[k];
+      // Weekends default to "off"; an explicit status the user set for the day always wins.
+      var st = (explicit && explicit.status) ? explicit.status : ((dowi === 0 || dowi === 6) ? "off" : null);
+      var chip = st ? ('<span class="cal-chip ' + (st === "work" ? "work" : "off") + '">' + (st === "work" ? "Work" : "Off") + '</span>') : "";
       var list = calDayEntries(k);
       var inc = 0, exp = 0, hasBill = false;
       list.forEach(function (e) { if (e.type === "income") inc += +e.amount; else { exp += +e.amount; if (e.type === "bill") hasBill = true; } });
       mInc += inc; mExp += exp;
-      if (w && w.status === "work") wDays++;
-      if (w && w.status === "off") oDays++;
+      if (st === "work") wDays++;
+      if (st === "off") oDays++;
       var amts = "";
       if (inc > 0) amts += '<span class="inc">+' + money(inc) + '</span>';
       if (exp > 0) amts += '<span class="exp">−' + money(exp) + '</span>';
@@ -811,10 +829,18 @@
     var p = k.split("-"), dt = new Date(+p[0], +p[1] - 1, +p[2]);
     return DAYF[dt.getDay()] + ", " + MONF[dt.getMonth()] + " " + (+p[2]);
   }
+  // Effective work status for a day: an explicit stored status wins; otherwise weekends
+  // (Sun/Sat) default to "off" and weekdays default to unset.
+  function effStatus(k) {
+    var w = calData.work[k];
+    if (w && w.status) return w.status;
+    var p = k.split("-"), dowi = new Date(+p[0], +p[1] - 1, +p[2]).getDay();
+    return (dowi === 0 || dowi === 6) ? "off" : null;
+  }
   function setWorkButtons() {
-    var w = calData.work[calSel];
+    var st = effStatus(calSel);
     Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
-      b.classList.toggle("sel", !!w && w.status === b.getAttribute("data-work"));
+      b.classList.toggle("sel", st === b.getAttribute("data-work"));
     });
   }
   function updateRepeatVis() { document.getElementById("calRepeatWrap").style.display = (calType === "bill") ? "flex" : "none"; }
@@ -860,9 +886,12 @@
   // work / day-off toggle (tap the active one again to clear it)
   Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
     b.addEventListener("click", function () {
-      var st = b.getAttribute("data-work");
+      var target = b.getAttribute("data-work");
+      var cur = effStatus(calSel);
       var w = calData.work[calSel] || { status: null, shift: "" };
-      w.status = (w.status === st) ? null : st;
+      // Tapping the status already showing clears any override (back to the default);
+      // otherwise set the chosen status explicitly.
+      w.status = (cur === target) ? null : target;
       w.shift = document.getElementById("calShift").value.trim();
       if (!w.status && !w.shift) delete calData.work[calSel]; else calData.work[calSel] = w;
       setWorkButtons(); saveCal(); renderCal();
@@ -903,6 +932,8 @@
   document.getElementById("calPrev").addEventListener("click", function () { calView.m--; if (calView.m < 0) { calView.m = 11; calView.y--; } renderCal(); });
   document.getElementById("calNext").addEventListener("click", function () { calView.m++; if (calView.m > 11) { calView.m = 0; calView.y++; } renderCal(); });
   document.getElementById("calToday").addEventListener("click", function () { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; renderCal(); });
+  document.getElementById("calMonSel").addEventListener("change", function () { calView.m = +this.value; renderCal(); });
+  document.getElementById("calYrSel").addEventListener("change", function () { calView.y = +this.value; renderCal(); });
 
   // ---------- view toggle (Budget / Calendar) ----------
   var VKEY = "budget.view";
