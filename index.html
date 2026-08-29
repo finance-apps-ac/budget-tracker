@@ -773,7 +773,8 @@
     msel.innerHTML = MONF.map(function (nm, i) { return '<option value="' + i + '">' + nm + '</option>'; }).join("");
     msel.value = String(calView.m);
     var nowY = new Date().getFullYear();
-    var lo = Math.min(nowY, calView.y) - 4, hi = Math.max(nowY, calView.y) + 6, yopts = "";
+    // Floor the year list at 2025 (kept as the baseline / demo year — no earlier years); window rolls forward over time.
+    var lo = Math.min(2025, calView.y), hi = Math.max(nowY, calView.y) + 6, yopts = "";
     for (var yy = lo; yy <= hi; yy++) yopts += '<option value="' + yy + '">' + yy + '</option>';
     var ysel = document.getElementById("calYrSel");
     ysel.innerHTML = yopts;
