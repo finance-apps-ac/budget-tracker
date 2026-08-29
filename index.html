@@ -237,17 +237,19 @@
   .cal-nav button { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 14px; color: var(--ink); cursor: pointer; font-size: 14px; }
   .cal-nav button:hover { border-color: var(--accent); }
 
-  .cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+  /* Weekend columns (Sun + Sat) are narrower than weekdays. The header and the day grid share the
+     exact same template so their columns stay aligned. */
+  .cal-dow { display: grid; grid-template-columns: minmax(0, .8fr) repeat(5, minmax(0, 1fr)) minmax(0, .8fr); gap: 6px; margin-bottom: 6px; }
   .cal-dow div { text-align: center; font-size: 12px; font-weight: 800; padding: 9px 0; border-radius: 9px; letter-spacing: .5px; }
   .cal-dow .wd { background: color-mix(in srgb, var(--gain) 16%, transparent); color: var(--gain); }
   .cal-dow .we { background: color-mix(in srgb, var(--violet) 22%, transparent); color: var(--violet); }
 
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-grid { display: grid; grid-template-columns: minmax(0, .8fr) repeat(5, minmax(0, 1fr)) minmax(0, .8fr); gap: 6px; }
   .cal-cell { min-height: 92px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 9px; display: flex; flex-direction: column; cursor: pointer; }
   .cal-cell:hover { border-color: var(--accent); }
   .cal-cell.blank { background: transparent; border: none; cursor: default; }
   .cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .cal-cell .top { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+  .cal-cell .top { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
   .cal-cell .d { font-size: 13px; font-weight: 700; }
   .cal-cell.wd .d { color: var(--gain); } .cal-cell.we .d { color: var(--violet); }
   .cal-chip { font-size: 9px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; padding: 2px 6px; border-radius: 6px; }
@@ -256,7 +258,7 @@
   .cal-dots { display: flex; gap: 3px; margin-top: 5px; }
   .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
   .cal-dot.bill { background: var(--amber); } .cal-dot.exp { background: var(--loss); } .cal-dot.inc { background: var(--gain); }
-  .cal-amts { margin-top: auto; display: flex; flex-direction: column; gap: 1px; font-family: var(--font-mono); font-size: 11px; }
+  .cal-amts { margin-top: auto; display: flex; flex-direction: column; gap: 1px; font-family: var(--font-mono); font-size: 11px; white-space: nowrap; }
   .cal-amts .inc { color: var(--gain); } .cal-amts .exp { color: var(--loss); }
 
   .cal-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
@@ -267,7 +269,21 @@
   .cal-stat.inc .val { color: var(--accent); }
   .cal-stat.exp .val { color: var(--loss); }
   .cal-stat.work .val { color: var(--gain); }
-  @media (max-width: 560px) { .cal-summary { grid-template-columns: repeat(2, 1fr); } .cal-cell { min-height: 72px; } }
+  @media (max-width: 560px) {
+    .cal-summary { grid-template-columns: repeat(2, 1fr); }
+    /* Tighter side padding + gaps give the 7-column grid more room on a phone. */
+    .app { padding-left: calc(12px + env(safe-area-inset-left)); padding-right: calc(12px + env(safe-area-inset-right)); }
+    .cal-dow, .cal-grid { gap: 4px; }
+    .cal-dow div { font-size: 10px; padding: 7px 0; }
+    .cal-cell { min-height: 66px; padding: 5px 4px; border-radius: 9px; overflow: hidden; }
+    .cal-cell .top { gap: 2px; }
+    .cal-cell .d { font-size: 12px; }
+    .cal-chip { font-size: 7px; padding: 1px 3px; letter-spacing: .2px; border-radius: 4px; }
+    .cal-amts { font-size: 8px; gap: 0; }
+    .cal-cell.we .cal-amts { font-size: 7.5px; }
+    .cal-dots { gap: 2px; margin-top: 3px; }
+    .cal-dot { width: 5px; height: 5px; }
+  }
 
   /* Day detail modal */
   .cal-modal { position: fixed; inset: 0; background: rgba(4,8,18,.62); display: none; align-items: flex-end; justify-content: center; z-index: 60; }
