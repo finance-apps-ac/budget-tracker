@@ -274,9 +274,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-soft); }
   .cal-stat .val { font-family: var(--font-mono); font-size: 21px; font-weight: 700; margin-top: 5px; font-variant-numeric: tabular-nums; }
   .cal-stat.off .val { color: var(--violet); }
-  .cal-stat.inc .val { color: var(--accent); }
+  .cal-stat.inc .val { color: var(--gain); }
   .cal-stat.exp .val { color: var(--loss); }
-  .cal-stat.work .val { color: var(--gain); }
+  .cal-stat.work .val { color: var(--accent); }
   @media (max-width: 560px) {
     .cal-summary { grid-template-columns: repeat(2, 1fr); }
     /* Tighter side padding + gaps give the 7-column grid more room on a phone. */
