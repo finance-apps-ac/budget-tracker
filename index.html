@@ -103,7 +103,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     .app { max-width: 1460px; }
     #incomeTable, #expenseTable { width: 100%; }
     #incomeTable th, #incomeTable td, #expenseTable th, #expenseTable td { padding-left: 7px; padding-right: 7px; }
-    #incomeTable .amt, #expenseTable .amt { width: 56px; }
+    /* Fill each column and drop the fixed width + negative margin so the numbers right-align to the
+       same edge as the month headers (both then sit 7px in from the column's right). */
+    #incomeTable .amt, #expenseTable .amt { width: 100%; margin: 0; padding-left: 0; padding-right: 0; }
   }
 
   .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
