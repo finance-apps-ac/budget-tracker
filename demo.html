@@ -8,8 +8,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Budget — Annual Tracker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Budget — Live Demo</title>
 <script>
 /* Theme: apply saved choice before paint (no flash), else follow the system. */
 (function () {
@@ -18,6 +18,7 @@
   function cur() { var a = root.getAttribute("data-theme"); return a ? a : (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"); }
   function icon() { var b = document.getElementById("themeBtn"); if (b) b.textContent = (cur() === "dark" ? "☀️" : "🌙"); }
   window.__toggleTheme = function () { var n = cur() === "dark" ? "light" : "dark"; root.setAttribute("data-theme", n); try { localStorage.setItem(KEY, n); } catch (e) {} icon(); };
+  window.__setTheme = function (mode) { if (mode === "light" || mode === "dark") { root.setAttribute("data-theme", mode); try { localStorage.setItem(KEY, mode); } catch (e) {} } else { root.removeAttribute("data-theme"); try { localStorage.removeItem(KEY); } catch (e) {} } icon(); };
   try { matchMedia("(prefers-color-scheme: light)").addEventListener("change", function () { if (!root.getAttribute("data-theme")) icon(); }); } catch (e) {}
   document.addEventListener("DOMContentLoaded", icon);
 })();
@@ -29,9 +30,30 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Budget">
 <link rel="manifest" href="manifest.webmanifest">
+<script>
+/* iOS Safari ignores user-scalable=no, so an accidental pinch-zoom would stick and mis-render the
+   frozen grid columns. Block the pinch gesture to keep the layout stable. (Double-tap zoom is
+   already handled by `touch-action: manipulation` on the body, which is safe for quick taps.) */
+document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
+document.addEventListener("gesturechange", function (e) { e.preventDefault(); }, { passive: false });
+</script>
 </head>
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
+<script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
+<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries":[{"id":"e_pay1","date":"2025-06-05","type":"income","amount":1850,"note":"Paycheck"},{"id":"e_ot","date":"2025-06-13","type":"income","amount":290,"note":"Overtime"},{"id":"e_pay2","date":"2025-06-20","type":"income","amount":1920,"note":"Paycheck"},{"id":"e_gr1","date":"2025-06-03","type":"expense","amount":85,"note":"Groceries"},{"id":"e_gas","date":"2025-06-08","type":"expense","amount":45,"note":"Gas"},{"id":"e_din","date":"2025-06-11","type":"expense","amount":58,"note":"Dining out"},{"id":"e_shop","date":"2025-06-18","type":"expense","amount":120,"note":"Shopping"},{"id":"e_gr2","date":"2025-06-24","type":"expense","amount":92,"note":"Groceries"},{"id":"e_misc","date":"2025-06-27","type":"expense","amount":61,"note":"Misc"}],"repeats":[{"id":"rdemo1","day":1,"amount":1800,"note":"Rent","start":"2025-01"},{"id":"rdemo2","day":5,"amount":340,"note":"Car payment","start":"2025-01"},{"id":"rdemo3","day":15,"amount":95,"note":"Phone bill","start":"2025-01"}],"work":{"2025-06-02":{"status":"work","shift":""},"2025-06-03":{"status":"work","shift":""},"2025-06-04":{"status":"work","shift":"Night"},"2025-06-05":{"status":"work","shift":""},"2025-06-06":{"status":"work","shift":""},"2025-06-07":{"status":"work","shift":""},"2025-06-10":{"status":"work","shift":""},"2025-06-11":{"status":"work","shift":""},"2025-06-12":{"status":"work","shift":""},"2025-06-13":{"status":"work","shift":""},"2025-06-16":{"status":"work","shift":""},"2025-06-17":{"status":"work","shift":"9–5"},"2025-06-18":{"status":"work","shift":""},"2025-06-20":{"status":"work","shift":""},"2025-06-21":{"status":"work","shift":""},"2025-06-23":{"status":"work","shift":""},"2025-06-24":{"status":"work","shift":"Night"},"2025-06-25":{"status":"work","shift":""},"2025-06-26":{"status":"work","shift":""},"2025-06-27":{"status":"work","shift":""},"2025-06-30":{"status":"work","shift":""},"2025-06-09":{"status":"off","shift":""},"2025-06-19":{"status":"off","shift":""}}}};</script>
+<script>
+/* DEMO build — no login/sync. Seed the sample data into localStorage before the app runs so the
+   page opens straight into the demo, on the calendar view. Reloading always restores the sample. */
+(function () {
+  try {
+    localStorage.setItem("__demo_budget", "1");
+    localStorage.setItem("budget.view", "calendar");
+    var seed = window.DEMO_SEED || {};
+    for (var k in seed) { if (Object.prototype.hasOwnProperty.call(seed, k)) { try { localStorage.setItem(k, JSON.stringify(seed[k])); } catch (e) {} } }
+  } catch (e) {}
+})();
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -43,7 +65,7 @@
     --accent: #2FD3E1; --accent-soft: #0E2C36;
     --gain: #2FE79B; --gain-soft: #0C2A23;
     --loss: #FF5C72; --loss-soft: #2C1622;
-    --violet: #9C6BFF;
+    --violet: #9C6BFF; --blue: #4AA3FF; --amber: #F0B24A;
     --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.42);
     --radius: 14px;
     --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -57,7 +79,7 @@
     --accent:#0AA3B2; --accent-soft:#E1F4F6;
     --gain:#0E9C63; --gain-soft:#E4F6EE;
     --loss:#DE344E; --loss-soft:#FCE6EA;
-    --violet:#7A4DFF;
+    --violet:#7A4DFF; --blue:#2B82F6; --amber:#C77D0E;
     --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
   }
   @media (prefers-color-scheme: light) {
@@ -67,7 +89,7 @@
       --accent:#0AA3B2; --accent-soft:#E1F4F6;
       --gain:#0E9C63; --gain-soft:#E4F6EE;
       --loss:#DE344E; --loss-soft:#FCE6EA;
-      --violet:#7A4DFF;
+      --violet:#7A4DFF; --blue:#2B82F6; --amber:#C77D0E;
       --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
     }
   }
@@ -77,25 +99,42 @@
     --accent:#2FD3E1; --accent-soft:#0E2C36;
     --gain:#2FE79B; --gain-soft:#0C2A23;
     --loss:#FF5C72; --loss-soft:#2C1622;
-    --violet:#9C6BFF;
+    --violet:#9C6BFF; --blue:#4AA3FF;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.42);
   }
   .theme-btn { min-width: 38px; justify-content: center; font-size: 15px; line-height: 1; }
 
-  body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); line-height: 1.5; -webkit-font-smoothing: antialiased;
+         touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
   .app { max-width: 1120px; margin: 0 auto;
          padding: calc(28px + env(safe-area-inset-top)) calc(22px + env(safe-area-inset-right)) calc(60px + env(safe-area-inset-bottom)) calc(22px + env(safe-area-inset-left)); }
+  /* Desktop: widen the workspace so the yearly grid shows all 12 months at once (no side-scroll). */
+  @media (min-width: 1100px) {
+    .app { max-width: 1460px; }
+    #incomeTable, #expenseTable { width: 100%; }
+    #incomeTable th, #incomeTable td, #expenseTable th, #expenseTable td { padding-left: 7px; padding-right: 7px; }
+    /* Fill each column and drop the fixed width + negative margin so the numbers right-align to the
+       same edge as the month headers (both then sit 7px in from the column's right). */
+    #incomeTable .amt, #expenseTable .amt { width: 100%; margin: 0; padding-left: 0; padding-right: 0; }
+  }
 
   .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
   .brand { display: flex; align-items: flex-start; gap: 13px; }
-  .mark { width: 36px; height: 36px; border-radius: 9px; flex: none; }
-  .mark svg { display: block; width: 100%; height: 100%; }
+  .mark { width: 38px; height: 38px; border-radius: 10px; flex: none; overflow: hidden;
+          border: 1px solid var(--border); background: var(--surface-2);
+          box-shadow: 0 1px 3px rgba(0,0,0,.28); }
+  .mark svg, .mark img { display: block; width: 100%; height: 100%; }
   .brand h1 { font-size: 22px; font-weight: 800; margin: 0; letter-spacing: 1.6px; text-transform: uppercase; }
   .brand h1 .yr { color: var(--accent); }
   .tagline { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); letter-spacing: .4px; text-transform: uppercase; }
   .topbar-actions { display: flex; align-items: center; gap: 9px; }
   select, .btn { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; color: var(--ink); cursor: pointer; font-size: 13.5px; white-space: nowrap; }
   #yearFilter { font-weight: 700; }
+  /* Settled-grey custom chevron (the native black up/down arrow is nearly invisible
+     on the dark surface). appearance:none swaps it for our own SVG. */
+  select { -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 5 6 2.5 9 5M3 7 6 9.5 9 7' fill='none' stroke='%23647294' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 11px center; background-size: 12px; padding-right: 30px; }
   select:hover, .btn:hover { border-color: var(--accent); }
   .year-input { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; color: var(--ink); font-size: 13.5px; width: 84px; font-variant-numeric: tabular-nums; }
   .year-input:focus, select:focus { border-color: var(--accent); outline: none; }
@@ -113,17 +152,33 @@
   .card-head h2 { font-size: 13px; font-weight: 700; margin: 0; letter-spacing: .8px; text-transform: uppercase; color: var(--ink); }
   .card-sub { font-size: 12px; color: var(--ink-faint); }
   .chart svg { display: block; width: 100%; height: auto; }
+  .chart { position: relative; }
+  /* Fixed-size HTML axis labels so they never scale up with a full-width SVG (matches P&L). */
+  .c-yaxis { position: absolute; top: 0; left: 0; height: 100%; pointer-events: none; }
+  .c-yaxis span { position: absolute; right: 7px; transform: translateY(-50%); white-space: nowrap; font: 10px/1 var(--font-mono); color: var(--ink-faint); }
+  .c-xaxis { position: absolute; left: 0; right: 0; bottom: 4px; pointer-events: none; }
+  .c-xaxis span { position: absolute; transform: translateX(-50%); white-space: nowrap; font: 12px/1 var(--font-mono); color: var(--ink-faint); }
   .grid-line { stroke: var(--border); stroke-width: 1; }
   .axis-text { fill: var(--ink-faint); font-size: 10px; font-family: var(--font-mono); }
   .zero-line { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 3; opacity: .55; }
   .bar.gain { fill: var(--gain); } .bar.loss { fill: var(--loss); }
+  /* Income / expenses / savings trend chart (blue / purple / green). Thin lines that
+     stay crisp at any width via non-scaling-stroke; soft fills underneath. */
+  .tr-line { fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .tr-inc-line { stroke: var(--blue); }   .tr-inc-area { fill: var(--blue);   opacity: .15; }
+  .tr-exp-line { stroke: var(--violet); } .tr-exp-area { fill: var(--violet); opacity: .13; }
+  .tr-sav-line { stroke: var(--gain); }   .tr-sav-area { fill: var(--gain);   opacity: .16; }
+  .chart-legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 8px; font-size: 12px; color: var(--ink-soft); }
+  .chart-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
 
   /* Scroll each table inside its own box so BOTH freeze-panes work in the same scroll area:
      the Category column stays put when scrolling sideways, and the month header row (JAN…DEC)
      stays put when scrolling down through many categories. */
-  .grid-wrap { overflow: auto; max-height: 70vh; margin-top: 12px; -webkit-overflow-scrolling: touch;
-               /* Keep momentum scrolling smooth, but stop it from chaining/bouncing past the table's own
-                  field (the "floating too far" that made tapping cells hard on phone). */
+  .grid-wrap { overflow: auto; max-height: 70vh; margin-top: 12px;
+               /* NOTE: no `-webkit-overflow-scrolling: touch` — on iOS it breaks `position: sticky`,
+                  so the frozen Category column detached and dragged sideways with the content. Modern
+                  iOS keeps momentum scrolling without it, and the freeze-panes now stay locked. */
+               /* Stop momentum from chaining/bouncing past the table's own field. */
                overscroll-behavior: contain;
                scrollbar-width: thin; scrollbar-color: var(--border) transparent; scrollbar-gutter: stable;
                /* When scrolling settles, snap to whole rows (offset past the frozen header/total) so rows
@@ -138,13 +193,18 @@
   .grid-wrap::-webkit-scrollbar-corner { background: transparent; }
   /* Give the ✕ column clearance from the right edge so the (overlay) scrollbar never sits on top of it. */
   .grid-wrap th:last-child, .grid-wrap td:last-child { padding-right: 20px; }
-  table { border-collapse: collapse; font-size: 12.5px; white-space: nowrap; }
+  /* Use separate (not collapse) so `position: sticky` works on the frozen cells in iOS Safari —
+     `border-collapse: collapse` silently breaks sticky table cells there. border-spacing:0 keeps the
+     grid tight; per-cell borders below render the same single lines. */
+  table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; white-space: nowrap; }
   /* Every header cell sticks to the top of the scroll box (frozen month row). */
   th { text-align: right; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); font-weight: 600; padding: 8px 9px; border-bottom: 1px solid var(--border);
        position: sticky; top: 0; z-index: 3; background: var(--surface); }
-  th.cat, td.cat { text-align: left; position: sticky; left: 0; background: var(--surface-2); border-right: 1px solid var(--border); z-index: 2; min-width: 150px; }
-  /* The corner cell freezes on BOTH axes, so it sits above everything. */
-  th.cat { top: 0; left: 0; z-index: 4; background: var(--surface); }
+  /* Frozen Category column: pinned horizontally by JS (`transform: translateX(scrollLeft)`) because
+     iOS Safari's position:sticky is unreliable on table cells. Relative + opaque + above the value
+     cells so it covers them as it holds at the left edge. */
+  th.cat, td.cat { text-align: left; position: relative; z-index: 2; background: var(--surface-2); border-right: 1px solid var(--border); min-width: 150px; will-change: transform; }
+  thead th.cat { z-index: 4; background: var(--surface); }
   th.tot, td.tot { border-left: 1px solid var(--border); }
   td { padding: 5px 9px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
   tbody tr:hover td { background: var(--surface-2); }
@@ -165,19 +225,138 @@
      of the horizontal scrollbar. */
   .total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; color: var(--ink);
                   position: sticky; bottom: 0; z-index: 3; background: var(--surface); padding-bottom: 14px; }
-  .total-row td.cat { background: var(--surface); left: 0; z-index: 4; }
+  .total-row td.cat { position: relative; background: var(--surface); z-index: 4; }
   .net-row td { font-weight: 700; border-top: 1px solid var(--border); }
+  /* Derived "Recurring Bills" row: auto-summed from the calendar's fixed bills, read-only, amber. */
+  tr.auto-row td { background: color-mix(in srgb, var(--amber) 7%, transparent); }
+  tr.auto-row:hover td { background: color-mix(in srgb, var(--amber) 12%, transparent); }
+  tr.auto-row td.cat { background: color-mix(in srgb, var(--amber) 12%, var(--surface-2)); }
+  .auto-name { color: var(--amber); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; font-size: 12.5px; }
+  .auto-tag { font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: var(--amber);
+              border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent); border-radius: 5px; padding: 1px 4px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+  td.auto-cell { text-align: right; color: var(--amber); font-family: var(--font-mono); }
+  td.auto-cell .dash { color: var(--ink-faint); }
   .del { color: var(--ink-faint); cursor: pointer; border: none; background: none; padding: 3px 6px; border-radius: 6px; font-size: 14px; }
   .del:hover { color: var(--loss); background: var(--loss-soft); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
   .hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 10px; }
   .foot { text-align: center; color: var(--ink-faint); font-size: 12px; margin-top: 32px; }
+
+  /* ---------- View tabs (Budget / Calendar) ---------- */
+  .viewtabs { display: inline-flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: 4px; margin-bottom: 18px; }
+  .viewtabs button { background: transparent; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700; letter-spacing: .3px; color: var(--ink-soft); cursor: pointer; }
+  .viewtabs button.active { background: var(--surface-2); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  /* Color-identify each mode when active: Budget = cyan, Calendar = amber. */
+  #tabBudget.active { color: var(--accent); background: var(--accent-soft); }
+  #tabCalendar.active { color: var(--amber); background: color-mix(in srgb, var(--amber) 18%, transparent); }
+
+  /* ---------- Calendar ---------- */
+  .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .cal-title { display: flex; align-items: baseline; gap: 6px; margin: 0; }
+  .cal-monsel, .cal-yrsel { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-color: transparent; border: none; cursor: pointer;
+    font-family: var(--font-ui); border-radius: 8px; padding: 2px 22px 2px 6px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 5 6 2.5 9 5M3 7 6 9.5 9 7' fill='none' stroke='%23647294' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 4px center; background-size: 11px; }
+  .cal-monsel { font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); }
+  .cal-yrsel { font-size: 15px; font-weight: 600; letter-spacing: .5px; color: var(--ink-faint); }
+  .cal-monsel:hover, .cal-yrsel:hover, .cal-monsel:focus, .cal-yrsel:focus { background-color: var(--surface-2); outline: none; }
+  .cal-nav { display: flex; gap: 8px; }
+  .cal-nav button { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 14px; color: var(--ink); cursor: pointer; font-size: 14px; }
+  .cal-nav button:hover { border-color: var(--accent); }
+
+  /* Weekend columns (Sun + Sat) are narrower than weekdays. The header and the day grid share the
+     exact same template so their columns stay aligned. */
+  .cal-dow { display: grid; grid-template-columns: minmax(0, .8fr) repeat(5, minmax(0, 1fr)) minmax(0, .8fr); gap: 6px; margin-bottom: 6px; }
+  .cal-dow div { text-align: center; font-size: 12px; font-weight: 800; padding: 9px 0; border-radius: 9px; letter-spacing: .5px; }
+  .cal-dow .wd { background: color-mix(in srgb, var(--gain) 16%, transparent); color: var(--gain); }
+  .cal-dow .we { background: color-mix(in srgb, var(--violet) 22%, transparent); color: var(--violet); }
+
+  .cal-grid { display: grid; grid-template-columns: minmax(0, .8fr) repeat(5, minmax(0, 1fr)) minmax(0, .8fr); gap: 6px; }
+  .cal-cell { min-height: 92px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 9px; display: flex; flex-direction: column; cursor: pointer; }
+  .cal-cell:hover { border-color: var(--accent); }
+  .cal-cell.blank { background: transparent; border: none; cursor: default; }
+  .cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .cal-cell .top { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
+  .cal-cell .d { font-size: 13px; font-weight: 700; }
+  .cal-cell.wd .d { color: var(--gain); } .cal-cell.we .d { color: var(--violet); }
+  .cal-chip { font-size: 9px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; padding: 2px 6px; border-radius: 6px; }
+  .cal-chip.work { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+  .cal-chip.off { background: color-mix(in srgb, var(--ink-faint) 22%, transparent); color: var(--ink-soft); }
+  .cal-dots { display: flex; gap: 3px; margin-top: 5px; }
+  .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .cal-dot.bill { background: var(--amber); } .cal-dot.exp { background: var(--loss); } .cal-dot.inc { background: var(--gain); }
+  .cal-amts { margin-top: auto; display: flex; flex-direction: column; gap: 1px; font-family: var(--font-mono); font-size: 11px; white-space: nowrap; }
+  .cal-amts .inc { color: var(--gain); } .cal-amts .exp { color: var(--loss); }
+
+  .cal-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+  .cal-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 13px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .cal-stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-soft); }
+  .cal-stat .val { font-family: var(--font-mono); font-size: 21px; font-weight: 700; margin-top: 5px; font-variant-numeric: tabular-nums; }
+  .cal-stat.off .val { color: var(--violet); }
+  .cal-stat.inc .val { color: var(--gain); }
+  .cal-stat.exp .val { color: var(--loss); }
+  .cal-stat.work .val { color: var(--accent); }
+  @media (max-width: 560px) {
+    .cal-summary { grid-template-columns: repeat(2, 1fr); }
+    /* Tighter side padding + gaps give the 7-column grid more room on a phone. */
+    .app { padding-left: calc(12px + env(safe-area-inset-left)); padding-right: calc(12px + env(safe-area-inset-right)); }
+    .cal-dow, .cal-grid { gap: 4px; }
+    .cal-dow div { font-size: 10px; padding: 7px 0; }
+    .cal-cell { min-height: 66px; padding: 5px 4px; border-radius: 9px; overflow: hidden; }
+    .cal-cell .top { gap: 2px; }
+    .cal-cell .d { font-size: 12px; }
+    .cal-chip { font-size: 7px; padding: 1px 3px; letter-spacing: .2px; border-radius: 4px; }
+    .cal-amts { font-size: 8px; gap: 0; }
+    .cal-cell.we .cal-amts { font-size: 7.5px; }
+    .cal-dots { gap: 2px; margin-top: 3px; }
+    .cal-dot { width: 5px; height: 5px; }
+  }
+
+  /* Day detail modal */
+  .cal-modal { position: fixed; inset: 0; background: rgba(4,8,18,.62); display: none; align-items: flex-end; justify-content: center; z-index: 60; }
+  .cal-modal.open { display: flex; }
+  .cal-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 18px 18px 0 0; width: 100%; max-width: 520px; max-height: 88vh; overflow: auto;
+               padding: 20px 20px calc(24px + env(safe-area-inset-bottom)); box-shadow: var(--shadow); }
+  @media (min-width: 560px) { .cal-modal { align-items: center; } .cal-sheet { border-radius: 18px; } }
+  .cal-sheet h3 { margin: 0 0 3px; font-size: 17px; }
+  .cal-sheet .sub { color: var(--ink-soft); font-size: 12.5px; margin: 0 0 16px; }
+  .cal-close { float: right; background: none; border: none; color: var(--ink-faint); font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 4px; }
+  .cal-close:hover { color: var(--ink); }
+  .cal-worktoggle { display: flex; gap: 8px; margin-bottom: 10px; }
+  .cal-worktoggle button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-weight: 700; font-size: 13px; color: var(--ink-soft); cursor: pointer; }
+  .cal-worktoggle button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+  .cal-shift { width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; margin-bottom: 18px; }
+  .cal-shift:focus { border-color: var(--accent); outline: none; }
+  .cal-seclabel { font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-faint); font-weight: 700; margin: 0 0 8px; }
+  .cal-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+  .cal-item { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
+  .cal-item .amt2 { font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; }
+  .cal-item .amt2.income { color: var(--gain); } .cal-item .amt2.expense { color: var(--loss); } .cal-item .amt2.bill { color: var(--amber); }
+  .cal-item .note2 { flex: 1; font-size: 13px; }
+  .cal-item .rep { font-size: 10px; color: var(--accent); white-space: nowrap; }
+  .cal-item .del2 { background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 14px; }
+  .cal-item .del2:hover { color: var(--loss); }
+  .cal-empty { color: var(--ink-faint); font-size: 12.5px; padding: 2px 0 12px; }
+  .cal-typesel { display: flex; gap: 6px; margin-bottom: 9px; }
+  .cal-typesel button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
+  .cal-typesel button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+  .cal-addrow { display: flex; gap: 8px; }
+  .cal-in { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
+  .cal-in:focus { border-color: var(--accent); outline: none; }
+  #calAmt { flex: none; width: 118px; font-family: var(--font-mono); }
+  #calNote { flex: 1; min-width: 0; }
+  #calAmt::-webkit-outer-spin-button, #calAmt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .cal-repeat { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
+  .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .cal-addbtn { margin-top: 14px; width: 100%; background: var(--accent); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 13.5px; color: #04121a; cursor: pointer; letter-spacing: .3px; }
+  .cal-addbtn:hover { filter: brightness(1.06); }
 </style>
 
 <div class="app">
+  <div id="demo-ribbon" style="position:fixed; left:50%; transform:translateX(-50%); bottom:calc(14px + env(safe-area-inset-bottom)); z-index:99999; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font:600 12px/1 var(--font-ui); color:var(--ink-soft); box-shadow:var(--shadow); letter-spacing:.3px; pointer-events:none;">✨ Demo — sample data</div>
   <header class="topbar">
     <div class="brand">
-      <span class="mark" aria-hidden="true"><svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg"><rect x=".5" y=".5" width="35" height="35" rx="8.5" fill="#141d33" stroke="#2FD3E1" stroke-opacity=".35"/><g><rect x="8" y="20" width="6" height="8" rx="1.5" fill="#9C6BFF"/><rect x="15" y="14" width="6" height="14" rx="1.5" fill="#2FD3E1"/><rect x="22" y="9" width="6" height="19" rx="1.5" fill="#2FE79B"/></g></svg></span>
+      <span class="mark" aria-hidden="true"><img src="icon-512.png" alt=""></span>
       <div>
         <h1><span class="yr">Budget</span></h1>
         <p class="tagline" id="tagline">Annual Tracker</p>
@@ -191,6 +370,12 @@
     </div>
   </header>
 
+  <nav class="viewtabs">
+    <button id="tabBudget" class="active" type="button">Budget</button>
+    <button id="tabCalendar" type="button">Calendar</button>
+  </nav>
+
+  <div id="view-budget">
   <section class="tiles" id="tiles"></section>
 
   <section class="card">
@@ -211,50 +396,78 @@
     <p class="hint">Tap any amount to edit. Credit cards &amp; investments are excluded (tracked elsewhere).</p>
   </section>
 
+  <section class="card">
+    <div class="card-head"><h2>Income, expenses &amp; savings</h2><span class="card-sub" id="trendYear"></span></div>
+    <div class="chart-legend">
+      <span><i style="background:var(--blue)"></i>Total income</span>
+      <span><i style="background:var(--violet)"></i>Total expenses</span>
+      <span><i style="background:var(--gain)"></i>Monthly savings</span>
+    </div>
+    <div class="chart" id="trendChart"></div>
+  </section>
+  </div><!-- /view-budget -->
+
+  <div id="view-calendar" hidden>
+    <div class="cal-head">
+      <div class="cal-title">
+        <select id="calMonSel" class="cal-monsel" aria-label="Month"></select>
+        <select id="calYrSel" class="cal-yrsel" aria-label="Year"></select>
+      </div>
+      <div class="cal-nav">
+        <button id="calPrev" type="button" aria-label="Previous month">‹</button>
+        <button id="calToday" type="button">Today</button>
+        <button id="calNext" type="button" aria-label="Next month">›</button>
+      </div>
+    </div>
+    <div class="cal-dow" id="calDow"></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-summary">
+      <div class="cal-stat off"><div class="lbl">Days off</div><div class="val" id="calOff">0</div></div>
+      <div class="cal-stat inc"><div class="lbl">Net income</div><div class="val" id="calInc">$0</div></div>
+      <div class="cal-stat work"><div class="lbl">Work days</div><div class="val" id="calWork">0</div></div>
+      <div class="cal-stat exp"><div class="lbl">Net expenses</div><div class="val" id="calExp">$0</div></div>
+    </div>
+    <p class="hint">Tap any day to log a work shift, day off, bill, one-time expense, or income. Bills you mark “Repeat monthly” appear on that date every following month automatically.</p>
+  </div><!-- /view-calendar -->
+
   <footer class="foot">Private to you — saved in this browser only, never uploaded.</footer>
+</div>
+
+<!-- Day detail modal -->
+<div class="cal-modal" id="calModal" aria-hidden="true">
+  <div class="cal-sheet" role="dialog" aria-modal="true" aria-labelledby="calDayTitle">
+    <button class="cal-close" id="calClose" type="button" aria-label="Close">✕</button>
+    <h3 id="calDayTitle">—</h3>
+    <p class="sub">Log work, bills, expenses &amp; income for this day.</p>
+
+    <p class="cal-seclabel">Shift</p>
+    <div class="cal-worktoggle">
+      <button data-work="work" type="button">🛠 Work day</button>
+      <button data-work="off" type="button">🌙 Day off</button>
+    </div>
+    <input class="cal-shift" id="calShift" placeholder="Shift note (e.g. 9–5, Night) — optional">
+
+    <p class="cal-seclabel">Entries</p>
+    <div class="cal-list" id="calList"></div>
+
+    <p class="cal-seclabel">Add entry</p>
+    <div class="cal-typesel">
+      <button data-ct="income" type="button">Income</button>
+      <button data-ct="expense" type="button">Expense</button>
+      <button data-ct="bill" type="button">Bill</button>
+    </div>
+    <div class="cal-addrow">
+      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
+      <input class="cal-in" id="calNote" placeholder="Note (e.g. Rent, Paycheck)">
+    </div>
+    <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
+    <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
+  </div>
 </div>
 
 <script>
 (function () {
   "use strict";
-
-  /* ===== DEMO BUILD — example data in memory only; never touches real app storage ===== */
-  var __demo = {
-    "budget.store.v1": JSON.stringify({"2026": {
-      "income": [
-        {id:"i1",name:"Salary (5th)",  vals:[2400,2450,2500,2380,2600,2520,2000,2000,2000,2000,2000,2000]},
-        {id:"i2",name:"Salary (20th)", vals:[2450,2400,2500,2560,2480,2610,2000,2000,2000,2000,2000,2000]},
-        {id:"i3",name:"Side Hustle",   vals:[400,650,500,420,700,380,520,600,410,500,820,600]},
-        {id:"i4",name:"Other Income",  vals:[0,0,250,0,0,500,0,0,0,0,0,300]}
-      ],
-      "expenses": [
-        {id:"e1", name:"Rent / Mortgage", vals:[2100,2100,2100,2100,2100,2100,2100,2100,2100,2100,2100,2100]},
-        {id:"e2", name:"SDGE",            vals:[140,143,138,135,132,141,170,192,170,170,170,175]},
-        {id:"e3", name:"Phone",           vals:[113,113,113,114,125,125,125,125,125,125,125,125]},
-        {id:"e4", name:"Groceries",       vals:[520,480,540,510,500,530,560,540,520,500,510,600]},
-        {id:"e5", name:"Gas",             vals:[100,100,100,126,135,113,120,100,100,100,100,120]},
-        {id:"e6", name:"Car Payment",     vals:[366,366,366,366,366,366,366,366,366,366,366,366]},
-        {id:"e7", name:"Car Insurance",   vals:[94,94,94,94,94,94,94,94,94,94,94,94]},
-        {id:"e8", name:"Subscriptions",   vals:[74,84,84,84,84,84,84,84,84,84,84,90]},
-        {id:"e9", name:"Best Egg",        vals:[210,210,210,210,179,179,179,210,210,210,210,210]},
-        {id:"e10",name:"Upgrade",         vals:[205,205,205,205,205,205,205,205,205,205,0,0]},
-        {id:"e11",name:"Taxes",           vals:[0,0,0,1200,0,0,0,0,0,0,0,0]},
-        {id:"e12",name:"Going Out",       vals:[180,150,220,190,200,240,210,230,200,180,220,320]},
-        {id:"e13",name:"Shopping",        vals:[120,90,150,110,130,100,140,120,110,130,120,280]},
-        {id:"e14",name:"Other",           vals:[50,0,80,0,60,0,40,0,70,0,50,120]}
-      ]
-    }})
-  };
-
-  var localStorage = {
-    getItem: function (k) { return (k in __demo) ? __demo[k] : null; },
-    setItem: function (k, v) { __demo[k] = String(v); },
-    removeItem: function (k) { delete __demo[k]; },
-    clear: function () { for (var k in __demo) delete __demo[k]; },
-    get length() { return Object.keys(__demo).length; }
-  };
-  /* ================================================================================= */
-
   var SKEY = "budget.store.v1", OLDKEY = "budget.2026.v1";
   var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
@@ -279,7 +492,9 @@
     store = loadStore();
     if (!store[curYear]) curYear = latestYear();
     budget = store[curYear];
+    calData = loadCal();
     render();
+    if (!document.getElementById("view-calendar").hidden) renderCal();
   };
 
   function row(name, vals) {
@@ -317,6 +532,16 @@
   var usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
   function money(v) { return usd.format(v || 0); }
   function signed(v) { return (v > 0 ? "+" : v < 0 ? "−" : "") + money(Math.abs(v)); }
+  // Compact form for chart axis labels so big numbers ($12,000) don't overflow the y-gutter on phones.
+  function axisMoney(v) {
+    var neg = v < 0, a = Math.abs(v);
+    if (a >= 1000) {
+      var k = a / 1000;
+      var s = (k >= 10) ? String(Math.round(k)) : String(Math.round(k * 10) / 10).replace(/\.0$/, "");
+      return (neg ? "−$" : "$") + s + "k";
+    }
+    return money(v);
+  }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"'/]/g, function (c) { return ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;","/":"&#47;" })[c]; }); }
   function num(v) { return (v === "" || v == null) ? 0 : Number(v) || 0; }
   function colTotal(rows, m) { var t = 0; rows.forEach(function (r) { t += num(r.vals[m]); }); return t; }
@@ -329,12 +554,15 @@
     document.getElementById("tagline").textContent = curYear + " Annual Budget";
     renderTiles();
     renderChart();
+    renderTrends();
+    document.getElementById("trendYear").textContent = curYear;
     renderGrid("income", "incomeTable");
     renderGrid("expenses", "expenseTable");
-    document.getElementById("incomeTotal").textContent = money(sectionTotal(budget.income)) + " / yr";
-    document.getElementById("expenseTotal").textContent = money(sectionTotal(budget.expenses)) + " / yr";
+    document.getElementById("incomeTotal").textContent = money(sectionTotal(incomeRows())) + " / yr";
+    document.getElementById("expenseTotal").textContent = money(sectionTotal(expenseRows())) + " / yr";
     bindInputs();
     fitGrids();
+    wireFreeze();
   }
 
   // Size each scroll box to hold a WHOLE number of category rows (frozen header + N rows + frozen total),
@@ -363,11 +591,32 @@
   // Re-fit when the viewport size changes (rotate, resize, split view).
   window.addEventListener("resize", function () { fitGrids(); });
 
+  // ---- Frozen Category column (JS pin) ----
+  // iOS Safari's position:sticky is unreliable on table cells (the column drifted with the scroll),
+  // so we pin it ourselves: on horizontal scroll, translate every left-column cell by scrollLeft so
+  // it stays locked at the container's left edge. Works identically on every browser.
+  function pinCat(wrap) {
+    var sl = wrap.scrollLeft;
+    var cells = wrap.querySelectorAll(".cat");
+    var t = sl ? "translateX(" + sl + "px)" : "";
+    for (var i = 0; i < cells.length; i++) cells[i].style.transform = t;
+  }
+  function wireFreeze() {
+    Array.prototype.forEach.call(document.querySelectorAll(".grid-wrap"), function (wrap) {
+      if (!wrap.__pinned) {
+        wrap.__pinned = true;
+        wrap.addEventListener("scroll", function () { pinCat(wrap); }, { passive: true });
+      }
+      pinCat(wrap);   // re-sync after each render (the table's cells are rebuilt on render)
+    });
+  }
+
   function renderTiles() {
-    var inc = sectionTotal(budget.income), exp = sectionTotal(budget.expenses), net = inc - exp;
+    var incRows = incomeRows(), expRows = expenseRows();
+    var inc = sectionTotal(incRows), exp = sectionTotal(expRows), net = inc - exp;
     var rate = inc ? (net / inc * 100) : 0;
     var months = 0, netSum = 0;
-    for (var m = 0; m < 12; m++) { var n = colTotal(budget.income, m) - colTotal(budget.expenses, m); if (colTotal(budget.income, m) || colTotal(budget.expenses, m)) { months++; netSum += n; } }
+    for (var m = 0; m < 12; m++) { var im = colTotal(incRows, m), em = colTotal(expRows, m); if (im || em) { months++; netSum += (im - em); } }
     var tiles = [
       { label: "Income", value: money(inc), cls: "pos", sub: "12-mo total" },
       { label: "Expenses", value: money(exp), cls: "", sub: "excl. cards + investing" },
@@ -380,24 +629,110 @@
     }).join("");
   }
 
+  // Fixed-size HTML axis labels overlaid on a chart SVG (viewBox coords → percent), so the
+  // numbers and months stay a constant size instead of scaling with a full-width chart.
+  function axisHTML(W, H, padL, yTicks, xTicks) {
+    var yg = yTicks.map(function (t) { return '<span style="top:' + (t.y / H * 100).toFixed(2) + '%">' + t.text + '</span>'; }).join("");
+    var xg = (xTicks || []).map(function (t) { return '<span style="left:' + (t.x / W * 100).toFixed(2) + '%">' + t.text + '</span>'; }).join("");
+    return '<div class="c-yaxis" style="width:' + (padL / W * 100).toFixed(2) + '%">' + yg + '</div>' +
+           (xTicks ? '<div class="c-xaxis">' + xg + '</div>' : '');
+  }
+
   function renderChart() {
     var host = document.getElementById("netChart");
+    var incRows = incomeRows(), expRows = expenseRows();
     var vals = [];
-    for (var m = 0; m < 12; m++) vals.push(colTotal(budget.income, m) - colTotal(budget.expenses, m));
-    var W = 720, H = 220, padL = 46, padR = 12, padT = 12, padB = 30;
+    for (var m = 0; m < 12; m++) vals.push(colTotal(incRows, m) - colTotal(expRows, m));
+    var W = 720, H = 220, padL = 58, padR = 12, padT = 12, padB = 30;
     var min = Math.min(0, Math.min.apply(null, vals)), max = Math.max(0, Math.max.apply(null, vals));
     if (min === max) max = min + 1;
     var y = function (v) { return padT + (1 - (v - min) / (max - min)) * (H - padT - padB); };
     var bw = (W - padL - padR) / 12, zeroY = y(0);
+    var xTicks = [];
     var bars = vals.map(function (v, i) {
       var bx = padL + i * bw + bw * 0.18, w = bw * 0.64;
       var top = v >= 0 ? y(v) : zeroY, h = Math.abs(y(v) - zeroY);
-      return '<rect class="bar ' + (v >= 0 ? "gain" : "loss") + '" x="' + bx.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, h).toFixed(1) + '" rx="2"/>' +
-             '<text class="axis-text" x="' + (bx + w / 2).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle">' + MON[i] + '</text>';
+      xTicks.push({ x: bx + w / 2, text: MON[i] });
+      return '<rect class="bar ' + (v >= 0 ? "gain" : "loss") + '" x="' + bx.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, h).toFixed(1) + '" rx="2"/>';
     }).join("");
-    var grid = "";
-    for (var g = 0; g <= 3; g++) { var val = min + (max - min) * g / 3, gy = y(val).toFixed(1); grid += '<line class="grid-line" x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '"/><text class="axis-text" x="' + (padL - 7) + '" y="' + gy + '" text-anchor="end" dominant-baseline="middle">' + money(val) + '</text>'; }
-    host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Monthly net savings">' + grid + '<line class="zero-line" x1="' + padL + '" y1="' + zeroY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + zeroY.toFixed(1) + '"/>' + bars + '</svg>';
+    var grid = "", yTicks = [];
+    for (var g = 0; g <= 3; g++) { var val = min + (max - min) * g / 3, gy = y(val); grid += '<line class="grid-line" x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '"/>'; yTicks.push({ y: gy, text: axisMoney(val) }); }
+    host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Monthly net savings">' + grid + '<line class="zero-line" x1="' + padL + '" y1="' + zeroY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + zeroY.toFixed(1) + '"/>' + bars + '</svg>' + axisHTML(W, H, padL, yTicks, xTicks);
+  }
+
+  // A "nice" gridline step (1/2/5 × 10ⁿ) so value labels land on round numbers.
+  function niceStep(range, targetLines) {
+    var raw = range / Math.max(1, targetLines);
+    var pow = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10));
+    var f = raw / pow;
+    var nice = f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10;
+    return nice * pow;
+  }
+  // Nearest "nice" round number at or below a negative value — so a tiny dip below zero
+  // (e.g. −$300) floors to −$500, not a full coarse step below (−$2,000).
+  function niceFloor(v) {
+    if (v >= 0) return 0;
+    var a = -v, pow = Math.pow(10, Math.floor(Math.log(a) / Math.LN10)), f = a / pow;
+    var nice = f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10;
+    return -nice * pow;
+  }
+
+  // Three overlapping series across the 12 months: total income (blue), total
+  // expenses (violet), monthly savings = income − expenses (green). Soft area fills
+  // to the zero baseline, thin lines on top, grey value gridlines, months beneath.
+  function renderTrends() {
+    var host = document.getElementById("trendChart");
+    if (!host) return;
+    var incRows = incomeRows(), expRows = expenseRows();
+    var inc = [], exp = [], sav = [], all = [];
+    for (var m = 0; m < 12; m++) {
+      var i = colTotal(incRows, m), e = colTotal(expRows, m);
+      inc.push(i); exp.push(e); sav.push(i - e); all.push(i, e, i - e);
+    }
+    var W = 720, H = 300, padL = 72, padR = 16, padT = 16, padB = 34;
+    var rawMin = Math.min(0, Math.min.apply(null, all)), rawMax = Math.max(0, Math.max.apply(null, all));
+    if (rawMin === rawMax) rawMax = rawMin + 1;
+    // Positive gridlines march up in nice steps from $0. Below zero: a SMALL dip (less than one
+    // step) just extends the scale a hair so the line shows — no labeled gridline (which would
+    // sit right on top of $0). A LARGER deficit gets its own step-aligned, labeled gridlines.
+    var step = niceStep(rawMax || 1, 5) || 1;
+    var gmax = Math.ceil(rawMax / step) * step; if (gmax <= 0) gmax = step;
+    var gmin;
+    if (rawMin >= 0) gmin = 0;
+    else if (-rawMin < step) gmin = rawMin - step * 0.12;        // small dip: unlabeled breathing room
+    else gmin = Math.floor(rawMin / step) * step;                // large deficit: step-aligned floor
+    var y = function (v) { return padT + (1 - (v - gmin) / (gmax - gmin)) * (H - padT - padB); };
+    var x = function (i) { return padL + (i / 11) * (W - padL - padR); };
+    var zeroY = y(0);
+
+    var levels = [];
+    for (var nv = gmin; nv <= -step * 0.5; nv += step) levels.push(nv);   // labeled negatives only when a full step down
+    for (var v = 0; v <= gmax + step * 0.001; v += step) levels.push(v);
+    var grid = "", yTicks = [];
+    levels.forEach(function (lv) {
+      var gy = y(lv);
+      grid += '<line class="grid-line" x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '"/>';
+      yTicks.push({ y: gy, text: axisMoney(lv) });
+    });
+    var xTicks = [];
+    for (var mm = 0; mm < 12; mm++) xTicks.push({ x: x(mm), text: MON[mm] });
+
+    function linePath(a) { return a.map(function (val, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(val).toFixed(1); }).join(" "); }
+    function areaPath(a) {
+      return "M" + x(0).toFixed(1) + " " + zeroY.toFixed(1) + " " +
+             a.map(function (val, i) { return "L" + x(i).toFixed(1) + " " + y(val).toFixed(1); }).join(" ") +
+             " L" + x(11).toFixed(1) + " " + zeroY.toFixed(1) + " Z";
+    }
+    var series =
+        '<path class="tr-inc-area" d="' + areaPath(inc) + '"/>' +
+        '<path class="tr-exp-area" d="' + areaPath(exp) + '"/>' +
+        '<path class="tr-sav-area" d="' + areaPath(sav) + '"/>' +
+        '<path class="tr-line tr-inc-line" d="' + linePath(inc) + '"/>' +
+        '<path class="tr-line tr-exp-line" d="' + linePath(exp) + '"/>' +
+        '<path class="tr-line tr-sav-line" d="' + linePath(sav) + '"/>';
+    host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Income, expenses and savings by month">' +
+      grid + '<line class="zero-line" x1="' + padL + '" y1="' + zeroY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + zeroY.toFixed(1) + '"/>' +
+      series + '</svg>' + axisHTML(W, H, padL, yTicks, xTicks);
   }
 
   function headRow() {
@@ -407,9 +742,16 @@
   }
 
   function renderGrid(sec, tableId) {
-    var rows = budget[sec];
+    var rows = (sec === "expenses") ? expenseRows() : (sec === "income") ? incomeRows() : budget[sec];
     var body = "";
     rows.forEach(function (r) {
+      if (r.auto) {
+        // Derived, read-only row (Recurring Bills from the calendar) — no editable inputs, no delete.
+        body += '<tr class="auto-row"><td class="cat"><span class="auto-name">' + esc(r.name) + '</span><span class="auto-tag">↻ Calendar</span></td>';
+        for (var am = 0; am < 12; am++) body += '<td class="auto-cell">' + (r.vals[am] ? money(r.vals[am]) : '<span class="dash">—</span>') + '</td>';
+        body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td></td></tr>';
+        return;
+      }
       body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
       for (var m = 0; m < 12; m++) {
         body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
@@ -490,6 +832,239 @@
     newYearInput.hidden = true; addYear(y);
   }
 
+  // ---------- calendar ----------
+  var CKEY = "budget.calendar.v1";
+  var DOWL = ["S", "M", "T", "W", "T", "F", "S"];
+  var MONF = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DAYF = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var calView = null;      // {y, m} — 0-based month
+  var calSel = null;       // selected date key "YYYY-MM-DD" while the modal is open
+  var calType = "expense"; // add-entry type currently selected
+  var calData = loadCal();
+
+  function loadCal() {
+    try { var c = JSON.parse(localStorage.getItem(CKEY)); if (c && typeof c === "object") { c.entries = c.entries || []; c.repeats = c.repeats || []; c.work = c.work || {}; return c; } } catch (e) {}
+    return { entries: [], repeats: [], work: {} };
+  }
+  function saveCal() { localStorage.setItem(CKEY, JSON.stringify(calData)); }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
+
+  // Calendar entries are intentionally NOT rolled into the yearly grid. The grid stays purely the
+  // user's own manually-entered categories; the calendar is a fully independent tracker with its
+  // own monthly summary. (The derived Calendar Income / Recurring Bills / Calendar Expenses rows
+  // were removed 2026-08-29 because they double-counted amounts already listed in the grid.)
+  function incomeRows() { return budget.income.slice(); }
+  function expenseRows() { return budget.expenses.slice(); }
+
+  // All entries falling on a day: one-time entries on that exact date, plus any recurring
+  // bill whose day-of-month matches and whose start month is on/before this month.
+  function calDayEntries(k) {
+    var d = +k.slice(8, 10), ym = k.slice(0, 7);
+    var list = calData.entries.filter(function (e) { return e.date === k; });
+    calData.repeats.forEach(function (r) {
+      if (r.day === d && (!r.start || ym >= r.start)) list.push({ id: r.id, date: k, type: "bill", amount: r.amount, note: r.note, repeat: true });
+    });
+    return list;
+  }
+
+  function renderCal() {
+    if (!calView) {
+      // In demo mode, open on the fully-populated sample month (June 2025) so the calendar
+      // showcases work shifts, bills, income and expenses. Real users open on the current month.
+      var demo = false; try { demo = localStorage.getItem("__demo_budget") === "1"; } catch (e) {}
+      if (demo) { calView = { y: 2025, m: 5 }; }
+      else { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; }
+    }
+    var msel = document.getElementById("calMonSel");
+    msel.innerHTML = MONF.map(function (nm, i) { return '<option value="' + i + '">' + nm + '</option>'; }).join("");
+    msel.value = String(calView.m);
+    var nowY = new Date().getFullYear();
+    // Floor the year list at 2025 (kept as the baseline / demo year — no earlier years); window rolls forward over time.
+    var lo = Math.min(2025, calView.y), hi = Math.max(nowY, calView.y) + 6, yopts = "";
+    for (var yy = lo; yy <= hi; yy++) yopts += '<option value="' + yy + '">' + yy + '</option>';
+    var ysel = document.getElementById("calYrSel");
+    ysel.innerHTML = yopts;
+    ysel.value = String(calView.y);
+
+    var dow = document.getElementById("calDow"); dow.innerHTML = "";
+    DOWL.forEach(function (x, i) { var c = document.createElement("div"); c.className = (i === 0 || i === 6) ? "we" : "wd"; c.textContent = x; dow.appendChild(c); });
+
+    var grid = document.getElementById("calGrid"); grid.innerHTML = "";
+    var first = new Date(calView.y, calView.m, 1).getDay();
+    var days = new Date(calView.y, calView.m + 1, 0).getDate();
+    for (var b = 0; b < first; b++) { var bl = document.createElement("div"); bl.className = "cal-cell blank"; grid.appendChild(bl); }
+
+    var today = new Date();
+    var mInc = 0, mExp = 0, wDays = 0, oDays = 0;
+    for (var dd = 1; dd <= days; dd++) {
+      var k = ckey(calView.y, calView.m, dd);
+      var dowi = new Date(calView.y, calView.m, dd).getDay();
+      var cell = document.createElement("div");
+      cell.className = "cal-cell " + ((dowi === 0 || dowi === 6) ? "we" : "wd");
+      if (calView.y === today.getFullYear() && calView.m === today.getMonth() && dd === today.getDate()) cell.className += " today";
+      cell.setAttribute("data-k", k);
+      var explicit = calData.work[k];
+      // Weekends default to "off"; an explicit status the user set for the day always wins.
+      var st = (explicit && explicit.status) ? explicit.status : ((dowi === 0 || dowi === 6) ? "off" : null);
+      var chip = st ? ('<span class="cal-chip ' + (st === "work" ? "work" : "off") + '">' + (st === "work" ? "Work" : "Off") + '</span>') : "";
+      var list = calDayEntries(k);
+      var inc = 0, exp = 0, hasBill = false, hasExpense = false;
+      list.forEach(function (e) { if (e.type === "income") inc += +e.amount; else { exp += +e.amount; if (e.type === "bill") hasBill = true; else hasExpense = true; } });
+      mInc += inc; mExp += exp;
+      if (st === "work") wDays++;
+      if (st === "off") oDays++;
+      var amts = "";
+      if (inc > 0) amts += '<span class="inc">+' + money(inc) + '</span>';
+      if (exp > 0) amts += '<span class="exp">−' + money(exp) + '</span>';
+      var dots = "";
+      if (hasBill) dots += '<span class="cal-dot bill"></span>';
+      if (hasExpense) dots += '<span class="cal-dot exp"></span>';
+      if (inc > 0) dots += '<span class="cal-dot inc"></span>';
+      cell.innerHTML = '<div class="top"><span class="d">' + dd + '</span>' + chip + '</div>' +
+        (dots ? '<div class="cal-dots">' + dots + '</div>' : '') +
+        '<div class="cal-amts">' + amts + '</div>';
+      cell.addEventListener("click", function () { openCalDay(this.getAttribute("data-k")); });
+      grid.appendChild(cell);
+    }
+    document.getElementById("calInc").textContent = money(mInc);
+    document.getElementById("calExp").textContent = money(mExp);
+    document.getElementById("calWork").textContent = wDays;
+    document.getElementById("calOff").textContent = oDays;
+  }
+
+  function dayTitle(k) {
+    var p = k.split("-"), dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return DAYF[dt.getDay()] + ", " + MONF[dt.getMonth()] + " " + (+p[2]);
+  }
+  // Effective work status for a day: an explicit stored status wins; otherwise weekends
+  // (Sun/Sat) default to "off" and weekdays default to unset.
+  function effStatus(k) {
+    var w = calData.work[k];
+    if (w && w.status) return w.status;
+    var p = k.split("-"), dowi = new Date(+p[0], +p[1] - 1, +p[2]).getDay();
+    return (dowi === 0 || dowi === 6) ? "off" : null;
+  }
+  function setWorkButtons() {
+    var st = effStatus(calSel);
+    Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
+      b.classList.toggle("sel", st === b.getAttribute("data-work"));
+    });
+  }
+  function updateRepeatVis() { document.getElementById("calRepeatWrap").style.display = (calType === "bill") ? "flex" : "none"; }
+
+  function openCalDay(k) {
+    calSel = k; calType = "expense";
+    document.getElementById("calDayTitle").textContent = dayTitle(k);
+    setWorkButtons();
+    document.getElementById("calShift").value = (calData.work[k] && calData.work[k].shift) || "";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) { b.classList.toggle("sel", b.getAttribute("data-ct") === "expense"); });
+    document.getElementById("calAmt").value = "";
+    document.getElementById("calNote").value = "";
+    document.getElementById("calRepeat").checked = false;
+    updateRepeatVis();
+    renderCalList();
+    var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false");
+  }
+  function closeCalModal() { var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true"); }
+
+  function renderCalList() {
+    var box = document.getElementById("calList");
+    var list = calDayEntries(calSel);
+    if (!list.length) { box.innerHTML = '<div class="cal-empty">Nothing logged yet.</div>'; return; }
+    box.innerHTML = list.map(function (e) {
+      return '<div class="cal-item"><span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
+        '<span class="note2">' + esc(e.note || "(no note)") + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
+        '<button class="del2" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" aria-label="Delete">✕</button></div>';
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll(".del2"), function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-id");
+        if (b.getAttribute("data-rep") === "1") {
+          if (!confirm("Remove this recurring bill from every month?")) return;
+          calData.repeats = calData.repeats.filter(function (r) { return r.id !== id; });
+        } else {
+          calData.entries = calData.entries.filter(function (e) { return e.id !== id; });
+        }
+        saveCal(); renderCalList(); renderCal();
+      });
+    });
+  }
+
+  // work / day-off toggle (tap the active one again to clear it)
+  Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
+    b.addEventListener("click", function () {
+      var target = b.getAttribute("data-work");
+      var cur = effStatus(calSel);
+      var w = calData.work[calSel] || { status: null, shift: "" };
+      // Tapping the status already showing clears any override (back to the default);
+      // otherwise set the chosen status explicitly.
+      w.status = (cur === target) ? null : target;
+      w.shift = document.getElementById("calShift").value.trim();
+      if (!w.status && !w.shift) delete calData.work[calSel]; else calData.work[calSel] = w;
+      setWorkButtons(); saveCal(); renderCal();
+    });
+  });
+  document.getElementById("calShift").addEventListener("change", function () {
+    var w = calData.work[calSel] || { status: null, shift: "" };
+    w.shift = this.value.trim();
+    if (!w.status && !w.shift) delete calData.work[calSel]; else calData.work[calSel] = w;
+    saveCal();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) {
+    b.addEventListener("click", function () {
+      calType = b.getAttribute("data-ct");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (x) { x.classList.toggle("sel", x === b); });
+      updateRepeatVis();
+    });
+  });
+
+  document.getElementById("calAdd").addEventListener("click", function () {
+    var amt = parseFloat(document.getElementById("calAmt").value);
+    if (!(amt > 0)) { document.getElementById("calAmt").focus(); return; }
+    var note = document.getElementById("calNote").value.trim();
+    if (calType === "bill" && document.getElementById("calRepeat").checked) {
+      calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7) });
+    } else {
+      calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: note || (calType.charAt(0).toUpperCase() + calType.slice(1)) });
+    }
+    document.getElementById("calAmt").value = "";
+    document.getElementById("calNote").value = "";
+    document.getElementById("calRepeat").checked = false;
+    saveCal(); renderCalList(); renderCal();
+  });
+
+  document.getElementById("calClose").addEventListener("click", closeCalModal);
+  document.getElementById("calModal").addEventListener("click", function (e) { if (e.target === this) closeCalModal(); });
+  document.getElementById("calPrev").addEventListener("click", function () { calView.m--; if (calView.m < 0) { calView.m = 11; calView.y--; } renderCal(); });
+  document.getElementById("calNext").addEventListener("click", function () { calView.m++; if (calView.m > 11) { calView.m = 0; calView.y++; } renderCal(); });
+  document.getElementById("calToday").addEventListener("click", function () { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; renderCal(); });
+  document.getElementById("calMonSel").addEventListener("change", function () { calView.m = +this.value; renderCal(); });
+  document.getElementById("calYrSel").addEventListener("change", function () { calView.y = +this.value; renderCal(); });
+
+  // ---------- view toggle (Budget / Calendar) ----------
+  var VKEY = "budget.view";
+  function setView(v) {
+    var cal = v === "calendar";
+    document.getElementById("view-budget").hidden = cal;
+    document.getElementById("view-calendar").hidden = !cal;
+    document.getElementById("tabBudget").classList.toggle("active", !cal);
+    document.getElementById("tabCalendar").classList.toggle("active", cal);
+    // The year picker + "＋ Year" drive the budget grids only — hide them in calendar view.
+    document.getElementById("yearFilter").style.display = cal ? "none" : "";
+    document.getElementById("addYearBtn").style.display = cal ? "none" : "";
+    if (cal) { document.getElementById("newYear").hidden = true; renderCal(); }
+    else { render(); }   // recompute the grid (incl. the Recurring Bills row) when returning to Budget
+    try { localStorage.setItem(VKEY, v); } catch (e) {}
+  }
+  document.getElementById("tabBudget").addEventListener("click", function () { setView("budget"); });
+  document.getElementById("tabCalendar").addEventListener("click", function () { setView("calendar"); });
+
   render();
+
+  var startView = "budget";
+  try { startView = localStorage.getItem(VKEY) || "budget"; } catch (e) {}
+  setView(startView);
 })();
 </script>
