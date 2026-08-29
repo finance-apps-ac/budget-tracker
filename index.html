@@ -34,7 +34,7 @@
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
-<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent", "start": "2025-01"}, {"id": "rdemo2", "day": 15, "amount": 95, "note": "Phone bill", "start": "2025-01"}], "work": {}}};</script>
+<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent", "start": "2025-01"}, {"id": "rdemo2", "day": 5, "amount": 340, "note": "Car payment", "start": "2025-01"}, {"id": "rdemo3", "day": 15, "amount": 95, "note": "Phone bill", "start": "2025-01"}], "work": {}}};</script>
 <script src="supabase-sync.js?v=24"></script>
 <script src="native.js?v=1"></script>
 <style>
@@ -193,6 +193,15 @@
                   position: sticky; bottom: 0; z-index: 3; background: var(--surface); padding-bottom: 14px; }
   .total-row td.cat { background: var(--surface); left: 0; z-index: 4; }
   .net-row td { font-weight: 700; border-top: 1px solid var(--border); }
+  /* Derived "Recurring Bills" row: auto-summed from the calendar's fixed bills, read-only, amber. */
+  tr.auto-row td { background: color-mix(in srgb, var(--amber) 7%, transparent); }
+  tr.auto-row:hover td { background: color-mix(in srgb, var(--amber) 12%, transparent); }
+  tr.auto-row td.cat { background: color-mix(in srgb, var(--amber) 12%, var(--surface-2)); }
+  .auto-name { color: var(--amber); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; font-size: 12.5px; }
+  .auto-tag { font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: var(--amber);
+              border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent); border-radius: 5px; padding: 1px 4px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
+  td.auto-cell { text-align: right; color: var(--amber); font-family: var(--font-mono); }
+  td.auto-cell .dash { color: var(--ink-faint); }
   .del { color: var(--ink-faint); cursor: pointer; border: none; background: none; padding: 3px 6px; border-radius: 6px; font-size: 14px; }
   .del:hover { color: var(--loss); background: var(--loss-soft); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
@@ -400,7 +409,7 @@
       <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
       <input class="cal-in" id="calNote" placeholder="Note (e.g. Rent, Paycheck)">
     </div>
-    <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Repeat monthly (recurring bill)</label>
+    <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
     <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
   </div>
 </div>
@@ -498,8 +507,8 @@
     document.getElementById("trendYear").textContent = curYear;
     renderGrid("income", "incomeTable");
     renderGrid("expenses", "expenseTable");
-    document.getElementById("incomeTotal").textContent = money(sectionTotal(budget.income)) + " / yr";
-    document.getElementById("expenseTotal").textContent = money(sectionTotal(budget.expenses)) + " / yr";
+    document.getElementById("incomeTotal").textContent = money(sectionTotal(incomeRows())) + " / yr";
+    document.getElementById("expenseTotal").textContent = money(sectionTotal(expenseRows())) + " / yr";
     bindInputs();
     fitGrids();
   }
@@ -531,10 +540,11 @@
   window.addEventListener("resize", function () { fitGrids(); });
 
   function renderTiles() {
-    var inc = sectionTotal(budget.income), exp = sectionTotal(budget.expenses), net = inc - exp;
+    var incRows = incomeRows(), expRows = expenseRows();
+    var inc = sectionTotal(incRows), exp = sectionTotal(expRows), net = inc - exp;
     var rate = inc ? (net / inc * 100) : 0;
     var months = 0, netSum = 0;
-    for (var m = 0; m < 12; m++) { var n = colTotal(budget.income, m) - colTotal(budget.expenses, m); if (colTotal(budget.income, m) || colTotal(budget.expenses, m)) { months++; netSum += n; } }
+    for (var m = 0; m < 12; m++) { var im = colTotal(incRows, m), em = colTotal(expRows, m); if (im || em) { months++; netSum += (im - em); } }
     var tiles = [
       { label: "Income", value: money(inc), cls: "pos", sub: "12-mo total" },
       { label: "Expenses", value: money(exp), cls: "", sub: "excl. cards + investing" },
@@ -558,8 +568,9 @@
 
   function renderChart() {
     var host = document.getElementById("netChart");
+    var incRows = incomeRows(), expRows = expenseRows();
     var vals = [];
-    for (var m = 0; m < 12; m++) vals.push(colTotal(budget.income, m) - colTotal(budget.expenses, m));
+    for (var m = 0; m < 12; m++) vals.push(colTotal(incRows, m) - colTotal(expRows, m));
     var W = 720, H = 220, padL = 58, padR = 12, padT = 12, padB = 30;
     var min = Math.min(0, Math.min.apply(null, vals)), max = Math.max(0, Math.max.apply(null, vals));
     if (min === max) max = min + 1;
@@ -600,9 +611,10 @@
   function renderTrends() {
     var host = document.getElementById("trendChart");
     if (!host) return;
+    var incRows = incomeRows(), expRows = expenseRows();
     var inc = [], exp = [], sav = [], all = [];
     for (var m = 0; m < 12; m++) {
-      var i = colTotal(budget.income, m), e = colTotal(budget.expenses, m);
+      var i = colTotal(incRows, m), e = colTotal(expRows, m);
       inc.push(i); exp.push(e); sav.push(i - e); all.push(i, e, i - e);
     }
     var W = 720, H = 300, padL = 72, padR = 16, padT = 16, padB = 34;
@@ -658,9 +670,16 @@
   }
 
   function renderGrid(sec, tableId) {
-    var rows = budget[sec];
+    var rows = (sec === "expenses") ? expenseRows() : (sec === "income") ? incomeRows() : budget[sec];
     var body = "";
     rows.forEach(function (r) {
+      if (r.auto) {
+        // Derived, read-only row (Recurring Bills from the calendar) — no editable inputs, no delete.
+        body += '<tr class="auto-row"><td class="cat"><span class="auto-name">' + esc(r.name) + '</span><span class="auto-tag">↻ Calendar</span></td>';
+        for (var am = 0; am < 12; am++) body += '<td class="auto-cell">' + (r.vals[am] ? money(r.vals[am]) : '<span class="dash">—</span>') + '</td>';
+        body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td></td></tr>';
+        return;
+      }
       body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
       for (var m = 0; m < 12; m++) {
         body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
@@ -758,6 +777,48 @@
   function saveCal() { localStorage.setItem(CKEY, JSON.stringify(calData)); }
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
+
+  // Sum of all recurring calendar bills active in each month of `year` (a bill counts from its
+  // start month onward). This feeds the derived "Recurring Bills" row in the budget grid — it is
+  // computed on the fly, never stored, so it can't collide with the user's own categories.
+  function recurringRowVals(year) {
+    var vals = [];
+    for (var m = 0; m < 12; m++) {
+      var ym = year + "-" + pad2(m + 1), t = 0;
+      calData.repeats.forEach(function (r) { if (!r.start || ym >= r.start) t += (+r.amount || 0); });
+      vals[m] = t;
+    }
+    return vals;
+  }
+  // One-time calendar entries (not recurring bills) summed by month for a year, split into
+  // income vs expense (a one-off "bill" counts as an expense).
+  function calMonthly(year) {
+    var inc = [], exp = [];
+    for (var m = 0; m < 12; m++) { inc[m] = 0; exp[m] = 0; }
+    calData.entries.forEach(function (e) {
+      if (e.date.slice(0, 4) !== String(year)) return;
+      var m = (+e.date.slice(5, 7)) - 1;
+      if (e.type === "income") inc[m] += (+e.amount || 0); else exp[m] += (+e.amount || 0);
+    });
+    return { inc: inc, exp: exp };
+  }
+  // Income rows = the user's stored income + (when present) an auto "Calendar Income" row.
+  function incomeRows() {
+    var rows = budget.income.slice();
+    var vals = calMonthly(curYear).inc;
+    if (vals.some(function (v) { return v > 0; })) rows.push({ id: "__calincome", name: "Calendar Income", vals: vals, auto: true });
+    return rows;
+  }
+  // Expense rows = the user's stored categories + auto "Recurring Bills" (fixed) + auto
+  // "Calendar Expenses" (one-time), each appended only when it has any amount.
+  function expenseRows() {
+    var rows = budget.expenses.slice();
+    var recur = recurringRowVals(curYear);
+    if (recur.some(function (v) { return v > 0; })) rows.push({ id: "__recurring", name: "Recurring Bills", vals: recur, auto: true });
+    var once = calMonthly(curYear).exp;
+    if (once.some(function (v) { return v > 0; })) rows.push({ id: "__calexp", name: "Calendar Expenses", vals: once, auto: true });
+    return rows;
+  }
 
   // All entries falling on a day: one-time entries on that exact date, plus any recurring
   // bill whose day-of-month matches and whose start month is on/before this month.
@@ -951,6 +1012,7 @@
     document.getElementById("yearFilter").style.display = cal ? "none" : "";
     document.getElementById("addYearBtn").style.display = cal ? "none" : "";
     if (cal) { document.getElementById("newYear").hidden = true; renderCal(); }
+    else { render(); }   // recompute the grid (incl. the Recurring Bills row) when returning to Budget
     try { localStorage.setItem(VKEY, v); } catch (e) {}
   }
   document.getElementById("tabBudget").addEventListener("click", function () { setView("budget"); });
