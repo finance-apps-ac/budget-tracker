@@ -203,6 +203,9 @@
   .viewtabs { display: inline-flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: 4px; margin-bottom: 18px; }
   .viewtabs button { background: transparent; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700; letter-spacing: .3px; color: var(--ink-soft); cursor: pointer; }
   .viewtabs button.active { background: var(--surface-2); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  /* Color-identify each mode when active: Budget = cyan, Calendar = amber. */
+  #tabBudget.active { color: var(--accent); background: var(--accent-soft); }
+  #tabCalendar.active { color: var(--amber); background: color-mix(in srgb, var(--amber) 18%, transparent); }
 
   /* ---------- Calendar ---------- */
   .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
