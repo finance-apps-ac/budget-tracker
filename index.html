@@ -802,12 +802,11 @@
     });
     return { inc: inc, exp: exp };
   }
-  // Income rows = the user's stored income + (when present) an auto "Calendar Income" row.
+  // Income rows = the user's stored income only. Calendar income is intentionally NOT rolled into
+  // the grid — income is tracked directly here, so syncing it would double-count paychecks. (The
+  // calendar's own Net Income summary still reflects income logged on days.)
   function incomeRows() {
-    var rows = budget.income.slice();
-    var vals = calMonthly(curYear).inc;
-    if (vals.some(function (v) { return v > 0; })) rows.push({ id: "__calincome", name: "Calendar Income", vals: vals, auto: true });
-    return rows;
+    return budget.income.slice();
   }
   // Expense rows = the user's stored categories + auto "Recurring Bills" (fixed) + auto
   // "Calendar Expenses" (one-time), each appended only when it has any amount.
