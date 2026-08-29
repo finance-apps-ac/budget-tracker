@@ -90,6 +90,13 @@
   body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); line-height: 1.5; -webkit-font-smoothing: antialiased; }
   .app { max-width: 1120px; margin: 0 auto;
          padding: calc(28px + env(safe-area-inset-top)) calc(22px + env(safe-area-inset-right)) calc(60px + env(safe-area-inset-bottom)) calc(22px + env(safe-area-inset-left)); }
+  /* Desktop: widen the workspace so the yearly grid shows all 12 months at once (no side-scroll). */
+  @media (min-width: 1100px) {
+    .app { max-width: 1460px; }
+    #incomeTable, #expenseTable { width: 100%; }
+    #incomeTable th, #incomeTable td, #expenseTable th, #expenseTable td { padding-left: 7px; padding-right: 7px; }
+    #incomeTable .amt, #expenseTable .amt { width: 56px; }
+  }
 
   .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
   .brand { display: flex; align-items: flex-start; gap: 13px; }
