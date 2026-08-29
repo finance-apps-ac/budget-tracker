@@ -34,7 +34,7 @@
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
-<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent", "start": "2025-01"}, {"id": "rdemo2", "day": 5, "amount": 340, "note": "Car payment", "start": "2025-01"}, {"id": "rdemo3", "day": 15, "amount": 95, "note": "Phone bill", "start": "2025-01"}], "work": {}}};</script>
+<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent", "start": "2025-01"}, {"id": "rdemo2", "day": 15, "amount": 95, "note": "Phone bill", "start": "2025-01"}], "work": {}}};</script>
 <script src="supabase-sync.js?v=24"></script>
 <script src="native.js?v=1"></script>
 <style>
@@ -778,46 +778,12 @@
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
 
-  // Sum of all recurring calendar bills active in each month of `year` (a bill counts from its
-  // start month onward). This feeds the derived "Recurring Bills" row in the budget grid — it is
-  // computed on the fly, never stored, so it can't collide with the user's own categories.
-  function recurringRowVals(year) {
-    var vals = [];
-    for (var m = 0; m < 12; m++) {
-      var ym = year + "-" + pad2(m + 1), t = 0;
-      calData.repeats.forEach(function (r) { if (!r.start || ym >= r.start) t += (+r.amount || 0); });
-      vals[m] = t;
-    }
-    return vals;
-  }
-  // One-time calendar entries (not recurring bills) summed by month for a year, split into
-  // income vs expense (a one-off "bill" counts as an expense).
-  function calMonthly(year) {
-    var inc = [], exp = [];
-    for (var m = 0; m < 12; m++) { inc[m] = 0; exp[m] = 0; }
-    calData.entries.forEach(function (e) {
-      if (e.date.slice(0, 4) !== String(year)) return;
-      var m = (+e.date.slice(5, 7)) - 1;
-      if (e.type === "income") inc[m] += (+e.amount || 0); else exp[m] += (+e.amount || 0);
-    });
-    return { inc: inc, exp: exp };
-  }
-  // Income rows = the user's stored income only. Calendar income is intentionally NOT rolled into
-  // the grid — income is tracked directly here, so syncing it would double-count paychecks. (The
-  // calendar's own Net Income summary still reflects income logged on days.)
-  function incomeRows() {
-    return budget.income.slice();
-  }
-  // Expense rows = the user's stored categories + auto "Recurring Bills" (fixed) + auto
-  // "Calendar Expenses" (one-time), each appended only when it has any amount.
-  function expenseRows() {
-    var rows = budget.expenses.slice();
-    var recur = recurringRowVals(curYear);
-    if (recur.some(function (v) { return v > 0; })) rows.push({ id: "__recurring", name: "Recurring Bills", vals: recur, auto: true });
-    var once = calMonthly(curYear).exp;
-    if (once.some(function (v) { return v > 0; })) rows.push({ id: "__calexp", name: "Calendar Expenses", vals: once, auto: true });
-    return rows;
-  }
+  // Calendar entries are intentionally NOT rolled into the yearly grid. The grid stays purely the
+  // user's own manually-entered categories; the calendar is a fully independent tracker with its
+  // own monthly summary. (The derived Calendar Income / Recurring Bills / Calendar Expenses rows
+  // were removed 2026-08-29 because they double-counted amounts already listed in the grid.)
+  function incomeRows() { return budget.income.slice(); }
+  function expenseRows() { return budget.expenses.slice(); }
 
   // All entries falling on a day: one-time entries on that exact date, plus any recurring
   // bill whose day-of-month matches and whose start month is on/before this month.
