@@ -862,8 +862,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       var st = (explicit && explicit.status) ? explicit.status : ((dowi === 0 || dowi === 6) ? "off" : null);
       var chip = st ? ('<span class="cal-chip ' + (st === "work" ? "work" : "off") + '">' + (st === "work" ? "Work" : "Off") + '</span>') : "";
       var list = calDayEntries(k);
-      var inc = 0, exp = 0, hasBill = false;
-      list.forEach(function (e) { if (e.type === "income") inc += +e.amount; else { exp += +e.amount; if (e.type === "bill") hasBill = true; } });
+      var inc = 0, exp = 0, hasBill = false, hasExpense = false;
+      list.forEach(function (e) { if (e.type === "income") inc += +e.amount; else { exp += +e.amount; if (e.type === "bill") hasBill = true; else hasExpense = true; } });
       mInc += inc; mExp += exp;
       if (st === "work") wDays++;
       if (st === "off") oDays++;
@@ -872,7 +872,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       if (exp > 0) amts += '<span class="exp">−' + money(exp) + '</span>';
       var dots = "";
       if (hasBill) dots += '<span class="cal-dot bill"></span>';
-      if (exp > 0 && !hasBill) dots += '<span class="cal-dot exp"></span>';
+      if (hasExpense) dots += '<span class="cal-dot exp"></span>';
       if (inc > 0) dots += '<span class="cal-dot inc"></span>';
       cell.innerHTML = '<div class="top"><span class="d">' + dd + '</span>' + chip + '</div>' +
         (dots ? '<div class="cal-dots">' + dots + '</div>' : '') +
