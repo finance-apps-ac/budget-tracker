@@ -33,8 +33,8 @@
 </head>
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
-<script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1"] };</script>
-<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}};</script>
+<script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
+<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent", "start": "2025-01"}, {"id": "rdemo2", "day": 15, "amount": 95, "note": "Phone bill", "start": "2025-01"}], "work": {}}};</script>
 <script src="supabase-sync.js?v=24"></script>
 <script src="native.js?v=1"></script>
 <style>
@@ -48,7 +48,7 @@
     --accent: #2FD3E1; --accent-soft: #0E2C36;
     --gain: #2FE79B; --gain-soft: #0C2A23;
     --loss: #FF5C72; --loss-soft: #2C1622;
-    --violet: #9C6BFF; --blue: #4AA3FF;
+    --violet: #9C6BFF; --blue: #4AA3FF; --amber: #F0B24A;
     --shadow: 0 1px 2px rgba(0,0,0,.35), 0 14px 34px rgba(0,0,0,.42);
     --radius: 14px;
     --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -62,7 +62,7 @@
     --accent:#0AA3B2; --accent-soft:#E1F4F6;
     --gain:#0E9C63; --gain-soft:#E4F6EE;
     --loss:#DE344E; --loss-soft:#FCE6EA;
-    --violet:#7A4DFF; --blue:#2B82F6;
+    --violet:#7A4DFF; --blue:#2B82F6; --amber:#C77D0E;
     --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
   }
   @media (prefers-color-scheme: light) {
@@ -72,7 +72,7 @@
       --accent:#0AA3B2; --accent-soft:#E1F4F6;
       --gain:#0E9C63; --gain-soft:#E4F6EE;
       --loss:#DE344E; --loss-soft:#FCE6EA;
-      --violet:#7A4DFF; --blue:#2B82F6;
+      --violet:#7A4DFF; --blue:#2B82F6; --amber:#C77D0E;
       --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
     }
   }
@@ -198,6 +198,90 @@
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
   .hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 10px; }
   .foot { text-align: center; color: var(--ink-faint); font-size: 12px; margin-top: 32px; }
+
+  /* ---------- View tabs (Budget / Calendar) ---------- */
+  .viewtabs { display: inline-flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: 4px; margin-bottom: 18px; }
+  .viewtabs button { background: transparent; border: none; border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 700; letter-spacing: .3px; color: var(--ink-soft); cursor: pointer; }
+  .viewtabs button.active { background: var(--surface-2); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+
+  /* ---------- Calendar ---------- */
+  .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .cal-title { font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; margin: 0; }
+  .cal-title .yr { color: var(--ink-faint); font-weight: 600; font-size: 15px; margin-left: 9px; letter-spacing: .5px; }
+  .cal-nav { display: flex; gap: 8px; }
+  .cal-nav button { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 14px; color: var(--ink); cursor: pointer; font-size: 14px; }
+  .cal-nav button:hover { border-color: var(--accent); }
+
+  .cal-dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+  .cal-dow div { text-align: center; font-size: 12px; font-weight: 800; padding: 9px 0; border-radius: 9px; letter-spacing: .5px; }
+  .cal-dow .wd { background: color-mix(in srgb, var(--gain) 16%, transparent); color: var(--gain); }
+  .cal-dow .we { background: color-mix(in srgb, var(--violet) 22%, transparent); color: var(--violet); }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-cell { min-height: 92px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px 9px; display: flex; flex-direction: column; cursor: pointer; }
+  .cal-cell:hover { border-color: var(--accent); }
+  .cal-cell.blank { background: transparent; border: none; cursor: default; }
+  .cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .cal-cell .top { display: flex; align-items: center; justify-content: space-between; gap: 4px; }
+  .cal-cell .d { font-size: 13px; font-weight: 700; }
+  .cal-cell.wd .d { color: var(--gain); } .cal-cell.we .d { color: var(--violet); }
+  .cal-chip { font-size: 9px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; padding: 2px 6px; border-radius: 6px; }
+  .cal-chip.work { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+  .cal-chip.off { background: color-mix(in srgb, var(--ink-faint) 22%, transparent); color: var(--ink-soft); }
+  .cal-dots { display: flex; gap: 3px; margin-top: 5px; }
+  .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .cal-dot.bill { background: var(--amber); } .cal-dot.exp { background: var(--loss); } .cal-dot.inc { background: var(--gain); }
+  .cal-amts { margin-top: auto; display: flex; flex-direction: column; gap: 1px; font-family: var(--font-mono); font-size: 11px; }
+  .cal-amts .inc { color: var(--gain); } .cal-amts .exp { color: var(--loss); }
+
+  .cal-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+  .cal-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 13px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .cal-stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-soft); }
+  .cal-stat .val { font-family: var(--font-mono); font-size: 21px; font-weight: 700; margin-top: 5px; font-variant-numeric: tabular-nums; }
+  .cal-stat.off .val { color: var(--violet); }
+  .cal-stat.inc .val { color: var(--accent); }
+  .cal-stat.exp .val { color: var(--loss); }
+  .cal-stat.work .val { color: var(--gain); }
+  @media (max-width: 560px) { .cal-summary { grid-template-columns: repeat(2, 1fr); } .cal-cell { min-height: 72px; } }
+
+  /* Day detail modal */
+  .cal-modal { position: fixed; inset: 0; background: rgba(4,8,18,.62); display: none; align-items: flex-end; justify-content: center; z-index: 60; }
+  .cal-modal.open { display: flex; }
+  .cal-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 18px 18px 0 0; width: 100%; max-width: 520px; max-height: 88vh; overflow: auto;
+               padding: 20px 20px calc(24px + env(safe-area-inset-bottom)); box-shadow: var(--shadow); }
+  @media (min-width: 560px) { .cal-modal { align-items: center; } .cal-sheet { border-radius: 18px; } }
+  .cal-sheet h3 { margin: 0 0 3px; font-size: 17px; }
+  .cal-sheet .sub { color: var(--ink-soft); font-size: 12.5px; margin: 0 0 16px; }
+  .cal-close { float: right; background: none; border: none; color: var(--ink-faint); font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 4px; }
+  .cal-close:hover { color: var(--ink); }
+  .cal-worktoggle { display: flex; gap: 8px; margin-bottom: 10px; }
+  .cal-worktoggle button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-weight: 700; font-size: 13px; color: var(--ink-soft); cursor: pointer; }
+  .cal-worktoggle button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+  .cal-shift { width: 100%; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; margin-bottom: 18px; }
+  .cal-shift:focus { border-color: var(--accent); outline: none; }
+  .cal-seclabel { font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-faint); font-weight: 700; margin: 0 0 8px; }
+  .cal-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
+  .cal-item { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
+  .cal-item .amt2 { font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; }
+  .cal-item .amt2.income { color: var(--gain); } .cal-item .amt2.expense { color: var(--loss); } .cal-item .amt2.bill { color: var(--amber); }
+  .cal-item .note2 { flex: 1; font-size: 13px; }
+  .cal-item .rep { font-size: 10px; color: var(--accent); white-space: nowrap; }
+  .cal-item .del2 { background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 14px; }
+  .cal-item .del2:hover { color: var(--loss); }
+  .cal-empty { color: var(--ink-faint); font-size: 12.5px; padding: 2px 0 12px; }
+  .cal-typesel { display: flex; gap: 6px; margin-bottom: 9px; }
+  .cal-typesel button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
+  .cal-typesel button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+  .cal-addrow { display: flex; gap: 8px; }
+  .cal-in { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
+  .cal-in:focus { border-color: var(--accent); outline: none; }
+  #calAmt { flex: none; width: 118px; font-family: var(--font-mono); }
+  #calNote { flex: 1; min-width: 0; }
+  #calAmt::-webkit-outer-spin-button, #calAmt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .cal-repeat { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
+  .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .cal-addbtn { margin-top: 14px; width: 100%; background: var(--accent); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 13.5px; color: #04121a; cursor: pointer; letter-spacing: .3px; }
+  .cal-addbtn:hover { filter: brightness(1.06); }
 </style>
 
 <div class="app">
@@ -217,6 +301,12 @@
     </div>
   </header>
 
+  <nav class="viewtabs">
+    <button id="tabBudget" class="active" type="button">Budget</button>
+    <button id="tabCalendar" type="button">Calendar</button>
+  </nav>
+
+  <div id="view-budget">
   <section class="tiles" id="tiles"></section>
 
   <section class="card">
@@ -246,8 +336,61 @@
     </div>
     <div class="chart" id="trendChart"></div>
   </section>
+  </div><!-- /view-budget -->
+
+  <div id="view-calendar" hidden>
+    <div class="cal-head">
+      <h2 class="cal-title"><span id="calMon"></span><span class="yr" id="calYr"></span></h2>
+      <div class="cal-nav">
+        <button id="calPrev" type="button" aria-label="Previous month">‹</button>
+        <button id="calToday" type="button">Today</button>
+        <button id="calNext" type="button" aria-label="Next month">›</button>
+      </div>
+    </div>
+    <div class="cal-dow" id="calDow"></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-summary">
+      <div class="cal-stat off"><div class="lbl">Days off</div><div class="val" id="calOff">0</div></div>
+      <div class="cal-stat inc"><div class="lbl">Net income</div><div class="val" id="calInc">$0</div></div>
+      <div class="cal-stat exp"><div class="lbl">Net expenses</div><div class="val" id="calExp">$0</div></div>
+      <div class="cal-stat work"><div class="lbl">Work days</div><div class="val" id="calWork">0</div></div>
+    </div>
+    <p class="hint">Tap any day to log a work shift, day off, bill, one-time expense, or income. Bills you mark “Repeat monthly” appear on that date every following month automatically.</p>
+  </div><!-- /view-calendar -->
 
   <footer class="foot">Private to you — saved in this browser only, never uploaded.</footer>
+</div>
+
+<!-- Day detail modal -->
+<div class="cal-modal" id="calModal" aria-hidden="true">
+  <div class="cal-sheet" role="dialog" aria-modal="true" aria-labelledby="calDayTitle">
+    <button class="cal-close" id="calClose" type="button" aria-label="Close">✕</button>
+    <h3 id="calDayTitle">—</h3>
+    <p class="sub">Log work, bills, expenses &amp; income for this day.</p>
+
+    <p class="cal-seclabel">Shift</p>
+    <div class="cal-worktoggle">
+      <button data-work="work" type="button">🛠 Work day</button>
+      <button data-work="off" type="button">🌙 Day off</button>
+    </div>
+    <input class="cal-shift" id="calShift" placeholder="Shift note (e.g. 9–5, Night) — optional">
+
+    <p class="cal-seclabel">Entries</p>
+    <div class="cal-list" id="calList"></div>
+
+    <p class="cal-seclabel">Add entry</p>
+    <div class="cal-typesel">
+      <button data-ct="income" type="button">Income</button>
+      <button data-ct="expense" type="button">Expense</button>
+      <button data-ct="bill" type="button">Bill</button>
+    </div>
+    <div class="cal-addrow">
+      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
+      <input class="cal-in" id="calNote" placeholder="Note (e.g. Rent, Paycheck)">
+    </div>
+    <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Repeat monthly (recurring bill)</label>
+    <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
+  </div>
 </div>
 
 <script>
@@ -277,7 +420,9 @@
     store = loadStore();
     if (!store[curYear]) curYear = latestYear();
     budget = store[curYear];
+    calData = loadCal();
     render();
+    if (!document.getElementById("view-calendar").hidden) renderCal();
   };
 
   function row(name, vals) {
@@ -584,6 +729,202 @@
     newYearInput.hidden = true; addYear(y);
   }
 
+  // ---------- calendar ----------
+  var CKEY = "budget.calendar.v1";
+  var DOWL = ["S", "M", "T", "W", "T", "F", "S"];
+  var MONF = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DAYF = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var calView = null;      // {y, m} — 0-based month
+  var calSel = null;       // selected date key "YYYY-MM-DD" while the modal is open
+  var calType = "expense"; // add-entry type currently selected
+  var calData = loadCal();
+
+  function loadCal() {
+    try { var c = JSON.parse(localStorage.getItem(CKEY)); if (c && typeof c === "object") { c.entries = c.entries || []; c.repeats = c.repeats || []; c.work = c.work || {}; return c; } } catch (e) {}
+    return { entries: [], repeats: [], work: {} };
+  }
+  function saveCal() { localStorage.setItem(CKEY, JSON.stringify(calData)); }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
+
+  // All entries falling on a day: one-time entries on that exact date, plus any recurring
+  // bill whose day-of-month matches and whose start month is on/before this month.
+  function calDayEntries(k) {
+    var d = +k.slice(8, 10), ym = k.slice(0, 7);
+    var list = calData.entries.filter(function (e) { return e.date === k; });
+    calData.repeats.forEach(function (r) {
+      if (r.day === d && (!r.start || ym >= r.start)) list.push({ id: r.id, date: k, type: "bill", amount: r.amount, note: r.note, repeat: true });
+    });
+    return list;
+  }
+
+  function renderCal() {
+    if (!calView) { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; }
+    document.getElementById("calMon").textContent = MONF[calView.m];
+    document.getElementById("calYr").textContent = calView.y;
+
+    var dow = document.getElementById("calDow"); dow.innerHTML = "";
+    DOWL.forEach(function (x, i) { var c = document.createElement("div"); c.className = (i === 0 || i === 6) ? "we" : "wd"; c.textContent = x; dow.appendChild(c); });
+
+    var grid = document.getElementById("calGrid"); grid.innerHTML = "";
+    var first = new Date(calView.y, calView.m, 1).getDay();
+    var days = new Date(calView.y, calView.m + 1, 0).getDate();
+    for (var b = 0; b < first; b++) { var bl = document.createElement("div"); bl.className = "cal-cell blank"; grid.appendChild(bl); }
+
+    var today = new Date();
+    var mInc = 0, mExp = 0, wDays = 0, oDays = 0;
+    for (var dd = 1; dd <= days; dd++) {
+      var k = ckey(calView.y, calView.m, dd);
+      var dowi = new Date(calView.y, calView.m, dd).getDay();
+      var cell = document.createElement("div");
+      cell.className = "cal-cell " + ((dowi === 0 || dowi === 6) ? "we" : "wd");
+      if (calView.y === today.getFullYear() && calView.m === today.getMonth() && dd === today.getDate()) cell.className += " today";
+      cell.setAttribute("data-k", k);
+      var w = calData.work[k];
+      var chip = w ? ('<span class="cal-chip ' + (w.status === "work" ? "work" : "off") + '">' + (w.status === "work" ? "Work" : "Off") + '</span>') : "";
+      var list = calDayEntries(k);
+      var inc = 0, exp = 0, hasBill = false;
+      list.forEach(function (e) { if (e.type === "income") inc += +e.amount; else { exp += +e.amount; if (e.type === "bill") hasBill = true; } });
+      mInc += inc; mExp += exp;
+      if (w && w.status === "work") wDays++;
+      if (w && w.status === "off") oDays++;
+      var amts = "";
+      if (inc > 0) amts += '<span class="inc">+' + money(inc) + '</span>';
+      if (exp > 0) amts += '<span class="exp">−' + money(exp) + '</span>';
+      var dots = "";
+      if (hasBill) dots += '<span class="cal-dot bill"></span>';
+      if (exp > 0 && !hasBill) dots += '<span class="cal-dot exp"></span>';
+      if (inc > 0) dots += '<span class="cal-dot inc"></span>';
+      cell.innerHTML = '<div class="top"><span class="d">' + dd + '</span>' + chip + '</div>' +
+        (dots ? '<div class="cal-dots">' + dots + '</div>' : '') +
+        '<div class="cal-amts">' + amts + '</div>';
+      cell.addEventListener("click", function () { openCalDay(this.getAttribute("data-k")); });
+      grid.appendChild(cell);
+    }
+    document.getElementById("calInc").textContent = money(mInc);
+    document.getElementById("calExp").textContent = money(mExp);
+    document.getElementById("calWork").textContent = wDays;
+    document.getElementById("calOff").textContent = oDays;
+  }
+
+  function dayTitle(k) {
+    var p = k.split("-"), dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return DAYF[dt.getDay()] + ", " + MONF[dt.getMonth()] + " " + (+p[2]);
+  }
+  function setWorkButtons() {
+    var w = calData.work[calSel];
+    Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
+      b.classList.toggle("sel", !!w && w.status === b.getAttribute("data-work"));
+    });
+  }
+  function updateRepeatVis() { document.getElementById("calRepeatWrap").style.display = (calType === "bill") ? "flex" : "none"; }
+
+  function openCalDay(k) {
+    calSel = k; calType = "expense";
+    document.getElementById("calDayTitle").textContent = dayTitle(k);
+    setWorkButtons();
+    document.getElementById("calShift").value = (calData.work[k] && calData.work[k].shift) || "";
+    Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) { b.classList.toggle("sel", b.getAttribute("data-ct") === "expense"); });
+    document.getElementById("calAmt").value = "";
+    document.getElementById("calNote").value = "";
+    document.getElementById("calRepeat").checked = false;
+    updateRepeatVis();
+    renderCalList();
+    var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false");
+  }
+  function closeCalModal() { var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true"); }
+
+  function renderCalList() {
+    var box = document.getElementById("calList");
+    var list = calDayEntries(calSel);
+    if (!list.length) { box.innerHTML = '<div class="cal-empty">Nothing logged yet.</div>'; return; }
+    box.innerHTML = list.map(function (e) {
+      return '<div class="cal-item"><span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
+        '<span class="note2">' + esc(e.note || "(no note)") + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
+        '<button class="del2" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" aria-label="Delete">✕</button></div>';
+    }).join("");
+    Array.prototype.forEach.call(box.querySelectorAll(".del2"), function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-id");
+        if (b.getAttribute("data-rep") === "1") {
+          if (!confirm("Remove this recurring bill from every month?")) return;
+          calData.repeats = calData.repeats.filter(function (r) { return r.id !== id; });
+        } else {
+          calData.entries = calData.entries.filter(function (e) { return e.id !== id; });
+        }
+        saveCal(); renderCalList(); renderCal();
+      });
+    });
+  }
+
+  // work / day-off toggle (tap the active one again to clear it)
+  Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
+    b.addEventListener("click", function () {
+      var st = b.getAttribute("data-work");
+      var w = calData.work[calSel] || { status: null, shift: "" };
+      w.status = (w.status === st) ? null : st;
+      w.shift = document.getElementById("calShift").value.trim();
+      if (!w.status && !w.shift) delete calData.work[calSel]; else calData.work[calSel] = w;
+      setWorkButtons(); saveCal(); renderCal();
+    });
+  });
+  document.getElementById("calShift").addEventListener("change", function () {
+    var w = calData.work[calSel] || { status: null, shift: "" };
+    w.shift = this.value.trim();
+    if (!w.status && !w.shift) delete calData.work[calSel]; else calData.work[calSel] = w;
+    saveCal();
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) {
+    b.addEventListener("click", function () {
+      calType = b.getAttribute("data-ct");
+      Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (x) { x.classList.toggle("sel", x === b); });
+      updateRepeatVis();
+    });
+  });
+
+  document.getElementById("calAdd").addEventListener("click", function () {
+    var amt = parseFloat(document.getElementById("calAmt").value);
+    if (!(amt > 0)) { document.getElementById("calAmt").focus(); return; }
+    var note = document.getElementById("calNote").value.trim();
+    if (calType === "bill" && document.getElementById("calRepeat").checked) {
+      calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7) });
+    } else {
+      calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: note || (calType.charAt(0).toUpperCase() + calType.slice(1)) });
+    }
+    document.getElementById("calAmt").value = "";
+    document.getElementById("calNote").value = "";
+    document.getElementById("calRepeat").checked = false;
+    saveCal(); renderCalList(); renderCal();
+  });
+
+  document.getElementById("calClose").addEventListener("click", closeCalModal);
+  document.getElementById("calModal").addEventListener("click", function (e) { if (e.target === this) closeCalModal(); });
+  document.getElementById("calPrev").addEventListener("click", function () { calView.m--; if (calView.m < 0) { calView.m = 11; calView.y--; } renderCal(); });
+  document.getElementById("calNext").addEventListener("click", function () { calView.m++; if (calView.m > 11) { calView.m = 0; calView.y++; } renderCal(); });
+  document.getElementById("calToday").addEventListener("click", function () { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; renderCal(); });
+
+  // ---------- view toggle (Budget / Calendar) ----------
+  var VKEY = "budget.view";
+  function setView(v) {
+    var cal = v === "calendar";
+    document.getElementById("view-budget").hidden = cal;
+    document.getElementById("view-calendar").hidden = !cal;
+    document.getElementById("tabBudget").classList.toggle("active", !cal);
+    document.getElementById("tabCalendar").classList.toggle("active", cal);
+    // The year picker + "＋ Year" drive the budget grids only — hide them in calendar view.
+    document.getElementById("yearFilter").style.display = cal ? "none" : "";
+    document.getElementById("addYearBtn").style.display = cal ? "none" : "";
+    if (cal) { document.getElementById("newYear").hidden = true; renderCal(); }
+    try { localStorage.setItem(VKEY, v); } catch (e) {}
+  }
+  document.getElementById("tabBudget").addEventListener("click", function () { setView("budget"); });
+  document.getElementById("tabCalendar").addEventListener("click", function () { setView("calendar"); });
+
   render();
+
+  var startView = "budget";
+  try { startView = localStorage.getItem(VKEY) || "budget"; } catch (e) {}
+  setView(startView);
 })();
 </script>
