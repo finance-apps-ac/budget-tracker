@@ -247,6 +247,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .del:hover { color: var(--loss); background: var(--loss-soft); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
   .hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 10px; }
+  /* In the calendar view this hint sits between the centered budget caption and the centered footer,
+     so center it too — otherwise the lone left-aligned line looks out of place. */
+  #view-calendar .hint { text-align: center; }
   .foot { text-align: center; color: var(--ink-faint); font-size: 12px; margin-top: 32px; }
 
   /* ---------- View tabs (Budget / Calendar) ---------- */
@@ -350,10 +353,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-typesel button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
   .cal-typesel button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
   .cal-addrow { display: flex; gap: 8px; }
-  .cal-in { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
+  .cal-in { flex: 1; min-width: 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
   .cal-in:focus { border-color: var(--accent); outline: none; }
-  #calAmt { flex: none; width: 118px; font-family: var(--font-mono); }
-  #calNote { flex: 1; min-width: 0; }
+  /* Category picker: full-width, with a ▾ so it clearly reads as "choose from your budget categories". */
+  .cal-catwrap { position: relative; margin-bottom: 8px; }
+  .cal-cat { width: 100%; padding-right: 30px; }
+  .cal-catchev { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); pointer-events: none; font-size: 12px; }
+  #calAmt { width: 100%; font-family: var(--font-mono); }
   #calAmt::-webkit-outer-spin-button, #calAmt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .cal-repeat { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
   .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
@@ -373,7 +379,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     <div class="topbar-actions">
       <button id="themeBtn" class="btn theme-btn" type="button" onclick="__toggleTheme()" title="Light / dark" aria-label="Toggle light or dark theme">🌙</button>
       <select id="yearFilter" aria-label="Budget year"></select>
-      <input type="number" id="newYear" class="year-input" placeholder="2027" hidden aria-label="New year">
+      <input type="number" id="newYear" class="year-input" autocomplete="off" placeholder="2027" hidden aria-label="New year">
       <button class="btn" id="addYearBtn" title="Add a year">＋ Year</button>
     </div>
   </header>
@@ -454,7 +460,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <button data-work="work" type="button">🛠 Work day</button>
       <button data-work="off" type="button">🌙 Day off</button>
     </div>
-    <input class="cal-shift" id="calShift" placeholder="Shift note (e.g. 9–5, Night) — optional">
+    <input class="cal-shift" id="calShift" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Shift note (e.g. 9–5, Night) — optional">
 
     <p class="cal-seclabel">Entries</p>
     <div class="cal-list" id="calList"></div>
@@ -465,13 +471,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <button data-ct="expense" type="button">Expense</button>
       <button data-ct="bill" type="button">Bill</button>
     </div>
-    <div class="cal-addrow">
-      <input class="cal-in" id="calCat" list="calCatList" placeholder="Category (optional) — fills your budget">
+    <div class="cal-catwrap">
+      <input class="cal-in cal-cat" id="calCat" list="calCatList" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Choose a category — or type a new one">
       <datalist id="calCatList"></datalist>
+      <span class="cal-catchev" aria-hidden="true">▾</span>
     </div>
     <div class="cal-addrow">
-      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
-      <input class="cal-in" id="calNote" placeholder="Note (e.g. Paycheck)">
+      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" autocomplete="off" placeholder="$ amount">
     </div>
     <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
     <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
@@ -765,9 +771,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td><button class="del" title="Unlink from calendar and edit manually" data-unlink="' + sec + '" data-id="' + r.id + '">↩</button></td></tr>';
         return;
       }
-      body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
+      body += '<tr><td class="cat"><input class="catname" autocomplete="off" autocorrect="off" spellcheck="false" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
       for (var m = 0; m < 12; m++) {
-        body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
+        body += '<td><input class="amt" type="number" step="any" inputmode="decimal" autocomplete="off" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
       }
       body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td><button class="del" title="Delete" data-del="' + sec + '" data-id="' + r.id + '">✕</button></td></tr>';
     });
@@ -1050,7 +1056,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calShift").value = (calData.work[k] && calData.work[k].shift) || "";
     Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) { b.classList.toggle("sel", b.getAttribute("data-ct") === "expense"); });
     document.getElementById("calAmt").value = "";
-    document.getElementById("calNote").value = "";
     document.getElementById("calCat").value = "";
     document.getElementById("calRepeat").checked = false;
     updateRepeatVis();
@@ -1066,7 +1071,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     if (!list.length) { box.innerHTML = '<div class="cal-empty">Nothing logged yet.</div>'; return; }
     box.innerHTML = list.map(function (e) {
       return '<div class="cal-item"><span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
-        '<span class="note2">' + esc(e.note || "(no note)") + (e.catName ? ' <span class="rep">📅 ' + esc(e.catName) + '</span>' : '') + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
+        '<span class="note2">' + esc(e.note || "(no note)") + (e.catName ? (e.catName === e.note ? ' <span class="rep">📅</span>' : ' <span class="rep">📅 ' + esc(e.catName) + '</span>') : '') + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
         '<button class="del2" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" aria-label="Delete">✕</button></div>';
     }).join("");
     Array.prototype.forEach.call(box.querySelectorAll(".del2"), function (b) {
@@ -1116,7 +1121,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   document.getElementById("calAdd").addEventListener("click", function () {
     var amt = parseFloat(document.getElementById("calAmt").value);
     if (!(amt > 0)) { document.getElementById("calAmt").focus(); return; }
-    var note = document.getElementById("calNote").value.trim();
     var cat = document.getElementById("calCat").value.trim();
     var gridSection = catSectionFor(calType);
     var entryYear = calSel.slice(0, 4);
@@ -1131,14 +1135,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       }
       if (cat) ensureCalCategory(gridSection, cat, entryYear);
     }
+    // The entry's label = its category (if chosen), otherwise a plain type word.
+    var label = cat || (calType.charAt(0).toUpperCase() + calType.slice(1));
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
-      calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7), catName: cat || undefined });
+      calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: label, start: calSel.slice(0, 7), catName: cat || undefined });
     } else {
-      calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: note || (calType.charAt(0).toUpperCase() + calType.slice(1)), catName: cat || undefined });
+      calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: label, catName: cat || undefined });
     }
     if (cat) localStorage.setItem(SKEY, JSON.stringify(store));   // persist the linked/created budget category
     document.getElementById("calAmt").value = "";
-    document.getElementById("calNote").value = "";
     document.getElementById("calCat").value = "";
     document.getElementById("calRepeat").checked = false;
     saveCal(); renderCalList(); renderCal();
