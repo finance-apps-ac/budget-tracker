@@ -41,6 +41,7 @@
   var REV_KEY = "__sync_rev_" + cfg.app;
   var PUSHED_KEY = "__sync_pushedrev_" + cfg.app;
   var OWNER_KEY = "__sync_owner_" + cfg.app;   // which account the local data belongs to (isolation)
+  var SCORE_KEY = "__sync_score_" + cfg.app;   // last-known-good "how much data" score — powers the wipe-guard
 
   var sb = null;
   var currentUser = null;
@@ -182,13 +183,14 @@
     });
     if (updatedAt) origSet(SEEN_KEY, String(updatedAt));   // we now mirror this exact cloud version
     origSet(PUSHED_KEY, String(getRev()));                 // in sync with cloud → nothing left to push
+    setScore(contentScore(data || {}));                    // remember the cloud's size for the wipe-guard
     applyingRemote = false;
     updatePendingBadge();
   }
   function clearLocal() {
     applyingRemote = true;
     KEYS.forEach(function (k) { origRemove(k); });
-    origRemove(SEEN_KEY); origRemove(REV_KEY); origRemove(PUSHED_KEY); origRemove(OWNER_KEY);  // reset all sync markers for the next person
+    origRemove(SEEN_KEY); origRemove(REV_KEY); origRemove(PUSHED_KEY); origRemove(OWNER_KEY); origRemove(SCORE_KEY);  // reset all sync markers for the next person
     applyingRemote = false;
   }
 
@@ -197,24 +199,90 @@
     return sb.from("user_data").select("data,updated_at").eq("app", cfg.app).maybeSingle()
       .then(function (res) { return res.data || null; });
   }
+  // ---- Data-loss WIPE-GUARD ---------------------------------------------------------------
+  // An app-agnostic "how much is in here" score: the count of array elements anywhere in the
+  // parsed state (trades/holdings, income/expense rows + their monthly values, calendar entries…).
+  // Empty state → 0; a real dataset → dozens or hundreds. Used ONLY to catch a CATASTROPHIC
+  // collapse (state wiped or corrupted) before it can overwrite a healthy cloud row — the exact
+  // failure that once destroyed Anna's budget. It never blocks normal edits (editing a value or
+  // adding/removing a row barely moves the score).
+  function countArrays(x) {
+    var n = 0;
+    if (Array.isArray(x)) { n += x.length; for (var i = 0; i < x.length; i++) n += countArrays(x[i]); }
+    else if (x && typeof x === "object") { for (var k in x) if (Object.prototype.hasOwnProperty.call(x, k)) n += countArrays(x[k]); }
+    return n;
+  }
+  function contentScore(dataObj) {
+    var n = 0;
+    KEYS.forEach(function (k) {
+      var v = dataObj && dataObj[k];
+      if (v == null) return;
+      try { n += countArrays(typeof v === "string" ? JSON.parse(v) : v); } catch (e) {}
+    });
+    return n;
+  }
+  function getScore() { var n = Number(origGet(SCORE_KEY)); return isNaN(n) ? 0 : n; }
+  function setScore(n) { origSet(SCORE_KEY, String(n)); }
+
   // push() writes local state up. It records which REV it sent, so success marks exactly that rev
-  // as pushed (edits made DURING the request stay pending and push again).
+  // as pushed (edits made DURING the request stay pending and push again). Before writing, the
+  // wipe-guard checks whether this push would collapse a substantial dataset to (near) nothing.
   function push() {
     if (!currentUser) return Promise.resolve();
+    var out = gather();
+    var outScore = contentScore(out);
+    var prev = getScore();
+    // A full dataset dropping to empty (or to <15% of itself) is almost always a wipe/corruption,
+    // not a real edit. Don't trust the local `prev` alone — VERIFY against the live cloud, and if
+    // the cloud still holds more, RESTORE from it instead of overwriting it. (Thresholds chosen so
+    // a genuine "clear out a nearly-empty budget" still goes through; only large collapses trip it.)
+    var catastrophic = (outScore === 0 && prev >= 5) || (prev >= 40 && outScore < prev * 0.15);
+    if (catastrophic) {
+      return sb.from("user_data").select("data,updated_at").eq("app", cfg.app).maybeSingle()
+        .then(function (res) {
+          var row = res && res.data;
+          var cloudScore = row ? contentScore(row.data) : 0;
+          if (row && cloudScore > outScore && cloudScore >= 5) {
+            if (DEBUG) dbgShow("WIPE-GUARD tripped: local score " + outScore + " vs cloud " + cloudScore + " — restoring from cloud, NOT overwriting.");
+            applyCloud(row.data, row.updated_at);   // pull the healthy data back down
+            rerender();
+            guardToast();
+            return { guarded: true };
+          }
+          return doUpsert(out, outScore);            // cloud agrees it's empty/small → genuine, proceed
+        })
+        .catch(function () { return doUpsert(out, outScore); });  // never block editing on a failed check
+    }
+    return doUpsert(out, outScore);
+  }
+  function doUpsert(out, outScore) {
     var revSent = getRev();
     return sb.from("user_data").upsert(
-      { user_id: currentUser.id, app: cfg.app, data: gather() },
+      { user_id: currentUser.id, app: cfg.app, data: out },
       { onConflict: "user_id,app" }
     ).select("updated_at").maybeSingle().then(function (r) {
       if (r && !r.error) {
         if (getPushed() < revSent) origSet(PUSHED_KEY, String(revSent));  // confirmed in the cloud
         if (r.data && r.data.updated_at) setSeen(r.data.updated_at);
+        setScore(outScore);                                               // remember how much we last wrote
         updatePendingBadge();
       }
-      if (DEBUG) dbgShow("PUSHED rev" + revSent + " — " + (r && r.error ? "ERROR " + JSON.stringify(r.error) : "OK, seen=" + (r.data && r.data.updated_at)) +
+      if (DEBUG) dbgShow("PUSHED rev" + revSent + " (score " + outScore + ") — " + (r && r.error ? "ERROR " + JSON.stringify(r.error) : "OK, seen=" + (r.data && r.data.updated_at)) +
         " · " + new Date().toLocaleTimeString());
       return r;
     });
+  }
+  // Brief, non-blocking confirmation shown when the wipe-guard rescues the cloud data.
+  function guardToast() {
+    try {
+      var t = document.createElement("div");
+      t.textContent = "✓ Restored your saved data from the cloud";
+      t.style.cssText = "position:fixed;left:50%;bottom:70px;transform:translateX(-50%);z-index:2147483200;" +
+        "background:#12351f;color:#7CF5B0;border:1px solid #2FE79B;border-radius:12px;padding:11px 16px;" +
+        "font:600 13px -apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:90vw;text-align:center;";
+      document.body.appendChild(t);
+      setTimeout(function () { t.style.transition = "opacity .4s"; t.style.opacity = "0"; setTimeout(function () { t.remove(); }, 400); }, 3200);
+    } catch (e) {}
   }
 
   // Normal editing path: a short debounce batches rapid keystrokes but still saves fast.
@@ -491,7 +559,61 @@
     var dg = document.getElementById("set-danger"); if (dg) dg.style.display = "none";
     var ok = document.getElementById("set-email-ok"); if (ok) ok.style.display = "none";
     var er = document.getElementById("set-email-err"); if (er) er.textContent = "";
+    var bok = document.getElementById("set-backup-ok"); if (bok) bok.style.display = "none";
+    var ber = document.getElementById("set-backup-err"); if (ber) ber.textContent = "";
     highlightTheme(themeMode());
+  }
+
+  /* ---------------- backup: export / import (user-owned safety net) ---------------- */
+  function exportBackup() {
+    var ok = document.getElementById("set-backup-ok"), er = document.getElementById("set-backup-err");
+    if (er) er.textContent = "";
+    try {
+      var payload = { app: cfg.app, name: cfg.name, version: 1, exportedAt: new Date().toISOString(), data: gather() };
+      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var d = new Date();
+      var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      var a = document.createElement("a");
+      a.href = url; a.download = cfg.app + "-backup-" + stamp + ".json";
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
+      if (ok) { ok.textContent = "✓ Backup file saved to your device."; ok.style.display = "block"; }
+    } catch (e) {
+      if (er) er.textContent = "Couldn't export right now. Try again.";
+    }
+  }
+  function importBackup(ev) {
+    var file = ev.target && ev.target.files && ev.target.files[0];
+    if (ev.target) ev.target.value = "";        // let the same file be picked again later
+    var ok = document.getElementById("set-backup-ok"), er = document.getElementById("set-backup-err");
+    if (ok) ok.style.display = "none";
+    if (er) er.textContent = "";
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var parsed;
+      try { parsed = JSON.parse(reader.result); } catch (e) { if (er) er.textContent = "That file isn’t a valid backup."; return; }
+      var data = parsed && parsed.data;
+      if (!data || typeof data !== "object") { if (er) er.textContent = "That file isn’t a valid " + esc(cfg.name) + " backup."; return; }
+      if (parsed.app && cfg.app && parsed.app !== cfg.app) { if (er) er.textContent = "That backup is for a different app (" + esc(parsed.app) + "), not " + esc(cfg.name) + "."; return; }
+      var score = contentScore(data);
+      if (!window.confirm("Import this backup?\n\nIt will REPLACE your current " + cfg.name + " data on this device and sync to your other devices. Consider exporting a backup of your current data first.")) return;
+      applyingRemote = true;                     // write straight to storage without tripping the edit hook…
+      KEYS.forEach(function (k) {
+        if (Object.prototype.hasOwnProperty.call(data, k) && data[k] != null) origSet(k, typeof data[k] === "string" ? data[k] : JSON.stringify(data[k]));
+        else origRemove(k);
+      });
+      applyingRemote = false;
+      origSet(REV_KEY, String(getRev() + 1));    // …then mark it dirty so it pushes up to the cloud
+      setScore(score);                           // imported real data → update the guard's baseline
+      updatePendingBadge();
+      if (typeof window.__resyncApply === "function") { try { window.__resyncApply(); } catch (e) {} }
+      if (currentUser) push();
+      if (ok) { ok.textContent = "✓ Imported " + score + " items. Your data has been restored."; ok.style.display = "block"; }
+    };
+    reader.onerror = function () { if (er) er.textContent = "Couldn't read that file."; };
+    reader.readAsText(file);
   }
   function openSettings() {
     var d = document.getElementById("set-scrim");
@@ -512,6 +634,14 @@
           '<div class="set-sec"><div class="set-lbl">Appearance</div>' +
             '<div class="set-seg" id="set-seg"><button data-t="system">System</button><button data-t="light">Light</button><button data-t="dark">Dark</button></div>' +
           '</div>' +
+          '<div class="set-sec"><div class="set-lbl">Backup</div><div class="set-stack">' +
+            '<button class="set-btn ghost" id="set-export">⬇︎ Export a backup file</button>' +
+            '<button class="set-btn ghost" id="set-import">⬆︎ Import from a backup file</button>' +
+            '<input id="set-import-file" type="file" accept="application/json,.json" style="display:none">' +
+            '<div class="set-hint">Export saves all your ' + esc(cfg.name) + ' data as a file on your device — keep it somewhere safe. Import <b>replaces</b> what’s here now with a backup file’s contents.</div>' +
+            '<div class="set-ok" id="set-backup-ok"></div>' +
+            '<div class="set-err" id="set-backup-err"></div>' +
+          '</div></div>' +
           '<div class="set-sec"><div class="set-lbl">Session</div><div class="set-stack">' +
             '<button class="set-btn ghost" id="set-logout">Log out</button>' +
             '<button class="set-btn danger" id="set-del">Delete account…</button>' +
@@ -523,6 +653,9 @@
     d.addEventListener("click", function (e) { if (e.target === d) closeSettings(); });
     document.getElementById("set-close").onclick = closeSettings;
     document.getElementById("set-email-save").onclick = changeEmail;
+    document.getElementById("set-export").onclick = exportBackup;
+    document.getElementById("set-import").onclick = function () { document.getElementById("set-import-file").click(); };
+    document.getElementById("set-import-file").onchange = importBackup;
     document.getElementById("set-logout").onclick = logout;
     document.getElementById("set-del").onclick = function () { var x = document.getElementById("set-danger"); if (x) x.style.display = "block"; };
     document.getElementById("set-del-cancel").onclick = function () { var x = document.getElementById("set-danger"); if (x) x.style.display = "none"; };
