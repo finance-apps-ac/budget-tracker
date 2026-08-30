@@ -41,7 +41,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
-<script>window.DEMO_SEED = {"budget.store.v1":{"2025":{"income":[{"id":"i1","name":"Salary","vals":[4200,4200,4200,4200,4200,4200,4200,4200,4200,4200,4200,4200]},{"id":"i2","name":"Side Hustle","vals":[300,500,400,250,600,300,150,450,200,350,700,300]},{"id":"i3","name":"Other Income","vals":[0,150,200,900,0,300,1200,0,150,300,0,400]}],"expenses":[{"id":"e1","name":"Rent / Mortgage","cal":true,"vals":[1800,1800,1800,1800,1800,1800,1800,1800,1800,1800,1800,1800]},{"id":"e2","name":"Utilities","vals":[140,150,130,120,110,160,180,175,150,140,150,160]},{"id":"e3","name":"Phone","cal":true,"vals":[95,95,95,95,95,95,95,95,95,95,95,95]},{"id":"e4","name":"Groceries","vals":[520,480,510,600,470,540,560,500,530,510,600,650]},{"id":"e5","name":"Transport / Gas","vals":[180,160,170,200,150,190,175,160,180,170,160,150]},{"id":"e6","name":"Car Payment","cal":true,"vals":[340,340,340,340,340,340,340,340,340,340,340,340]},{"id":"e7","name":"Insurance","vals":[120,120,240,120,120,120,240,120,120,120,240,120]},{"id":"e8","name":"Subscriptions","vals":[60,60,60,65,60,60,70,60,60,60,60,80]},{"id":"e9","name":"Taxes","vals":[0,0,600,1400,0,0,0,0,0,0,0,300]},{"id":"e10","name":"Going Out","vals":[200,260,180,220,300,280,350,320,240,260,300,500]},{"id":"e11","name":"Shopping","vals":[150,90,120,300,80,140,200,110,90,180,260,700]},{"id":"e12","name":"Other","vals":[80,60,100,90,70,120,80,90,60,100,90,150]}]}},"budget.calendar.v1":{"entries":[{"id":"e_pay1","date":"2025-06-05","type":"income","amount":1850,"note":"Paycheck"},{"id":"e_ot","date":"2025-06-13","type":"income","amount":290,"note":"Overtime"},{"id":"e_pay2","date":"2025-06-20","type":"income","amount":1920,"note":"Paycheck"},{"id":"e_gr1","date":"2025-06-03","type":"expense","amount":85,"note":"Groceries"},{"id":"e_gas","date":"2025-06-08","type":"expense","amount":45,"note":"Gas"},{"id":"e_din","date":"2025-06-11","type":"expense","amount":58,"note":"Dining out"},{"id":"e_shop","date":"2025-06-18","type":"expense","amount":120,"note":"Shopping"},{"id":"e_gr2","date":"2025-06-24","type":"expense","amount":92,"note":"Groceries"},{"id":"e_misc","date":"2025-06-27","type":"expense","amount":61,"note":"Misc"}],"repeats":[{"id":"rdemo1","day":1,"amount":1800,"note":"Rent","start":"2025-01","catName":"Rent / Mortgage"},{"id":"rdemo2","day":5,"amount":340,"note":"Car payment","start":"2025-01","catName":"Car Payment"},{"id":"rdemo3","day":15,"amount":95,"note":"Phone bill","start":"2025-01","catName":"Phone"}],"work":{"2025-06-02":{"status":"work","shift":""},"2025-06-03":{"status":"work","shift":""},"2025-06-04":{"status":"work","shift":"Night"},"2025-06-05":{"status":"work","shift":""},"2025-06-06":{"status":"work","shift":""},"2025-06-07":{"status":"work","shift":""},"2025-06-10":{"status":"work","shift":""},"2025-06-11":{"status":"work","shift":""},"2025-06-12":{"status":"work","shift":""},"2025-06-13":{"status":"work","shift":""},"2025-06-16":{"status":"work","shift":""},"2025-06-17":{"status":"work","shift":"9–5"},"2025-06-18":{"status":"work","shift":""},"2025-06-20":{"status":"work","shift":""},"2025-06-21":{"status":"work","shift":""},"2025-06-23":{"status":"work","shift":""},"2025-06-24":{"status":"work","shift":"Night"},"2025-06-25":{"status":"work","shift":""},"2025-06-26":{"status":"work","shift":""},"2025-06-27":{"status":"work","shift":""},"2025-06-30":{"status":"work","shift":""},"2025-06-09":{"status":"off","shift":""},"2025-06-19":{"status":"off","shift":""}}}};</script>
+<script>window.DEMO_SEED = {"budget.store.v1":{"2025":{"income":[{"id":"i1","name":"Salary","vals":[4200,4200,4200,4200,4200,4200,4200,4200,4200,4200,4200,4200]},{"id":"i2","name":"Side Hustle","vals":[300,500,400,250,600,300,150,450,200,350,700,300]},{"id":"i3","name":"Other Income","vals":[0,150,200,900,0,300,1200,0,150,300,0,400]}],"expenses":[{"id":"e1","name":"Rent / Mortgage","vals":["","","","","","","","","","","",""]},{"id":"e2","name":"Utilities","vals":[140,150,130,120,110,160,180,175,150,140,150,160]},{"id":"e3","name":"Phone","vals":["","","","","","","","","","","",""]},{"id":"e4","name":"Groceries","vals":[520,480,510,600,470,540,560,500,530,510,600,650]},{"id":"e5","name":"Transport / Gas","vals":["","","","","","","","","","","",""]},{"id":"e6","name":"Car Payment","vals":["","","","","","","","","","","",""]},{"id":"e7","name":"Insurance","vals":[120,120,240,120,120,120,240,120,120,120,240,120]},{"id":"e8","name":"Subscriptions","vals":[60,60,60,65,60,60,70,60,60,60,60,80]},{"id":"e9","name":"Taxes","vals":[0,0,600,1400,0,0,0,0,0,0,0,300]},{"id":"e10","name":"Going Out","vals":[200,260,180,220,300,280,350,320,240,260,300,500]},{"id":"e11","name":"Shopping","vals":[150,90,120,300,80,140,200,110,90,180,260,700]},{"id":"e12","name":"Other","vals":[80,60,100,90,70,120,80,90,60,100,90,150]}]}},"budget.calendar.v1":{"entries":[{"id":"e_pay1","date":"2025-06-05","type":"income","amount":1850,"note":"Paycheck"},{"id":"e_ot","date":"2025-06-13","type":"income","amount":290,"note":"Overtime"},{"id":"e_pay2","date":"2025-06-20","type":"income","amount":1920,"note":"Paycheck"},{"id":"e_gas1","date":"2025-06-03","type":"expense","amount":45,"note":"Transport / Gas","catName":"Transport / Gas"},{"id":"e_gas2","date":"2025-06-15","type":"expense","amount":50,"note":"Transport / Gas","catName":"Transport / Gas"},{"id":"e_gas3","date":"2025-06-22","type":"expense","amount":40,"note":"Transport / Gas","catName":"Transport / Gas"},{"id":"e_din","date":"2025-06-11","type":"expense","amount":58,"note":"Dining out"},{"id":"e_shop","date":"2025-06-18","type":"expense","amount":120,"note":"Shopping"}],"repeats":[{"id":"rdemo1","day":1,"amount":1800,"note":"Rent / Mortgage","start":"2025-01","catName":"Rent / Mortgage"},{"id":"rdemo2","day":5,"amount":340,"note":"Car Payment","start":"2025-01","catName":"Car Payment"},{"id":"rdemo3","day":15,"amount":95,"note":"Phone","start":"2025-01","catName":"Phone"}],"work":{"2025-06-02":{"status":"work","shift":""},"2025-06-03":{"status":"work","shift":""},"2025-06-04":{"status":"work","shift":"Night"},"2025-06-05":{"status":"work","shift":""},"2025-06-06":{"status":"work","shift":""},"2025-06-07":{"status":"work","shift":""},"2025-06-10":{"status":"work","shift":""},"2025-06-11":{"status":"work","shift":""},"2025-06-12":{"status":"work","shift":""},"2025-06-13":{"status":"work","shift":""},"2025-06-16":{"status":"work","shift":""},"2025-06-17":{"status":"work","shift":"9–5"},"2025-06-18":{"status":"work","shift":""},"2025-06-20":{"status":"work","shift":""},"2025-06-21":{"status":"work","shift":""},"2025-06-23":{"status":"work","shift":""},"2025-06-24":{"status":"work","shift":"Night"},"2025-06-25":{"status":"work","shift":""},"2025-06-26":{"status":"work","shift":""},"2025-06-27":{"status":"work","shift":""},"2025-06-30":{"status":"work","shift":""},"2025-06-09":{"status":"off","shift":""},"2025-06-19":{"status":"off","shift":""}}}};</script>
 <script>
 /* SANDBOXED DEMO build. Replace localStorage with an in-memory shim seeded from DEMO_SEED so the
    demo is fully isolated — it CANNOT touch the real site's stored data (same-origin safety). */
@@ -241,8 +241,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .auto-name { color: var(--amber); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; font-size: 12.5px; }
   .auto-tag { font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: var(--amber);
               border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent); border-radius: 5px; padding: 1px 4px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
-  td.auto-cell { text-align: right; color: var(--amber); font-family: var(--font-mono); }
+  td.auto-cell { text-align: right; color: var(--amber); font-family: var(--font-mono); white-space: nowrap; }
   td.auto-cell .dash { color: var(--ink-faint); }
+  .cal-mark { font-size: 9px; opacity: .65; }
   .del { color: var(--ink-faint); cursor: pointer; border: none; background: none; padding: 3px 6px; border-radius: 6px; font-size: 14px; }
   .del:hover { color: var(--loss); background: var(--loss-soft); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
@@ -764,16 +765,18 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var rows = (sec === "expenses") ? expenseRows() : (sec === "income") ? incomeRows() : budget[sec];
     var body = "";
     rows.forEach(function (r) {
-      if (r.cal) {
-        // Calendar-tracked, read-only row: monthly amounts come from the calendar. Unlink to edit manually.
-        body += '<tr class="auto-row"><td class="cat"><span class="auto-name">' + esc(r.name) + '</span><span class="auto-tag">📅 Calendar</span></td>';
-        for (var am = 0; am < 12; am++) body += '<td class="auto-cell">' + (r.vals[am] ? money(r.vals[am]) : '<span class="dash">—</span>') + '</td>';
-        body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td><button class="del" title="Unlink from calendar and edit manually" data-unlink="' + sec + '" data-id="' + r.id + '">↩</button></td></tr>';
-        return;
-      }
       body += '<tr><td class="cat"><input class="catname" autocomplete="off" autocorrect="off" spellcheck="false" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
       for (var m = 0; m < 12; m++) {
-        body += '<td><input class="amt" type="number" step="any" inputmode="decimal" autocomplete="off" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
+        var cv = r.calVals ? r.calVals[m] : 0;
+        if (cv > 0) {
+          // this month gets money logged on the calendar → show the combined total, read-only (edit it on the calendar)
+          var mv0 = r.manual ? num(r.manual[m]) : 0;
+          var tip = money(cv) + " logged on the calendar" + (mv0 ? " (+ " + money(mv0) + " typed)" : "");
+          body += '<td class="auto-cell" title="' + tip + '">' + money(r.vals[m]) + ' <span class="cal-mark" aria-hidden="true">📅</span></td>';
+        } else {
+          var mv = r.manual ? r.manual[m] : r.vals[m];
+          body += '<td><input class="amt" type="number" step="any" inputmode="decimal" autocomplete="off" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (mv === "" || mv == null ? "" : esc(mv)) + '" placeholder="—"></td>';
+        }
       }
       body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td><button class="del" title="Delete" data-del="' + sec + '" data-id="' + r.id + '">✕</button></td></tr>';
     });
@@ -796,7 +799,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     Array.prototype.forEach.call(document.querySelectorAll(".catname"), function (inp) {
       inp.addEventListener("change", function () {
         var r = findRow(inp.getAttribute("data-sec"), inp.getAttribute("data-id"));
-        if (r) { r.name = inp.value; persist(); }
+        if (!r) return;
+        var oldName = r.name, newName = inp.value;
+        if (oldName !== newName) {
+          // keep any calendar entries tagged with this category pointing at its new name
+          var touched = false;
+          calData.entries.forEach(function (e) { if (e.catName === oldName) { e.catName = newName; touched = true; } });
+          calData.repeats.forEach(function (x) { if (x.catName === oldName) { x.catName = newName; touched = true; } });
+          if (touched) saveCal();
+        }
+        r.name = newName; persist(); render();
       });
     });
     Array.prototype.forEach.call(document.querySelectorAll("[data-del]"), function (b) {
@@ -804,13 +816,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         var sec = b.getAttribute("data-del"), id = b.getAttribute("data-id");
         budget[sec] = budget[sec].filter(function (r) { return r.id !== id; });
         persist(); render();
-      });
-    });
-    // Unlink a calendar-tracked category → it becomes a normal, editable manual row again.
-    Array.prototype.forEach.call(document.querySelectorAll("[data-unlink]"), function (b) {
-      b.addEventListener("click", function () {
-        var r = findRow(b.getAttribute("data-unlink"), b.getAttribute("data-id"));
-        if (r) { delete r.cal; persist(); render(); }
       });
     });
   }
@@ -835,10 +840,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     if (!store[y]) {
       // new year keeps your categories but starts with blank amounts
       var src = store[latestYear()] || { income: [], expenses: [] };
-      var carry = function (r) { var nr = row(r.name, []); if (r.cal) nr.cal = true; return nr; };  // keep calendar-tracked categories linked
       store[y] = {
-        income: src.income.map(carry),
-        expenses: src.expenses.map(carry)
+        income: src.income.map(function (r) { return row(r.name, []); }),
+        expenses: src.expenses.map(function (r) { return row(r.name, []); })
       };
       localStorage.setItem(SKEY, JSON.stringify(store));
     }
@@ -877,13 +881,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
 
-  // ---- Category ownership (enter once, shows in both) --------------------------------------
-  // A grid category flagged `cal:true` is fed FROM the calendar: its 12 monthly cells are computed
-  // by summing the calendar entries/bills tagged with that category name, for the selected budget
-  // year, and the cells become read-only. A category therefore lives in exactly ONE place — manual
-  // grid OR calendar — so nothing is ever entered or counted twice. Categories with no `cal` flag
-  // behave exactly as before (manual, editable). Calendar entries with no category never touch the
-  // grid, so existing data is completely undisturbed until the user opts a category in.
+  // ---- Additive calendar → grid (log once, see the monthly total) --------------------------
+  // A category's monthly grid value = the number you TYPED in that cell PLUS everything you logged on
+  // the calendar tagged with that category, for that same month/year. Log gas three times in August
+  // and August's Gas total fills in ($135); type an income and log more on top and they add together.
+  // Typed numbers are never overwritten (calendar money only adds), and calendar entries with NO
+  // category never touch the grid — so existing data is completely undisturbed. Cells that receive
+  // calendar money are shown read-only with a 📅 (edit those on the calendar).
   function blank12() { var v = []; for (var i = 0; i < 12; i++) v[i] = ""; return v; }
   // Sum of calendar money tagged with `name` landing in year/month, for a grid section.
   function catSum(gridSection, name, year, month) {
@@ -904,28 +908,31 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     }
     return total;
   }
-  function computedVals(gridSection, name) {
-    var v = []; for (var m = 0; m < 12; m++) v[m] = catSum(gridSection, name, curYear, m); return v;
-  }
-  // Effective rows used for all display + totals: calendar-tracked rows get their computed values;
-  // manual rows pass straight through. Exclusive ownership means summing these never double-counts.
+  // Effective rows for display + totals. Each month's value = the number you TYPED in the grid PLUS
+  // anything you logged on the calendar tagged with that category (additive, per-month). So logging
+  // gas a few times fills that month's Gas total; typed budgets are never overwritten. `manual` keeps
+  // the typed values (for editing), `calVals` the per-month calendar amounts, `vals` the combined total.
   function effRows(gridSection) {
     return budget[gridSection].map(function (r) {
-      if (r.cal) return { id: r.id, name: r.name, cal: true, vals: computedVals(gridSection, r.name) };
-      return r;
+      var calV = [], comb = [], has = false;
+      for (var m = 0; m < 12; m++) {
+        var cv = catSum(gridSection, r.name, curYear, m);
+        calV[m] = cv; if (cv) has = true;
+        comb[m] = num(r.vals[m]) + cv;
+      }
+      return { id: r.id, name: r.name, manual: r.vals, calVals: calV, vals: comb, hasCal: has };
     });
   }
   function incomeRows() { return effRows("income"); }
   function expenseRows() { return effRows("expenses"); }
-  // Make sure grid year `yr` has a calendar-tracked category named `name` in `gridSection`
-  // (create it, or convert an existing same-named row). No-op if that budget year doesn't exist yet.
-  function ensureCalCategory(gridSection, name, yr) {
+  // Make sure grid year `yr` has a category named `name`, so calendar-tagged money has a row to land
+  // in. Never touches an existing row's typed numbers — the calendar only adds to them.
+  function ensureCategory(gridSection, name, yr) {
     yr = String(yr);
     if (!store[yr]) return;
-    var rows = store[yr][gridSection], found = null;
-    for (var i = 0; i < rows.length; i++) if (rows[i].name === name) { found = rows[i]; break; }
-    if (found) found.cal = true;
-    else rows.push({ id: uid(), name: name, vals: blank12(), cal: true });
+    var rows = store[yr][gridSection];
+    for (var i = 0; i < rows.length; i++) if (rows[i].name === name) return;
+    rows.push({ id: uid(), name: name, vals: blank12() });
   }
   function catSectionFor(t) { return t === "income" ? "income" : "expenses"; }
 
@@ -1009,8 +1016,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     // already the dated entries above — so the two views stay consistent with no double-counting.
     var gInc = 0, gExp = 0, gYr = store[String(calView.y)];
     if (gYr) {
-      (gYr.income || []).forEach(function (r) { if (!r.cal) gInc += num(r.vals[calView.m]); });
-      (gYr.expenses || []).forEach(function (r) { if (!r.cal) gExp += num(r.vals[calView.m]); });
+      (gYr.income || []).forEach(function (r) { gInc += num(r.vals[calView.m]); });
+      (gYr.expenses || []).forEach(function (r) { gExp += num(r.vals[calView.m]); });
     }
     var bn = document.getElementById("calBudgetNote");
     if (bn) {
@@ -1124,25 +1131,18 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var cat = document.getElementById("calCat").value.trim();
     var gridSection = catSectionFor(calType);
     var entryYear = calSel.slice(0, 4);
-    // If a category was named, link this money to it — creating a new budget category, or
-    // converting an existing one to calendar-tracked (asking first if it holds manual numbers).
-    if (cat) {
-      var rowsY = (store[entryYear] && store[entryYear][gridSection]) || [], existing = null;
-      for (var i = 0; i < rowsY.length; i++) if (rowsY[i].name === cat) { existing = rowsY[i]; break; }
-      var hasManual = existing && !existing.cal && (existing.vals || []).some(function (x) { return num(x) !== 0; });
-      if (hasManual && !confirm("Link “" + cat + "” to the calendar?\n\nIts budget amounts will now come from your calendar entries instead of the numbers typed in the grid.")) {
-        cat = "";   // declined — add as a plain calendar entry, budget grid untouched
-      }
-      if (cat) ensureCalCategory(gridSection, cat, entryYear);
-    }
-    // The entry's label = its category (if chosen), otherwise a plain type word.
+    // Additive & non-destructive: the entry is tagged with its category and ADDS to that category's
+    // month in the grid. Make sure a row for it exists (created blank) so the amount has somewhere to
+    // land; a category's typed numbers are never touched. (No blocking confirm() dialog — on a
+    // signed-in device its window-blur trips the focus-based cloud sync and could drop the entry.)
+    if (cat) ensureCategory(gridSection, cat, entryYear);
     var label = cat || (calType.charAt(0).toUpperCase() + calType.slice(1));
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
       calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: label, start: calSel.slice(0, 7), catName: cat || undefined });
     } else {
       calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: label, catName: cat || undefined });
     }
-    if (cat) localStorage.setItem(SKEY, JSON.stringify(store));   // persist the linked/created budget category
+    if (cat) localStorage.setItem(SKEY, JSON.stringify(store));   // persist the created budget category
     document.getElementById("calAmt").value = "";
     document.getElementById("calCat").value = "";
     document.getElementById("calRepeat").checked = false;
