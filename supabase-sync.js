@@ -52,6 +52,9 @@
   var loggedInOnce = false;   // auth can fire the login twice — run it only once
   var realtimeSubscribed = false;
   var currentToken = null;    // cached access token, so the keepalive beacon can fire synchronously
+  var editedThisSession = false;  // once you edit on THIS device, its data is authoritative here — a
+                                  // differing cloud (e.g. a stale device pushing old values) can never
+                                  // revert your live edits; we re-push instead of applying.
 
   /* ---- 1. Install the localStorage hook SYNCHRONOUSLY (before the app runs) ---- */
   var origSet = window.localStorage.setItem.bind(window.localStorage);
@@ -68,6 +71,7 @@
   // otherwise a freshly-loaded empty device would look "dirty" and overwrite the cloud).
   function onLocalEdit() {
     if (!ready) return;
+    editedThisSession = true;                  // this device now owns its edits — never let cloud revert them
     origSet(REV_KEY, String(getRev() + 1));   // durably mark "there are unsaved edits"
     updatePendingBadge();
     schedulePush();
@@ -238,36 +242,16 @@
   function getScore() { var n = Number(origGet(SCORE_KEY)); return isNaN(n) ? 0 : n; }
   function setScore(n) { origSet(SCORE_KEY, String(n)); }
 
-  // push() writes local state up. It records which REV it sent, so success marks exactly that rev
-  // as pushed (edits made DURING the request stay pending and push again). Before writing, the
-  // wipe-guard checks whether this push would collapse a substantial dataset to (near) nothing.
+  // push() writes local state up. It records which REV it sent, so success marks exactly that rev as
+  // pushed (edits made DURING the request stay pending and push again). The old "wipe-guard" that read
+  // the cloud and RESTORED it on a suspected collapse was removed — it could pull OLD cloud data back
+  // over live edits (the "reverts to $2000" behaviour). Data-loss is now prevented at the source
+  // instead: applyCloud coerces cloud values to strings (no "[object Object]"), loadStore never seeds
+  // a blank over corrupt data, and reconcile never reverts an edit made on this device this session.
   function push() {
     if (!currentUser) return Promise.resolve();
     var out = gather();
-    var outScore = contentScore(out);
-    var prev = getScore();
-    // A full dataset dropping to empty (or to <15% of itself) is almost always a wipe/corruption,
-    // not a real edit. Don't trust the local `prev` alone — VERIFY against the live cloud, and if
-    // the cloud still holds more, RESTORE from it instead of overwriting it. (Thresholds chosen so
-    // a genuine "clear out a nearly-empty budget" still goes through; only large collapses trip it.)
-    var catastrophic = (outScore === 0 && prev >= 5) || (prev >= 40 && outScore < prev * 0.15);
-    if (catastrophic) {
-      return sb.from("user_data").select("data,updated_at").eq("app", cfg.app).maybeSingle()
-        .then(function (res) {
-          var row = res && res.data;
-          var cloudScore = row ? contentScore(row.data) : 0;
-          if (row && cloudScore > outScore && cloudScore >= 5) {
-            if (DEBUG) dbgShow("WIPE-GUARD tripped: local score " + outScore + " vs cloud " + cloudScore + " — restoring from cloud, NOT overwriting.");
-            applyCloud(row.data, row.updated_at);   // pull the healthy data back down
-            rerender();
-            guardToast();
-            return { guarded: true };
-          }
-          return doUpsert(out, outScore);            // cloud agrees it's empty/small → genuine, proceed
-        })
-        .catch(function () { return doUpsert(out, outScore); });  // never block editing on a failed check
-    }
-    return doUpsert(out, outScore);
+    return doUpsert(out, contentScore(out));
   }
   function doUpsert(out, outScore) {
     var revSent = getRev();
@@ -342,6 +326,12 @@
     if (hasUnpushed()) {
       // This device has edits not yet confirmed in the cloud — even across an iOS reload, thanks to
       // the durable REV counter. They win: push them up instead of letting the cloud overwrite them.
+      return push();
+    }
+    if (editedThisSession && differs) {
+      // You've edited on THIS device this session, and the cloud disagrees — almost always another
+      // (stale) device pushing OLD values back. Never revert your live edits: re-push local instead.
+      // Cross-device changes still arrive on a fresh load/login (where editedThisSession is false).
       return push();
     }
     if (differs && !cloudMoved) {
