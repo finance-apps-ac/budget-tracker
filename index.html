@@ -906,7 +906,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       for (var m = 0; m < 12; m++) {
         var cv = catSum(gridSection, r.name, curYear, m);
         calV[m] = cv; if (cv) has = true;
-        comb[m] = num(r.vals[m]) + cv;
+        // Actual OVERRIDES estimate: if anything was logged on the calendar for this category+month,
+        // that logged total IS the month's value; otherwise fall back to the number typed in the grid.
+        // (So logging your real $1,800 paycheck shows $1,800 — it does NOT add on top of a $2,000 estimate.)
+        comb[m] = cv > 0 ? cv : num(r.vals[m]);
       }
       return { id: r.id, name: r.name, manual: r.vals, calVals: calV, vals: comb, hasCal: has };
     });
@@ -946,9 +949,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var days = new Date(year, month + 1, 0).getDate();
     var occupied = {};
     for (var d = 1; d <= days; d++) { if (calDayEntries(ckey(year, month, d)).length) occupied[d] = true; }
+    // Only reflect a category's TYPED estimate when it has NO logged actuals this month — otherwise the
+    // actuals already show on their days (and are the month's value), so reflecting the estimate too
+    // would double it.
     var items = [];
-    (gy.income || []).forEach(function (r) { var v = num(r.vals[month]); if (v > 0) items.push({ type: "income", name: r.name, amount: v }); });
-    (gy.expenses || []).forEach(function (r) { var v = num(r.vals[month]); if (v > 0) items.push({ type: "expense", name: r.name, amount: v }); });
+    (gy.income || []).forEach(function (r) { if (catSum("income", r.name, year, month) > 0) return; var v = num(r.vals[month]); if (v > 0) items.push({ type: "income", name: r.name, amount: v }); });
+    (gy.expenses || []).forEach(function (r) { if (catSum("expenses", r.name, year, month) > 0) return; var v = num(r.vals[month]); if (v > 0) items.push({ type: "expense", name: r.name, amount: v }); });
     var byDay = {}, cursor = 1;
     items.forEach(function (it) {
       while (cursor <= days && occupied[cursor]) cursor++;
