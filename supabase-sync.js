@@ -248,7 +248,13 @@
       if (hasUnpushed() || KEYS.some(function (k) { return origGet(k) !== null; })) return push();
       return Promise.resolve();
     }
-    var cloudMoved = (row.updated_at !== getSeen());        // cloud changed since we last synced?
+    // Cloud is only "newer" if its server timestamp is STRICTLY GREATER than the one we mirror.
+    // Using !== here was a data-loss bug: an OUT-OF-ORDER echo of an EARLIER save (older timestamp,
+    // arriving late over realtime) looked "different" and got applied ON TOP of newer local edits,
+    // reverting cells that had just been typed. A strict > means an older/stale echo is never taken;
+    // instead we fall through to the "content is truth" branch and re-push the newer local state.
+    var seen = getSeen();
+    var cloudMoved = (seen == null) || (String(row.updated_at) > String(seen));
     var differs = (canon(row.data) !== canon(local));
 
     if (hasUnpushed()) {
@@ -361,12 +367,19 @@
     if (realtimeSubscribed) return;   // subscribe exactly once — re-subscribing throws
     realtimeSubscribed = true;
     try {
-      sb.channel("sync_" + cfg.app)
+      // CRITICAL: scope the realtime feed to THIS account at the server (filter on user_id),
+      // not just to the app. Filtering only by app meant every budget user's saves were broadcast
+      // to every other budget user — another person's (e.g. a spouse's separate account) save would
+      // land here and overwrite this device's data. Now the server only sends this user's own rows,
+      // and the handler double-checks app + user_id before ever applying anything.
+      sb.channel("sync_" + cfg.app + "_" + currentUser.id)
         .on("postgres_changes",
-          { event: "*", schema: "public", table: "user_data", filter: "app=eq." + cfg.app },
+          { event: "*", schema: "public", table: "user_data", filter: "user_id=eq." + currentUser.id },
           function (payload) {
             var n = payload["new"];
             if (!n || !n.data) return;
+            if (n.app && n.app !== cfg.app) return;                                                  // ignore this account's OTHER app (pnl vs budget)
+            if (n.user_id && currentUser && String(n.user_id) !== String(currentUser.id)) return;    // never apply another account's data
             reconcile({ data: n.data, updated_at: n.updated_at });   // same server-clock logic
           })
         .subscribe();
