@@ -37,36 +37,12 @@
 document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
 document.addEventListener("gesturechange", function (e) { e.preventDefault(); }, { passive: false });
 </script>
-<script>
-/* Auto-update: keeps every visitor on the latest code without manual cache-clearing. GitHub Pages
-   caches the HTML, so a browser can keep running old code after a deploy. On load (and when the tab
-   is refocused) we fetch a tiny always-fresh version marker; if the deployed version is newer than
-   the one THIS page was built with, we reload once against a fresh URL so the browser pulls the new
-   HTML + JS. Bump APP_VERSION here AND version.txt on every deploy. */
-(function () {
-  var APP_VERSION = 3;
-  function check() {
-    fetch("version.txt?t=" + Date.now(), { cache: "no-store" })
-      .then(function (r) { return r.ok ? r.text() : ""; })
-      .then(function (t) {
-        var latest = parseInt(String(t).trim(), 10);
-        // Loop-guard: if we're ALREADY on ?v=latest (we reloaded but the HTML is still old — e.g. a
-        // CDN edge hasn't updated yet), don't reload again; just keep running until it catches up.
-        var already = new RegExp("[?&]v=" + latest + "(?:&|$)").test(location.search);
-        if (latest && latest > APP_VERSION && !already) { try { location.replace(location.pathname + "?v=" + latest); } catch (e) {} }
-      })
-      .catch(function () {});   // offline / blocked → just keep running
-  }
-  try { check(); } catch (e) {}
-  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") { try { check(); } catch (e) {} } });
-})();
-</script>
 </head>
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
 <script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries":[{"id":"e_pay1","date":"2025-06-05","type":"income","amount":1850,"note":"Paycheck"},{"id":"e_ot","date":"2025-06-13","type":"income","amount":290,"note":"Overtime"},{"id":"e_pay2","date":"2025-06-20","type":"income","amount":1920,"note":"Paycheck"},{"id":"e_gr1","date":"2025-06-03","type":"expense","amount":85,"note":"Groceries"},{"id":"e_gas","date":"2025-06-08","type":"expense","amount":45,"note":"Gas"},{"id":"e_din","date":"2025-06-11","type":"expense","amount":58,"note":"Dining out"},{"id":"e_shop","date":"2025-06-18","type":"expense","amount":120,"note":"Shopping"},{"id":"e_gr2","date":"2025-06-24","type":"expense","amount":92,"note":"Groceries"},{"id":"e_misc","date":"2025-06-27","type":"expense","amount":61,"note":"Misc"}],"repeats":[{"id":"rdemo1","day":1,"amount":1800,"note":"Rent","start":"2025-01"},{"id":"rdemo2","day":5,"amount":340,"note":"Car payment","start":"2025-01"},{"id":"rdemo3","day":15,"amount":95,"note":"Phone bill","start":"2025-01"}],"work":{"2025-06-02":{"status":"work","shift":""},"2025-06-03":{"status":"work","shift":""},"2025-06-04":{"status":"work","shift":"Night"},"2025-06-05":{"status":"work","shift":""},"2025-06-06":{"status":"work","shift":""},"2025-06-07":{"status":"work","shift":""},"2025-06-10":{"status":"work","shift":""},"2025-06-11":{"status":"work","shift":""},"2025-06-12":{"status":"work","shift":""},"2025-06-13":{"status":"work","shift":""},"2025-06-16":{"status":"work","shift":""},"2025-06-17":{"status":"work","shift":"9–5"},"2025-06-18":{"status":"work","shift":""},"2025-06-20":{"status":"work","shift":""},"2025-06-21":{"status":"work","shift":""},"2025-06-23":{"status":"work","shift":""},"2025-06-24":{"status":"work","shift":"Night"},"2025-06-25":{"status":"work","shift":""},"2025-06-26":{"status":"work","shift":""},"2025-06-27":{"status":"work","shift":""},"2025-06-30":{"status":"work","shift":""},"2025-06-09":{"status":"off","shift":""},"2025-06-19":{"status":"off","shift":""}}}};</script>
-<script src="supabase-sync.js?v=28"></script>
+<script src="supabase-sync.js?v=24"></script>
 <script src="native.js?v=1"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
@@ -229,7 +205,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .amt::placeholder { color: var(--ink-faint); }
   .amt::-webkit-outer-spin-button, .amt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .amt { -moz-appearance: textfield; appearance: textfield; }
-  .amt[readonly] { pointer-events: none; }   /* calendar-fed cell: looks identical to a typed cell, just not editable */
   .catname { width: 132px; margin-left: -7px; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; font-size: 12.5px; color: var(--gain); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   #expenseTable .catname { color: var(--violet); }
   .catname:hover { border-color: var(--border); }
@@ -249,16 +224,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .auto-name { color: var(--amber); font-weight: 700; text-transform: uppercase; letter-spacing: .3px; font-size: 12.5px; }
   .auto-tag { font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: var(--amber);
               border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent); border-radius: 5px; padding: 1px 4px; margin-left: 6px; vertical-align: middle; white-space: nowrap; }
-  td.auto-cell { text-align: right; color: var(--amber); font-family: var(--font-mono); white-space: nowrap; }
+  td.auto-cell { text-align: right; color: var(--amber); font-family: var(--font-mono); }
   td.auto-cell .dash { color: var(--ink-faint); }
-  .cal-mark { font-size: 9px; opacity: .65; }
   .del { color: var(--ink-faint); cursor: pointer; border: none; background: none; padding: 3px 6px; border-radius: 6px; font-size: 14px; }
   .del:hover { color: var(--loss); background: var(--loss-soft); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
   .hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 10px; }
-  /* In the calendar view this hint sits between the centered budget caption and the centered footer,
-     so center it too — otherwise the lone left-aligned line looks out of place. */
-  #view-calendar .hint { text-align: center; }
   .foot { text-align: center; color: var(--ink-faint); font-size: 12px; margin-top: 32px; }
 
   /* ---------- View tabs (Budget / Calendar) ---------- */
@@ -304,11 +275,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-dots { display: flex; gap: 3px; margin-top: 5px; }
   .cal-dot { width: 6px; height: 6px; border-radius: 50%; }
   .cal-dot.bill { background: var(--amber); } .cal-dot.exp { background: var(--loss); } .cal-dot.inc { background: var(--gain); }
-  .cal-dot.plan { background: var(--ink-faint); }
   .cal-amts { margin-top: auto; display: flex; flex-direction: column; gap: 1px; font-family: var(--font-mono); font-size: 11px; white-space: nowrap; }
   .cal-amts .inc { color: var(--gain); } .cal-amts .exp { color: var(--loss); }
-  /* Faded "plan" amounts = Budget-grid figures laid onto free days (display-only, editable in the grid). */
-  .cal-amts .plan { opacity: .5; font-style: italic; }
 
   .cal-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
   .cal-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 13px; padding: 14px 16px; box-shadow: var(--shadow); }
@@ -318,8 +286,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-stat.inc .val { color: var(--gain); }
   .cal-stat.exp .val { color: var(--loss); }
   .cal-stat.work .val { color: var(--accent); }
-  .cal-budgetnote { margin-top: 11px; font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); text-align: center; }
-  .cal-budgetnote b { color: var(--ink); font-weight: 700; font-family: var(--font-mono); }
   @media (max-width: 560px) {
     .cal-summary { grid-template-columns: repeat(2, 1fr); }
     /* Tighter side padding + gaps give the 7-column grid more room on a phone. */
@@ -360,20 +326,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-item .rep { font-size: 10px; color: var(--accent); white-space: nowrap; }
   .cal-item .del2 { background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 14px; }
   .cal-item .del2:hover { color: var(--loss); }
-  .cal-item.plan { opacity: .72; border-style: dashed; }
-  .cal-item.plan .rep { color: var(--ink-faint); }
   .cal-empty { color: var(--ink-faint); font-size: 12.5px; padding: 2px 0 12px; }
   .cal-typesel { display: flex; gap: 6px; margin-bottom: 9px; }
   .cal-typesel button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
   .cal-typesel button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
   .cal-addrow { display: flex; gap: 8px; }
-  .cal-in { flex: 1; min-width: 0; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
+  .cal-in { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
   .cal-in:focus { border-color: var(--accent); outline: none; }
-  /* Category picker: full-width, with a ▾ so it clearly reads as "choose from your budget categories". */
-  .cal-catwrap { position: relative; margin-bottom: 8px; }
-  .cal-cat { width: 100%; padding-right: 30px; }
-  .cal-catchev { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); pointer-events: none; font-size: 12px; }
-  #calAmt { width: 100%; font-family: var(--font-mono); }
+  #calAmt { flex: none; width: 118px; font-family: var(--font-mono); }
+  #calNote { flex: 1; min-width: 0; }
   #calAmt::-webkit-outer-spin-button, #calAmt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .cal-repeat { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
   .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
@@ -393,7 +354,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     <div class="topbar-actions">
       <button id="themeBtn" class="btn theme-btn" type="button" onclick="__toggleTheme()" title="Light / dark" aria-label="Toggle light or dark theme">🌙</button>
       <select id="yearFilter" aria-label="Budget year"></select>
-      <input type="number" id="newYear" class="year-input" autocomplete="off" placeholder="2027" hidden aria-label="New year">
+      <input type="number" id="newYear" class="year-input" placeholder="2027" hidden aria-label="New year">
       <button class="btn" id="addYearBtn" title="Add a year">＋ Year</button>
     </div>
   </header>
@@ -455,7 +416,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <div class="cal-stat work"><div class="lbl">Work days</div><div class="val" id="calWork">0</div></div>
       <div class="cal-stat exp"><div class="lbl">Net expenses</div><div class="val" id="calExp">$0</div></div>
     </div>
-    <div class="cal-budgetnote" id="calBudgetNote" hidden></div>
     <p class="hint">Tap any day to log a work shift, day off, bill, one-time expense, or income. Bills you mark “Repeat monthly” appear on that date every following month automatically.</p>
   </div><!-- /view-calendar -->
 
@@ -474,7 +434,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <button data-work="work" type="button">🛠 Work day</button>
       <button data-work="off" type="button">🌙 Day off</button>
     </div>
-    <input class="cal-shift" id="calShift" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Shift note (e.g. 9–5, Night) — optional">
+    <input class="cal-shift" id="calShift" placeholder="Shift note (e.g. 9–5, Night) — optional">
 
     <p class="cal-seclabel">Entries</p>
     <div class="cal-list" id="calList"></div>
@@ -485,13 +445,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <button data-ct="expense" type="button">Expense</button>
       <button data-ct="bill" type="button">Bill</button>
     </div>
-    <div class="cal-catwrap">
-      <input class="cal-in cal-cat" id="calCat" list="calCatList" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Choose a category — or type a new one">
-      <datalist id="calCatList"></datalist>
-      <span class="cal-catchev" aria-hidden="true">▾</span>
-    </div>
     <div class="cal-addrow">
-      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" autocomplete="off" placeholder="$ amount">
+      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
+      <input class="cal-in" id="calNote" placeholder="Note (e.g. Rent, Paycheck)">
     </div>
     <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
     <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
@@ -509,15 +465,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   var budget = store[curYear];
 
   function loadStore() {
-    var raw = localStorage.getItem(SKEY);
-    if (raw != null && raw !== "") {
-      try { var s = JSON.parse(raw); if (s && typeof s === "object" && Object.keys(s).length) return s; } catch (e) {}
-      // SKEY exists but is unparseable (e.g. a corrupted "[object Object]" left by an old sync bug). Do
-      // NOT overwrite it with a blank seed — that would wipe real data AND push the blank to the cloud.
-      // Return a transient blank WITHOUT persisting, so a clean cloud copy replaces it on sign-in.
-      return { "2026": seed() };
-    }
-    // genuinely absent → migrate a single-year save from the earlier version, else seed a fresh one.
+    try { var s = JSON.parse(localStorage.getItem(SKEY)); if (s && typeof s === "object" && Object.keys(s).length) return s; } catch (e) {}
+    // migrate a single-year save from the earlier version
     try { var old = JSON.parse(localStorage.getItem(OLDKEY)); if (old && old.income) { var m = { "2026": old }; localStorage.setItem(SKEY, JSON.stringify(m)); return m; } } catch (e) {}
     var init = { "2026": seed() }; localStorage.setItem(SKEY, JSON.stringify(init)); return init;
   }
@@ -785,17 +734,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var rows = (sec === "expenses") ? expenseRows() : (sec === "income") ? incomeRows() : budget[sec];
     var body = "";
     rows.forEach(function (r) {
-      body += '<tr><td class="cat"><input class="catname" autocomplete="off" autocorrect="off" spellcheck="false" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
+      if (r.auto) {
+        // Derived, read-only row (Recurring Bills from the calendar) — no editable inputs, no delete.
+        body += '<tr class="auto-row"><td class="cat"><span class="auto-name">' + esc(r.name) + '</span><span class="auto-tag">↻ Calendar</span></td>';
+        for (var am = 0; am < 12; am++) body += '<td class="auto-cell">' + (r.vals[am] ? money(r.vals[am]) : '<span class="dash">—</span>') + '</td>';
+        body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td></td></tr>';
+        return;
+      }
+      body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
       for (var m = 0; m < 12; m++) {
-        var cv = r.calVals ? r.calVals[m] : 0;
-        if (cv > 0) {
-          // Value comes (partly) from the calendar → read-only, but styled identically to a typed cell
-          // (same plain colour, no icon) so the grid looks unified. Totals still use the combined value.
-          body += '<td><input class="amt" readonly tabindex="-1" value="' + esc(r.vals[m]) + '"></td>';
-        } else {
-          var mv = r.manual ? r.manual[m] : r.vals[m];
-          body += '<td><input class="amt" type="number" step="any" inputmode="decimal" autocomplete="off" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (mv === "" || mv == null ? "" : esc(mv)) + '" placeholder="—"></td>';
-        }
+        body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
       }
       body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td><button class="del" title="Delete" data-del="' + sec + '" data-id="' + r.id + '">✕</button></td></tr>';
     });
@@ -818,16 +766,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     Array.prototype.forEach.call(document.querySelectorAll(".catname"), function (inp) {
       inp.addEventListener("change", function () {
         var r = findRow(inp.getAttribute("data-sec"), inp.getAttribute("data-id"));
-        if (!r) return;
-        var oldName = r.name, newName = inp.value;
-        if (oldName !== newName) {
-          // keep any calendar entries tagged with this category pointing at its new name
-          var touched = false;
-          calData.entries.forEach(function (e) { if (e.catName === oldName) { e.catName = newName; touched = true; } });
-          calData.repeats.forEach(function (x) { if (x.catName === oldName) { x.catName = newName; touched = true; } });
-          if (touched) saveCal();
-        }
-        r.name = newName; persist(); render();
+        if (r) { r.name = inp.value; persist(); }
       });
     });
     Array.prototype.forEach.call(document.querySelectorAll("[data-del]"), function (b) {
@@ -900,71 +839,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
 
-  // ---- Additive calendar → grid (log once, see the monthly total) --------------------------
-  // A category's monthly grid value = the number you TYPED in that cell PLUS everything you logged on
-  // the calendar tagged with that category, for that same month/year. Log gas three times in August
-  // and August's Gas total fills in ($135); type an income and log more on top and they add together.
-  // Typed numbers are never overwritten (calendar money only adds), and calendar entries with NO
-  // category never touch the grid — so existing data is completely undisturbed. Cells that receive
-  // calendar money are shown read-only with a 📅 (edit those on the calendar).
-  function blank12() { var v = []; for (var i = 0; i < 12; i++) v[i] = ""; return v; }
-  // Sum of calendar money tagged with `name` landing in year/month, for a grid section.
-  function catSum(gridSection, name, year, month) {
-    if (!name) return 0;
-    var pre = year + "-" + pad2(month + 1), wantInc = (gridSection === "income"), total = 0;
-    calData.entries.forEach(function (e) {
-      if ((e.catName || "") !== name) return;
-      if (typeof e.date !== "string" || e.date.slice(0, 7) !== pre) return;
-      var isInc = e.type === "income";
-      if (wantInc ? isInc : (e.type === "expense" || e.type === "bill")) total += (+e.amount || 0);
-    });
-    if (!wantInc) {
-      calData.repeats.forEach(function (r) {                 // recurring bills (expense only)
-        if ((r.catName || "") !== name) return;
-        if (r.start && pre < r.start) return;                // only from the month it was added onward
-        total += (+r.amount || 0);
-      });
-    }
-    return total;
-  }
-  // Effective rows for display + totals. Each month's value = the number you TYPED in the grid PLUS
-  // anything you logged on the calendar tagged with that category (additive, per-month). So logging
-  // gas a few times fills that month's Gas total; typed budgets are never overwritten. `manual` keeps
-  // the typed values (for editing), `calVals` the per-month calendar amounts, `vals` the combined total.
-  function effRows(gridSection) {
-    return budget[gridSection].map(function (r) {
-      var calV = [], comb = [], has = false;
-      for (var m = 0; m < 12; m++) {
-        var cv = catSum(gridSection, r.name, curYear, m);
-        calV[m] = cv; if (cv) has = true;
-        // Actual OVERRIDES estimate: if anything was logged on the calendar for this category+month,
-        // that logged total IS the month's value; otherwise fall back to the number typed in the grid.
-        // (So logging your real $1,800 paycheck shows $1,800 — it does NOT add on top of a $2,000 estimate.)
-        comb[m] = cv > 0 ? cv : num(r.vals[m]);
-      }
-      return { id: r.id, name: r.name, manual: r.vals, calVals: calV, vals: comb, hasCal: has };
-    });
-  }
-  function incomeRows() { return effRows("income"); }
-  function expenseRows() { return effRows("expenses"); }
-  // Make sure grid year `yr` has a category named `name`, so calendar-tagged money has a row to land
-  // in. Never touches an existing row's typed numbers — the calendar only adds to them.
-  function ensureCategory(gridSection, name, yr) {
-    yr = String(yr);
-    if (!store[yr]) {
-      // Calendar entry logged in a not-yet-existing budget year → create that year (category names
-      // carried from the latest year, blank amounts) so the amount lands instead of vanishing.
-      var src = store[latestYear()] || { income: [], expenses: [] };
-      store[yr] = {
-        income: src.income.map(function (r) { return row(r.name, []); }),
-        expenses: src.expenses.map(function (r) { return row(r.name, []); })
-      };
-    }
-    var rows = store[yr][gridSection];
-    for (var i = 0; i < rows.length; i++) if (rows[i].name === name) return;
-    rows.push({ id: uid(), name: name, vals: blank12() });
-  }
-  function catSectionFor(t) { return t === "income" ? "income" : "expenses"; }
+  // Calendar entries are intentionally NOT rolled into the yearly grid. The grid stays purely the
+  // user's own manually-entered categories; the calendar is a fully independent tracker with its
+  // own monthly summary. (The derived Calendar Income / Recurring Bills / Calendar Expenses rows
+  // were removed 2026-08-29 because they double-counted amounts already listed in the grid.)
+  function incomeRows() { return budget.income.slice(); }
+  function expenseRows() { return budget.expenses.slice(); }
 
   // All entries falling on a day: one-time entries on that exact date, plus any recurring
   // bill whose day-of-month matches and whose start month is on/before this month.
@@ -975,33 +855,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       if (r.day === d && (!r.start || ym >= r.start)) list.push({ id: r.id, date: k, type: "bill", amount: r.amount, note: r.note, repeat: true });
     });
     return list;
-  }
-
-  // A grid-typed monthly amount has no specific day, so we lay each nonzero one onto the month's
-  // first FREE day (a day with nothing logged), one per day, so the whole month's plan is visible on
-  // the calendar. These are DERIVED from the grid (display-only) — never stored as calendar entries,
-  // so they never feed back into the grid total (no double-count). Deterministic so the day cells and
-  // the day modal always agree. Returns { dayNumber: [ {type, name, amount} ] }.
-  function gridReflections(year, month) {
-    var gy = store[String(year)];
-    if (!gy) return {};
-    var days = new Date(year, month + 1, 0).getDate();
-    var occupied = {};
-    for (var d = 1; d <= days; d++) { if (calDayEntries(ckey(year, month, d)).length) occupied[d] = true; }
-    // Only reflect a category's TYPED estimate when it has NO logged actuals this month — otherwise the
-    // actuals already show on their days (and are the month's value), so reflecting the estimate too
-    // would double it.
-    var items = [];
-    (gy.income || []).forEach(function (r) { if (catSum("income", r.name, year, month) > 0) return; var v = num(r.vals[month]); if (v > 0) items.push({ type: "income", name: r.name, amount: v }); });
-    (gy.expenses || []).forEach(function (r) { if (catSum("expenses", r.name, year, month) > 0) return; var v = num(r.vals[month]); if (v > 0) items.push({ type: "expense", name: r.name, amount: v }); });
-    var byDay = {}, cursor = 1;
-    items.forEach(function (it) {
-      while (cursor <= days && occupied[cursor]) cursor++;
-      var target = (cursor > days) ? days : cursor;         // out of free days → stack on the last day
-      (byDay[target] = byDay[target] || []).push(it);
-      if (cursor <= days) { occupied[cursor] = true; cursor++; }
-    });
-    return byDay;
   }
 
   function renderCal() {
@@ -1032,7 +885,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     for (var b = 0; b < first; b++) { var bl = document.createElement("div"); bl.className = "cal-cell blank"; grid.appendChild(bl); }
 
     var today = new Date();
-    var refl = gridReflections(calView.y, calView.m);   // grid amounts laid onto free days
     var mInc = 0, mExp = 0, wDays = 0, oDays = 0;
     for (var dd = 1; dd <= days; dd++) {
       var k = ckey(calView.y, calView.m, dd);
@@ -1048,22 +900,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       var list = calDayEntries(k);
       var inc = 0, exp = 0, hasBill = false, hasExpense = false;
       list.forEach(function (e) { if (e.type === "income") inc += +e.amount; else { exp += +e.amount; if (e.type === "bill") hasBill = true; else hasExpense = true; } });
-      // Grid amounts placed on this (free) day — displayed faded, and counted in the month totals.
-      var rf = refl[dd] || [], planInc = 0, planExp = 0;
-      rf.forEach(function (it) { if (it.type === "income") planInc += it.amount; else planExp += it.amount; });
-      mInc += inc + planInc; mExp += exp + planExp;
+      mInc += inc; mExp += exp;
       if (st === "work") wDays++;
       if (st === "off") oDays++;
       var amts = "";
       if (inc > 0) amts += '<span class="inc">+' + money(inc) + '</span>';
       if (exp > 0) amts += '<span class="exp">−' + money(exp) + '</span>';
-      if (planInc > 0) amts += '<span class="inc plan">+' + money(planInc) + '</span>';
-      if (planExp > 0) amts += '<span class="exp plan">−' + money(planExp) + '</span>';
       var dots = "";
       if (hasBill) dots += '<span class="cal-dot bill"></span>';
       if (hasExpense) dots += '<span class="cal-dot exp"></span>';
       if (inc > 0) dots += '<span class="cal-dot inc"></span>';
-      if (rf.length) dots += '<span class="cal-dot plan"></span>';
       cell.innerHTML = '<div class="top"><span class="d">' + dd + '</span>' + chip + '</div>' +
         (dots ? '<div class="cal-dots">' + dots + '</div>' : '') +
         '<div class="cal-amts">' + amts + '</div>';
@@ -1074,15 +920,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calExp").textContent = money(mExp);
     document.getElementById("calWork").textContent = wDays;
     document.getElementById("calOff").textContent = oDays;
-
-    // Legend for the faded amounts (your Budget-grid figures, laid onto free days).
-    var bn = document.getElementById("calBudgetNote");
-    if (bn) {
-      if (Object.keys(refl).length) {
-        bn.hidden = false;
-        bn.innerHTML = 'Faded amounts are your <b>Budget grid</b> figures for this month, placed on free days — edit them on the Budget tab.';
-      } else { bn.hidden = true; bn.innerHTML = ""; }
-    }
   }
 
   function dayTitle(k) {
@@ -1104,11 +941,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     });
   }
   function updateRepeatVis() { document.getElementById("calRepeatWrap").style.display = (calType === "bill") ? "flex" : "none"; }
-  // Suggest the current section's budget categories in the category field's dropdown.
-  function populateCatList() {
-    var rows = budget[catSectionFor(calType)] || [];
-    document.getElementById("calCatList").innerHTML = rows.map(function (r) { return '<option value="' + esc(r.name) + '"></option>'; }).join("");
-  }
 
   function openCalDay(k) {
     calSel = k; calType = "expense";
@@ -1117,10 +949,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calShift").value = (calData.work[k] && calData.work[k].shift) || "";
     Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) { b.classList.toggle("sel", b.getAttribute("data-ct") === "expense"); });
     document.getElementById("calAmt").value = "";
-    document.getElementById("calCat").value = "";
+    document.getElementById("calNote").value = "";
     document.getElementById("calRepeat").checked = false;
     updateRepeatVis();
-    populateCatList();
     renderCalList();
     var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false");
   }
@@ -1129,17 +960,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function renderCalList() {
     var box = document.getElementById("calList");
     var list = calDayEntries(calSel);
-    var plan = gridReflections(calView.y, calView.m)[+calSel.slice(8, 10)] || [];
-    if (!list.length && !plan.length) { box.innerHTML = '<div class="cal-empty">Nothing logged yet.</div>'; return; }
+    if (!list.length) { box.innerHTML = '<div class="cal-empty">Nothing logged yet.</div>'; return; }
     box.innerHTML = list.map(function (e) {
       return '<div class="cal-item"><span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
-        '<span class="note2">' + esc(e.note || "(no note)") + (e.catName ? (e.catName === e.note ? ' <span class="rep">📅</span>' : ' <span class="rep">📅 ' + esc(e.catName) + '</span>') : '') + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
+        '<span class="note2">' + esc(e.note || "(no note)") + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
         '<button class="del2" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" aria-label="Delete">✕</button></div>';
-    }).join("") +
-    // Budget-grid amounts placed on this free day — read-only here, edited on the Budget tab.
-    plan.map(function (it) {
-      return '<div class="cal-item plan"><span class="amt2 ' + it.type + '">' + (it.type === "income" ? "+" : "−") + money(it.amount) + '</span>' +
-        '<span class="note2">' + esc(it.name) + ' <span class="rep">📊 Budget grid</span></span></div>';
     }).join("");
     Array.prototype.forEach.call(box.querySelectorAll(".del2"), function (b) {
       b.addEventListener("click", function () {
@@ -1181,30 +1006,20 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       calType = b.getAttribute("data-ct");
       Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (x) { x.classList.toggle("sel", x === b); });
       updateRepeatVis();
-      populateCatList();
     });
   });
 
   document.getElementById("calAdd").addEventListener("click", function () {
     var amt = parseFloat(document.getElementById("calAmt").value);
     if (!(amt > 0)) { document.getElementById("calAmt").focus(); return; }
-    var cat = document.getElementById("calCat").value.trim();
-    var gridSection = catSectionFor(calType);
-    var entryYear = calSel.slice(0, 4);
-    // Additive & non-destructive: the entry is tagged with its category and ADDS to that category's
-    // month in the grid. Make sure a row for it exists (created blank) so the amount has somewhere to
-    // land; a category's typed numbers are never touched. (No blocking confirm() dialog — on a
-    // signed-in device its window-blur trips the focus-based cloud sync and could drop the entry.)
-    if (cat) ensureCategory(gridSection, cat, entryYear);
-    var label = cat || (calType.charAt(0).toUpperCase() + calType.slice(1));
+    var note = document.getElementById("calNote").value.trim();
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
-      calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: label, start: calSel.slice(0, 7), catName: cat || undefined });
+      calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7) });
     } else {
-      calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: label, catName: cat || undefined });
+      calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: note || (calType.charAt(0).toUpperCase() + calType.slice(1)) });
     }
-    if (cat) localStorage.setItem(SKEY, JSON.stringify(store));   // persist the created budget category
     document.getElementById("calAmt").value = "";
-    document.getElementById("calCat").value = "";
+    document.getElementById("calNote").value = "";
     document.getElementById("calRepeat").checked = false;
     saveCal(); renderCalList(); renderCal();
   });

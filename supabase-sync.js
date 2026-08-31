@@ -41,7 +41,6 @@
   var REV_KEY = "__sync_rev_" + cfg.app;
   var PUSHED_KEY = "__sync_pushedrev_" + cfg.app;
   var OWNER_KEY = "__sync_owner_" + cfg.app;   // which account the local data belongs to (isolation)
-  var SCORE_KEY = "__sync_score_" + cfg.app;   // last-known-good "how much data" score — powers the wipe-guard
 
   var sb = null;
   var currentUser = null;
@@ -52,9 +51,6 @@
   var loggedInOnce = false;   // auth can fire the login twice — run it only once
   var realtimeSubscribed = false;
   var currentToken = null;    // cached access token, so the keepalive beacon can fire synchronously
-  var editedThisSession = false;  // once you edit on THIS device, its data is authoritative here — a
-                                  // differing cloud (e.g. a stale device pushing old values) can never
-                                  // revert your live edits; we re-push instead of applying.
 
   /* ---- 1. Install the localStorage hook SYNCHRONOUSLY (before the app runs) ---- */
   var origSet = window.localStorage.setItem.bind(window.localStorage);
@@ -71,7 +67,6 @@
   // otherwise a freshly-loaded empty device would look "dirty" and overwrite the cloud).
   function onLocalEdit() {
     if (!ready) return;
-    editedThisSession = true;                  // this device now owns its edits — never let cloud revert them
     origSet(REV_KEY, String(getRev() + 1));   // durably mark "there are unsaved edits"
     updatePendingBadge();
     schedulePush();
@@ -176,39 +171,24 @@
   function setSeen(ts) { if (ts) origSet(SEEN_KEY, String(ts)); }
   function getOwner() { return origGet(OWNER_KEY); }
   function setOwner(id) { if (id) origSet(OWNER_KEY, String(id)); }
-  // Coerce a cloud value into the JSON STRING localStorage expects. Supabase can hand a JSONB value
-  // back as a nested OBJECT (not a string); writing that raw would store the literal "[object Object]",
-  // JSON.parse would then fail, and the app would seed a blank budget over real data. Always store a
-  // real string; if a value is somehow unusable, return null so the caller keeps the local copy.
-  function asStored(v) {
-    if (v == null) return null;
-    if (typeof v === "string") return v;
-    try { return JSON.stringify(v); } catch (e) { return null; }
-  }
 
   function applyCloud(data, updatedAt) {
     applyingRemote = true;
-    // Replace every synced key: keys present in the cloud are written (coerced to a real JSON string);
-    // keys the cloud no longer has are removed, so a delete on one device propagates. A value that
-    // can't be coerced is LEFT as the local copy — never overwrite good data with a corrupt blob.
+    // Replace every synced key: keys present in the cloud are written; keys the cloud no longer
+    // has are removed, so a delete on one device propagates instead of lingering here.
     KEYS.forEach(function (k) {
-      if (data && Object.prototype.hasOwnProperty.call(data, k)) {
-        var s = asStored(data[k]);
-        if (s != null) origSet(k, s);           // coerced string only — never "[object Object]"
-      } else {
-        origRemove(k);
-      }
+      if (data && Object.prototype.hasOwnProperty.call(data, k)) origSet(k, data[k]);
+      else origRemove(k);
     });
     if (updatedAt) origSet(SEEN_KEY, String(updatedAt));   // we now mirror this exact cloud version
     origSet(PUSHED_KEY, String(getRev()));                 // in sync with cloud → nothing left to push
-    setScore(contentScore(data || {}));                    // remember the cloud's size for the wipe-guard
     applyingRemote = false;
     updatePendingBadge();
   }
   function clearLocal() {
     applyingRemote = true;
     KEYS.forEach(function (k) { origRemove(k); });
-    origRemove(SEEN_KEY); origRemove(REV_KEY); origRemove(PUSHED_KEY); origRemove(OWNER_KEY); origRemove(SCORE_KEY);  // reset all sync markers for the next person
+    origRemove(SEEN_KEY); origRemove(REV_KEY); origRemove(PUSHED_KEY); origRemove(OWNER_KEY);  // reset all sync markers for the next person
     applyingRemote = false;
   }
 
@@ -217,70 +197,24 @@
     return sb.from("user_data").select("data,updated_at").eq("app", cfg.app).maybeSingle()
       .then(function (res) { return res.data || null; });
   }
-  // ---- Data-loss WIPE-GUARD ---------------------------------------------------------------
-  // An app-agnostic "how much is in here" score: the count of array elements anywhere in the
-  // parsed state (trades/holdings, income/expense rows + their monthly values, calendar entries…).
-  // Empty state → 0; a real dataset → dozens or hundreds. Used ONLY to catch a CATASTROPHIC
-  // collapse (state wiped or corrupted) before it can overwrite a healthy cloud row — the exact
-  // failure that once destroyed Anna's budget. It never blocks normal edits (editing a value or
-  // adding/removing a row barely moves the score).
-  function countArrays(x) {
-    var n = 0;
-    if (Array.isArray(x)) { n += x.length; for (var i = 0; i < x.length; i++) n += countArrays(x[i]); }
-    else if (x && typeof x === "object") { for (var k in x) if (Object.prototype.hasOwnProperty.call(x, k)) n += countArrays(x[k]); }
-    return n;
-  }
-  function contentScore(dataObj) {
-    var n = 0;
-    KEYS.forEach(function (k) {
-      var v = dataObj && dataObj[k];
-      if (v == null) return;
-      try { n += countArrays(typeof v === "string" ? JSON.parse(v) : v); } catch (e) {}
-    });
-    return n;
-  }
-  function getScore() { var n = Number(origGet(SCORE_KEY)); return isNaN(n) ? 0 : n; }
-  function setScore(n) { origSet(SCORE_KEY, String(n)); }
-
-  // push() writes local state up. It records which REV it sent, so success marks exactly that rev as
-  // pushed (edits made DURING the request stay pending and push again). The old "wipe-guard" that read
-  // the cloud and RESTORED it on a suspected collapse was removed — it could pull OLD cloud data back
-  // over live edits (the "reverts to $2000" behaviour). Data-loss is now prevented at the source
-  // instead: applyCloud coerces cloud values to strings (no "[object Object]"), loadStore never seeds
-  // a blank over corrupt data, and reconcile never reverts an edit made on this device this session.
+  // push() writes local state up. It records which REV it sent, so success marks exactly that rev
+  // as pushed (edits made DURING the request stay pending and push again).
   function push() {
     if (!currentUser) return Promise.resolve();
-    var out = gather();
-    return doUpsert(out, contentScore(out));
-  }
-  function doUpsert(out, outScore) {
     var revSent = getRev();
     return sb.from("user_data").upsert(
-      { user_id: currentUser.id, app: cfg.app, data: out },
+      { user_id: currentUser.id, app: cfg.app, data: gather() },
       { onConflict: "user_id,app" }
     ).select("updated_at").maybeSingle().then(function (r) {
       if (r && !r.error) {
         if (getPushed() < revSent) origSet(PUSHED_KEY, String(revSent));  // confirmed in the cloud
         if (r.data && r.data.updated_at) setSeen(r.data.updated_at);
-        setScore(outScore);                                               // remember how much we last wrote
         updatePendingBadge();
       }
-      if (DEBUG) dbgShow("PUSHED rev" + revSent + " (score " + outScore + ") — " + (r && r.error ? "ERROR " + JSON.stringify(r.error) : "OK, seen=" + (r.data && r.data.updated_at)) +
+      if (DEBUG) dbgShow("PUSHED rev" + revSent + " — " + (r && r.error ? "ERROR " + JSON.stringify(r.error) : "OK, seen=" + (r.data && r.data.updated_at)) +
         " · " + new Date().toLocaleTimeString());
       return r;
     });
-  }
-  // Brief, non-blocking confirmation shown when the wipe-guard rescues the cloud data.
-  function guardToast() {
-    try {
-      var t = document.createElement("div");
-      t.textContent = "✓ Restored your saved data from the cloud";
-      t.style.cssText = "position:fixed;left:50%;bottom:70px;transform:translateX(-50%);z-index:2147483200;" +
-        "background:#12351f;color:#7CF5B0;border:1px solid #2FE79B;border-radius:12px;padding:11px 16px;" +
-        "font:600 13px -apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:90vw;text-align:center;";
-      document.body.appendChild(t);
-      setTimeout(function () { t.style.transition = "opacity .4s"; t.style.opacity = "0"; setTimeout(function () { t.remove(); }, 400); }, 3200);
-    } catch (e) {}
   }
 
   // Normal editing path: a short debounce batches rapid keystrokes but still saves fast.
@@ -314,24 +248,12 @@
       if (hasUnpushed() || KEYS.some(function (k) { return origGet(k) !== null; })) return push();
       return Promise.resolve();
     }
-    // Only a STRICTLY NEWER cloud counts as "moved". Comparing with !== was a data-loss bug: Supabase
-    // realtime can deliver a DELAYED echo of an earlier save (older updated_at) after a newer one, and
-    // a read replica can lag — an older snapshot would then satisfy `differs && cloudMoved` and
-    // OVERWRITE fresher local edits. Requiring updated_at > seen makes a stale/older echo fall through
-    // to the self-healing "push local" branch instead. (ISO-8601 UTC timestamps compare lexically.)
-    var seen = getSeen();
-    var cloudMoved = !seen || (row.updated_at > seen);
+    var cloudMoved = (row.updated_at !== getSeen());        // cloud changed since we last synced?
     var differs = (canon(row.data) !== canon(local));
 
     if (hasUnpushed()) {
       // This device has edits not yet confirmed in the cloud — even across an iOS reload, thanks to
       // the durable REV counter. They win: push them up instead of letting the cloud overwrite them.
-      return push();
-    }
-    if (editedThisSession && differs) {
-      // You've edited on THIS device this session, and the cloud disagrees — almost always another
-      // (stale) device pushing OLD values back. Never revert your live edits: re-push local instead.
-      // Cross-device changes still arrive on a fresh load/login (where editedThisSession is false).
       return push();
     }
     if (differs && !cloudMoved) {
@@ -441,15 +363,10 @@
     try {
       sb.channel("sync_" + cfg.app)
         .on("postgres_changes",
-          // Scope the subscription to THIS user's own rows. The old `app=eq.<app>` filter matched
-          // EVERY user's row, so when two people used the app at once, realtime could hand one
-          // person's budget to another and reconcile() would overwrite it — cross-account data loss.
-          { event: "*", schema: "public", table: "user_data", filter: "user_id=eq." + currentUser.id },
+          { event: "*", schema: "public", table: "user_data", filter: "app=eq." + cfg.app },
           function (payload) {
             var n = payload["new"];
             if (!n || !n.data) return;
-            if (n.app !== cfg.app) return;                                                   // ignore this user's OTHER app rows
-            if (n.user_id && String(n.user_id) !== String(currentUser.id)) return;           // belt: never apply someone else's data
             reconcile({ data: n.data, updated_at: n.updated_at });   // same server-clock logic
           })
         .subscribe();
@@ -574,61 +491,7 @@
     var dg = document.getElementById("set-danger"); if (dg) dg.style.display = "none";
     var ok = document.getElementById("set-email-ok"); if (ok) ok.style.display = "none";
     var er = document.getElementById("set-email-err"); if (er) er.textContent = "";
-    var bok = document.getElementById("set-backup-ok"); if (bok) bok.style.display = "none";
-    var ber = document.getElementById("set-backup-err"); if (ber) ber.textContent = "";
     highlightTheme(themeMode());
-  }
-
-  /* ---------------- backup: export / import (user-owned safety net) ---------------- */
-  function exportBackup() {
-    var ok = document.getElementById("set-backup-ok"), er = document.getElementById("set-backup-err");
-    if (er) er.textContent = "";
-    try {
-      var payload = { app: cfg.app, name: cfg.name, version: 1, exportedAt: new Date().toISOString(), data: gather() };
-      var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      var url = URL.createObjectURL(blob);
-      var d = new Date();
-      var stamp = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
-      var a = document.createElement("a");
-      a.href = url; a.download = cfg.app + "-backup-" + stamp + ".json";
-      document.body.appendChild(a); a.click();
-      setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 1500);
-      if (ok) { ok.textContent = "✓ Backup file saved to your device."; ok.style.display = "block"; }
-    } catch (e) {
-      if (er) er.textContent = "Couldn't export right now. Try again.";
-    }
-  }
-  function importBackup(ev) {
-    var file = ev.target && ev.target.files && ev.target.files[0];
-    if (ev.target) ev.target.value = "";        // let the same file be picked again later
-    var ok = document.getElementById("set-backup-ok"), er = document.getElementById("set-backup-err");
-    if (ok) ok.style.display = "none";
-    if (er) er.textContent = "";
-    if (!file) return;
-    var reader = new FileReader();
-    reader.onload = function () {
-      var parsed;
-      try { parsed = JSON.parse(reader.result); } catch (e) { if (er) er.textContent = "That file isn’t a valid backup."; return; }
-      var data = parsed && parsed.data;
-      if (!data || typeof data !== "object") { if (er) er.textContent = "That file isn’t a valid " + esc(cfg.name) + " backup."; return; }
-      if (parsed.app && cfg.app && parsed.app !== cfg.app) { if (er) er.textContent = "That backup is for a different app (" + esc(parsed.app) + "), not " + esc(cfg.name) + "."; return; }
-      var score = contentScore(data);
-      if (!window.confirm("Import this backup?\n\nIt will REPLACE your current " + cfg.name + " data on this device and sync to your other devices. Consider exporting a backup of your current data first.")) return;
-      applyingRemote = true;                     // write straight to storage without tripping the edit hook…
-      KEYS.forEach(function (k) {
-        if (Object.prototype.hasOwnProperty.call(data, k) && data[k] != null) origSet(k, typeof data[k] === "string" ? data[k] : JSON.stringify(data[k]));
-        else origRemove(k);
-      });
-      applyingRemote = false;
-      origSet(REV_KEY, String(getRev() + 1));    // …then mark it dirty so it pushes up to the cloud
-      setScore(score);                           // imported real data → update the guard's baseline
-      updatePendingBadge();
-      if (typeof window.__resyncApply === "function") { try { window.__resyncApply(); } catch (e) {} }
-      if (currentUser) push();
-      if (ok) { ok.textContent = "✓ Imported " + score + " items. Your data has been restored."; ok.style.display = "block"; }
-    };
-    reader.onerror = function () { if (er) er.textContent = "Couldn't read that file."; };
-    reader.readAsText(file);
   }
   function openSettings() {
     var d = document.getElementById("set-scrim");
@@ -649,14 +512,6 @@
           '<div class="set-sec"><div class="set-lbl">Appearance</div>' +
             '<div class="set-seg" id="set-seg"><button data-t="system">System</button><button data-t="light">Light</button><button data-t="dark">Dark</button></div>' +
           '</div>' +
-          '<div class="set-sec"><div class="set-lbl">Backup</div><div class="set-stack">' +
-            '<button class="set-btn ghost" id="set-export">⬇︎ Export a backup file</button>' +
-            '<button class="set-btn ghost" id="set-import">⬆︎ Import from a backup file</button>' +
-            '<input id="set-import-file" type="file" accept="application/json,.json" style="display:none">' +
-            '<div class="set-hint">Export saves all your ' + esc(cfg.name) + ' data as a file on your device — keep it somewhere safe. Import <b>replaces</b> what’s here now with a backup file’s contents.</div>' +
-            '<div class="set-ok" id="set-backup-ok"></div>' +
-            '<div class="set-err" id="set-backup-err"></div>' +
-          '</div></div>' +
           '<div class="set-sec"><div class="set-lbl">Session</div><div class="set-stack">' +
             '<button class="set-btn ghost" id="set-logout">Log out</button>' +
             '<button class="set-btn danger" id="set-del">Delete account…</button>' +
@@ -668,9 +523,6 @@
     d.addEventListener("click", function (e) { if (e.target === d) closeSettings(); });
     document.getElementById("set-close").onclick = closeSettings;
     document.getElementById("set-email-save").onclick = changeEmail;
-    document.getElementById("set-export").onclick = exportBackup;
-    document.getElementById("set-import").onclick = function () { document.getElementById("set-import-file").click(); };
-    document.getElementById("set-import-file").onchange = importBackup;
     document.getElementById("set-logout").onclick = logout;
     document.getElementById("set-del").onclick = function () { var x = document.getElementById("set-danger"); if (x) x.style.display = "block"; };
     document.getElementById("set-del-cancel").onclick = function () { var x = document.getElementById("set-danger"); if (x) x.style.display = "none"; };
