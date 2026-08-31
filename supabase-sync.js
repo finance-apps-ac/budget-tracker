@@ -172,14 +172,28 @@
   function setSeen(ts) { if (ts) origSet(SEEN_KEY, String(ts)); }
   function getOwner() { return origGet(OWNER_KEY); }
   function setOwner(id) { if (id) origSet(OWNER_KEY, String(id)); }
+  // Coerce a cloud value into the JSON STRING localStorage expects. Supabase can hand a JSONB value
+  // back as a nested OBJECT (not a string); writing that raw would store the literal "[object Object]",
+  // JSON.parse would then fail, and the app would seed a blank budget over real data. Always store a
+  // real string; if a value is somehow unusable, return null so the caller keeps the local copy.
+  function asStored(v) {
+    if (v == null) return null;
+    if (typeof v === "string") return v;
+    try { return JSON.stringify(v); } catch (e) { return null; }
+  }
 
   function applyCloud(data, updatedAt) {
     applyingRemote = true;
-    // Replace every synced key: keys present in the cloud are written; keys the cloud no longer
-    // has are removed, so a delete on one device propagates instead of lingering here.
+    // Replace every synced key: keys present in the cloud are written (coerced to a real JSON string);
+    // keys the cloud no longer has are removed, so a delete on one device propagates. A value that
+    // can't be coerced is LEFT as the local copy — never overwrite good data with a corrupt blob.
     KEYS.forEach(function (k) {
-      if (data && Object.prototype.hasOwnProperty.call(data, k)) origSet(k, data[k]);
-      else origRemove(k);
+      if (data && Object.prototype.hasOwnProperty.call(data, k)) {
+        var s = asStored(data[k]);
+        if (s != null) origSet(k, s);           // coerced string only — never "[object Object]"
+      } else {
+        origRemove(k);
+      }
     });
     if (updatedAt) origSet(SEEN_KEY, String(updatedAt));   // we now mirror this exact cloud version
     origSet(PUSHED_KEY, String(getRev()));                 // in sync with cloud → nothing left to push
@@ -437,10 +451,15 @@
     try {
       sb.channel("sync_" + cfg.app)
         .on("postgres_changes",
-          { event: "*", schema: "public", table: "user_data", filter: "app=eq." + cfg.app },
+          // Scope the subscription to THIS user's own rows. The old `app=eq.<app>` filter matched
+          // EVERY user's row, so when two people used the app at once, realtime could hand one
+          // person's budget to another and reconcile() would overwrite it — cross-account data loss.
+          { event: "*", schema: "public", table: "user_data", filter: "user_id=eq." + currentUser.id },
           function (payload) {
             var n = payload["new"];
             if (!n || !n.data) return;
+            if (n.app !== cfg.app) return;                                                   // ignore this user's OTHER app rows
+            if (n.user_id && String(n.user_id) !== String(currentUser.id)) return;           // belt: never apply someone else's data
             reconcile({ data: n.data, updated_at: n.updated_at });   // same server-clock logic
           })
         .subscribe();

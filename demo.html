@@ -492,8 +492,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   var budget = store[curYear];
 
   function loadStore() {
-    try { var s = JSON.parse(localStorage.getItem(SKEY)); if (s && typeof s === "object" && Object.keys(s).length) return s; } catch (e) {}
-    // migrate a single-year save from the earlier version
+    var raw = localStorage.getItem(SKEY);
+    if (raw != null && raw !== "") {
+      try { var s = JSON.parse(raw); if (s && typeof s === "object" && Object.keys(s).length) return s; } catch (e) {}
+      // SKEY exists but is unparseable (e.g. a corrupted "[object Object]" left by an old sync bug). Do
+      // NOT overwrite it with a blank seed — that would wipe real data AND push the blank to the cloud.
+      // Return a transient blank WITHOUT persisting, so a clean cloud copy replaces it on sign-in.
+      return { "2026": seed() };
+    }
+    // genuinely absent → migrate a single-year save from the earlier version, else seed a fresh one.
     try { var old = JSON.parse(localStorage.getItem(OLDKEY)); if (old && old.income) { var m = { "2026": old }; localStorage.setItem(SKEY, JSON.stringify(m)); return m; } } catch (e) {}
     var init = { "2026": seed() }; localStorage.setItem(SKEY, JSON.stringify(init)); return init;
   }
@@ -927,7 +934,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // in. Never touches an existing row's typed numbers — the calendar only adds to them.
   function ensureCategory(gridSection, name, yr) {
     yr = String(yr);
-    if (!store[yr]) return;
+    if (!store[yr]) {
+      // Calendar entry logged in a not-yet-existing budget year → create that year (category names
+      // carried from the latest year, blank amounts) so the amount lands instead of vanishing.
+      var src = store[latestYear()] || { income: [], expenses: [] };
+      store[yr] = {
+        income: src.income.map(function (r) { return row(r.name, []); }),
+        expenses: src.expenses.map(function (r) { return row(r.name, []); })
+      };
+    }
     var rows = store[yr][gridSection];
     for (var i = 0; i < rows.length; i++) if (rows[i].name === name) return;
     rows.push({ id: uid(), name: name, vals: blank12() });

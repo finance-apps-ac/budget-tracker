@@ -44,7 +44,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
    the one THIS page was built with, we reload once against a fresh URL so the browser pulls the new
    HTML + JS. Bump APP_VERSION here AND version.txt on every deploy. */
 (function () {
-  var APP_VERSION = 1;
+  var APP_VERSION = 2;
   function check() {
     fetch("version.txt?t=" + Date.now(), { cache: "no-store" })
       .then(function (r) { return r.ok ? r.text() : ""; })
@@ -66,7 +66,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
 <script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries":[{"id":"e_pay1","date":"2025-06-05","type":"income","amount":1850,"note":"Paycheck"},{"id":"e_ot","date":"2025-06-13","type":"income","amount":290,"note":"Overtime"},{"id":"e_pay2","date":"2025-06-20","type":"income","amount":1920,"note":"Paycheck"},{"id":"e_gr1","date":"2025-06-03","type":"expense","amount":85,"note":"Groceries"},{"id":"e_gas","date":"2025-06-08","type":"expense","amount":45,"note":"Gas"},{"id":"e_din","date":"2025-06-11","type":"expense","amount":58,"note":"Dining out"},{"id":"e_shop","date":"2025-06-18","type":"expense","amount":120,"note":"Shopping"},{"id":"e_gr2","date":"2025-06-24","type":"expense","amount":92,"note":"Groceries"},{"id":"e_misc","date":"2025-06-27","type":"expense","amount":61,"note":"Misc"}],"repeats":[{"id":"rdemo1","day":1,"amount":1800,"note":"Rent","start":"2025-01"},{"id":"rdemo2","day":5,"amount":340,"note":"Car payment","start":"2025-01"},{"id":"rdemo3","day":15,"amount":95,"note":"Phone bill","start":"2025-01"}],"work":{"2025-06-02":{"status":"work","shift":""},"2025-06-03":{"status":"work","shift":""},"2025-06-04":{"status":"work","shift":"Night"},"2025-06-05":{"status":"work","shift":""},"2025-06-06":{"status":"work","shift":""},"2025-06-07":{"status":"work","shift":""},"2025-06-10":{"status":"work","shift":""},"2025-06-11":{"status":"work","shift":""},"2025-06-12":{"status":"work","shift":""},"2025-06-13":{"status":"work","shift":""},"2025-06-16":{"status":"work","shift":""},"2025-06-17":{"status":"work","shift":"9–5"},"2025-06-18":{"status":"work","shift":""},"2025-06-20":{"status":"work","shift":""},"2025-06-21":{"status":"work","shift":""},"2025-06-23":{"status":"work","shift":""},"2025-06-24":{"status":"work","shift":"Night"},"2025-06-25":{"status":"work","shift":""},"2025-06-26":{"status":"work","shift":""},"2025-06-27":{"status":"work","shift":""},"2025-06-30":{"status":"work","shift":""},"2025-06-09":{"status":"off","shift":""},"2025-06-19":{"status":"off","shift":""}}}};</script>
-<script src="supabase-sync.js?v=26"></script>
+<script src="supabase-sync.js?v=27"></script>
 <script src="native.js?v=1"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
@@ -509,8 +509,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   var budget = store[curYear];
 
   function loadStore() {
-    try { var s = JSON.parse(localStorage.getItem(SKEY)); if (s && typeof s === "object" && Object.keys(s).length) return s; } catch (e) {}
-    // migrate a single-year save from the earlier version
+    var raw = localStorage.getItem(SKEY);
+    if (raw != null && raw !== "") {
+      try { var s = JSON.parse(raw); if (s && typeof s === "object" && Object.keys(s).length) return s; } catch (e) {}
+      // SKEY exists but is unparseable (e.g. a corrupted "[object Object]" left by an old sync bug). Do
+      // NOT overwrite it with a blank seed — that would wipe real data AND push the blank to the cloud.
+      // Return a transient blank WITHOUT persisting, so a clean cloud copy replaces it on sign-in.
+      return { "2026": seed() };
+    }
+    // genuinely absent → migrate a single-year save from the earlier version, else seed a fresh one.
     try { var old = JSON.parse(localStorage.getItem(OLDKEY)); if (old && old.income) { var m = { "2026": old }; localStorage.setItem(SKEY, JSON.stringify(m)); return m; } } catch (e) {}
     var init = { "2026": seed() }; localStorage.setItem(SKEY, JSON.stringify(init)); return init;
   }
@@ -944,7 +951,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // in. Never touches an existing row's typed numbers — the calendar only adds to them.
   function ensureCategory(gridSection, name, yr) {
     yr = String(yr);
-    if (!store[yr]) return;
+    if (!store[yr]) {
+      // Calendar entry logged in a not-yet-existing budget year → create that year (category names
+      // carried from the latest year, blank amounts) so the amount lands instead of vanishing.
+      var src = store[latestYear()] || { income: [], expenses: [] };
+      store[yr] = {
+        income: src.income.map(function (r) { return row(r.name, []); }),
+        expenses: src.expenses.map(function (r) { return row(r.name, []); })
+      };
+    }
     var rows = store[yr][gridSection];
     for (var i = 0; i < rows.length; i++) if (rows[i].name === name) return;
     rows.push({ id: uid(), name: name, vals: blank12() });
