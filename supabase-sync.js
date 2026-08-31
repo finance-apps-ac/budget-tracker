@@ -367,19 +367,12 @@
     if (realtimeSubscribed) return;   // subscribe exactly once — re-subscribing throws
     realtimeSubscribed = true;
     try {
-      // CRITICAL: scope the realtime feed to THIS account at the server (filter on user_id),
-      // not just to the app. Filtering only by app meant every budget user's saves were broadcast
-      // to every other budget user — another person's (e.g. a spouse's separate account) save would
-      // land here and overwrite this device's data. Now the server only sends this user's own rows,
-      // and the handler double-checks app + user_id before ever applying anything.
-      sb.channel("sync_" + cfg.app + "_" + currentUser.id)
+      sb.channel("sync_" + cfg.app)
         .on("postgres_changes",
-          { event: "*", schema: "public", table: "user_data", filter: "user_id=eq." + currentUser.id },
+          { event: "*", schema: "public", table: "user_data", filter: "app=eq." + cfg.app },
           function (payload) {
             var n = payload["new"];
             if (!n || !n.data) return;
-            if (n.app && n.app !== cfg.app) return;                                                  // ignore this account's OTHER app (pnl vs budget)
-            if (n.user_id && currentUser && String(n.user_id) !== String(currentUser.id)) return;    // never apply another account's data
             reconcile({ data: n.data, updated_at: n.updated_at });   // same server-clock logic
           })
         .subscribe();
