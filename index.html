@@ -37,6 +37,30 @@
 document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
 document.addEventListener("gesturechange", function (e) { e.preventDefault(); }, { passive: false });
 </script>
+<script>
+/* Auto-update: keeps every visitor on the latest code without manual cache-clearing. GitHub Pages
+   caches the HTML, so a browser can keep running old code after a deploy. On load (and when the tab
+   is refocused) we fetch a tiny always-fresh version marker; if the deployed version is newer than
+   the one THIS page was built with, we reload once against a fresh URL so the browser pulls the new
+   HTML + JS. Bump APP_VERSION here AND version.txt on every deploy. */
+(function () {
+  var APP_VERSION = 1;
+  function check() {
+    fetch("version.txt?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.text() : ""; })
+      .then(function (t) {
+        var latest = parseInt(String(t).trim(), 10);
+        // Loop-guard: if we're ALREADY on ?v=latest (we reloaded but the HTML is still old — e.g. a
+        // CDN edge hasn't updated yet), don't reload again; just keep running until it catches up.
+        var already = new RegExp("[?&]v=" + latest + "(?:&|$)").test(location.search);
+        if (latest && latest > APP_VERSION && !already) { try { location.replace(location.pathname + "?v=" + latest); } catch (e) {} }
+      })
+      .catch(function () {});   // offline / blocked → just keep running
+  }
+  try { check(); } catch (e) {}
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") { try { check(); } catch (e) {} } });
+})();
+</script>
 </head>
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
