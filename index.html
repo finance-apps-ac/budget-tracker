@@ -330,11 +330,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-typesel { display: flex; gap: 6px; margin-bottom: 9px; }
   .cal-typesel button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
   .cal-typesel button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
-  .cal-addrow { display: flex; gap: 8px; }
-  .cal-in { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
+  .cal-in { display: block; width: 100%; box-sizing: border-box; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
   .cal-in:focus { border-color: var(--accent); outline: none; }
-  #calAmt { flex: none; width: 118px; font-family: var(--font-mono); }
-  #calNote { flex: 1; min-width: 0; }
+  .cal-catwrap { position: relative; margin-bottom: 8px; }
+  #calCat { padding-right: 30px; }
+  .cal-chev { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); font-size: 11px; pointer-events: none; }
+  #calAmt { font-family: var(--font-mono); }
   #calAmt::-webkit-outer-spin-button, #calAmt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .cal-repeat { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
   .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
@@ -445,10 +446,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <button data-ct="expense" type="button">Expense</button>
       <button data-ct="bill" type="button">Bill</button>
     </div>
-    <div class="cal-addrow">
-      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
-      <input class="cal-in" id="calNote" placeholder="Note (e.g. Rent, Paycheck)">
+    <div class="cal-catwrap">
+      <input class="cal-in" id="calCat" list="calCatList" autocomplete="off" placeholder="Category — pick one or type a new one">
+      <datalist id="calCatList"></datalist>
+      <span class="cal-chev" aria-hidden="true">▾</span>
     </div>
+    <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
     <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
     <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
   </div>
@@ -942,6 +945,31 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   function updateRepeatVis() { document.getElementById("calRepeatWrap").style.display = (calType === "bill") ? "flex" : "none"; }
 
+  // Fill the category dropdown from the user's own grid categories for the current entry type
+  // (income categories for Income; expense categories for Expense/Bill). She can also type a new one.
+  function fillCalCats() {
+    var src = (calType === "income") ? (budget.income || []) : (budget.expenses || []);
+    var seen = {}, opts = [];
+    src.forEach(function (r) {
+      var n = (r.name || "").trim();
+      if (n && !seen[n]) { seen[n] = 1; opts.push('<option value="' + esc(n) + '"></option>'); }
+    });
+    var dl = document.getElementById("calCatList");
+    if (dl) dl.innerHTML = opts.join("");
+  }
+
+  // Keep the grid and calendar sharing ONE category list: when a calendar entry uses a category
+  // that isn't in the yearly grid yet, add it as a new (empty-amount) row — same shape/styling as a
+  // hand-added category (uppercase, green for income / purple for expenses via the grid's own CSS).
+  function ensureGridCategory(sec, name) {
+    var trimmed = (name || "").trim();
+    if (!trimmed) return;
+    var exists = (budget[sec] || []).some(function (r) { return (r.name || "").trim().toLowerCase() === trimmed.toLowerCase(); });
+    if (exists) return;
+    budget[sec].push(row(trimmed, []));
+    persist(); render();
+  }
+
   function openCalDay(k) {
     calSel = k; calType = "expense";
     document.getElementById("calDayTitle").textContent = dayTitle(k);
@@ -949,7 +977,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calShift").value = (calData.work[k] && calData.work[k].shift) || "";
     Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) { b.classList.toggle("sel", b.getAttribute("data-ct") === "expense"); });
     document.getElementById("calAmt").value = "";
-    document.getElementById("calNote").value = "";
+    document.getElementById("calCat").value = "";
+    fillCalCats();
     document.getElementById("calRepeat").checked = false;
     updateRepeatVis();
     renderCalList();
@@ -1006,20 +1035,23 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       calType = b.getAttribute("data-ct");
       Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (x) { x.classList.toggle("sel", x === b); });
       updateRepeatVis();
+      fillCalCats();
     });
   });
 
   document.getElementById("calAdd").addEventListener("click", function () {
     var amt = parseFloat(document.getElementById("calAmt").value);
     if (!(amt > 0)) { document.getElementById("calAmt").focus(); return; }
-    var note = document.getElementById("calNote").value.trim();
+    var note = document.getElementById("calCat").value.trim();
+    // Share one category list: a brand-new category typed here also appears in the yearly grid.
+    if (note) ensureGridCategory(calType === "income" ? "income" : "expenses", note);
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
       calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7) });
     } else {
       calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: note || (calType.charAt(0).toUpperCase() + calType.slice(1)) });
     }
     document.getElementById("calAmt").value = "";
-    document.getElementById("calNote").value = "";
+    document.getElementById("calCat").value = "";
     document.getElementById("calRepeat").checked = false;
     saveCal(); renderCalList(); renderCal();
   });
