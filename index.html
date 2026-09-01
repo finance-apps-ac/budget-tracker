@@ -893,7 +893,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       var vals = [], mask = [];
       for (var m = 0; m < 12; m++) {
         var cs = calSum(sec, r.name, m);
-        if (cs > 0) { vals[m] = num(r.vals[m]) + cs; mask[m] = true; }
+        // Calendar is PRIORITY: a logged actual REPLACES the typed budget value for that month
+        // (never adds to it) — so entering the same thing in both places can't double-count.
+        if (cs > 0) { vals[m] = cs; mask[m] = true; }
         else { vals[m] = r.vals[m]; mask[m] = false; }
       }
       return { id: r.id, name: r.name, vals: vals, calMask: mask };
