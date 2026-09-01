@@ -205,6 +205,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .amt::placeholder { color: var(--ink-faint); }
   .amt::-webkit-outer-spin-button, .amt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .amt { -moz-appearance: textfield; appearance: textfield; }
+  .amt[readonly] { pointer-events: none; }   /* calendar-fed month: same look, edited on the calendar */
   .catname { width: 132px; margin-left: -7px; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; font-size: 12.5px; color: var(--gain); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   #expenseTable .catname { color: var(--violet); }
   .catname:hover { border-color: var(--border); }
@@ -746,7 +747,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       }
       body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
       for (var m = 0; m < 12; m++) {
-        body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
+        if (r.calMask && r.calMask[m]) {
+          // This month's amount comes from the calendar (edit it there). Read-only, identical look.
+          body += '<td><input class="amt" readonly tabindex="-1" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + esc(r.vals[m]) + '"></td>';
+        } else {
+          body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
+        }
       }
       body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td><button class="del" title="Delete" data-del="' + sec + '" data-id="' + r.id + '">✕</button></td></tr>';
     });
@@ -842,12 +848,45 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
 
-  // Calendar entries are intentionally NOT rolled into the yearly grid. The grid stays purely the
-  // user's own manually-entered categories; the calendar is a fully independent tracker with its
-  // own monthly summary. (The derived Calendar Income / Recurring Bills / Calendar Expenses rows
-  // were removed 2026-08-29 because they double-counted amounts already listed in the grid.)
-  function incomeRows() { return budget.income.slice(); }
-  function expenseRows() { return budget.expenses.slice(); }
+  // Calendar ⇄ grid share ONE number per category/month. An amount is entered in a single place
+  // (the grid OR the calendar) and reflected in the other, so it is never counted twice. Here we roll
+  // the calendar totals INTO the grid rows: a category's month cell = its manual grid value PLUS the
+  // sum of every calendar entry tagged with that category that month. Because each amount lives in
+  // only one place, one side is always zero — the "+" can't double-count. Months that come from the
+  // calendar are flagged (calMask) so the grid shows them read-only (you edit those on the calendar).
+  function calSum(sec, name, m) {
+    var nm = (name || "").trim().toLowerCase();
+    if (!nm) return 0;
+    var ym = curYear + "-" + pad2(m + 1);
+    var total = 0;
+    calData.entries.forEach(function (e) {
+      if ((e.note || "").trim().toLowerCase() !== nm) return;
+      if (String(e.date || "").slice(0, 7) !== ym) return;
+      var isIncome = e.type === "income";
+      if (sec === "income" ? isIncome : !isIncome) total += (+e.amount || 0);
+    });
+    if (sec === "expenses") {   // recurring bills count as expenses, from their start month onward
+      calData.repeats.forEach(function (r) {
+        if ((r.note || "").trim().toLowerCase() !== nm) return;
+        if (r.start && ym < r.start) return;
+        total += (+r.amount || 0);
+      });
+    }
+    return total;
+  }
+  function effRows(sec) {
+    return (budget[sec] || []).map(function (r) {
+      var vals = [], mask = [];
+      for (var m = 0; m < 12; m++) {
+        var cs = calSum(sec, r.name, m);
+        if (cs > 0) { vals[m] = num(r.vals[m]) + cs; mask[m] = true; }
+        else { vals[m] = r.vals[m]; mask[m] = false; }
+      }
+      return { id: r.id, name: r.name, vals: vals, calMask: mask };
+    });
+  }
+  function incomeRows() { return effRows("income"); }
+  function expenseRows() { return effRows("expenses"); }
 
   // All entries falling on a day: one-time entries on that exact date, plus any recurring
   // bill whose day-of-month matches and whose start month is on/before this month.
@@ -1004,7 +1043,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         } else {
           calData.entries = calData.entries.filter(function (e) { return e.id !== id; });
         }
-        saveCal(); renderCalList(); renderCal();
+        saveCal(); renderCalList(); renderCal(); render();   // keep the grid total in sync
       });
     });
   }
@@ -1053,7 +1092,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calAmt").value = "";
     document.getElementById("calCat").value = "";
     document.getElementById("calRepeat").checked = false;
-    saveCal(); renderCalList(); renderCal();
+    saveCal(); renderCalList(); renderCal(); render();   // render() so the grid total reflects this entry
   });
 
   document.getElementById("calClose").addEventListener("click", closeCalModal);
