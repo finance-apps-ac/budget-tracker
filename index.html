@@ -269,6 +269,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-cell:hover { border-color: var(--accent); }
   .cal-cell.blank { background: transparent; border: none; cursor: default; }
   .cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  /* Grid amounts reflected onto free days — faded, to distinguish from logged transactions. */
+  .cal-plan { margin-top: 3px; opacity: .5; display: flex; flex-direction: column; line-height: 1.25; }
+  .cal-plan-name { font-size: 8.5px; text-transform: uppercase; letter-spacing: .3px; color: var(--ink-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cal-plan .inc { color: var(--gain); font-family: var(--font-mono); font-size: 11px; font-style: italic; }
+  .cal-plan .exp { color: var(--loss); font-family: var(--font-mono); font-size: 11px; font-style: italic; }
   .cal-cell .top { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
   .cal-cell .d { font-size: 13px; font-weight: 700; }
   .cal-cell.wd .d { color: var(--gain); } .cal-cell.we .d { color: var(--violet); }
@@ -890,6 +895,23 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function incomeRows() { return effRows("income"); }
   function expenseRows() { return effRows("expenses"); }
 
+  // GRID → CALENDAR: a pure grid amount (typed in the grid, with no calendar entry for it that month)
+  // is reflected onto the calendar's first free days — one per empty day, to avoid clutter — so you see
+  // it there too. These are DISPLAY-ONLY (never stored as calendar entries), so they can't feed back
+  // into the grid and double-count. Calendar-fed months are skipped (they already show on their day).
+  function gridReflections(month) {
+    var out = [];
+    (budget.income || []).forEach(function (r) {
+      var v = num(r.vals[month]);
+      if (v > 0 && calSum("income", r.name, month) === 0) out.push({ name: r.name, amount: v, type: "income" });
+    });
+    (budget.expenses || []).forEach(function (r) {
+      var v = num(r.vals[month]);
+      if (v > 0 && calSum("expenses", r.name, month) === 0) out.push({ name: r.name, amount: v, type: "expense" });
+    });
+    return out;
+  }
+
   // All entries falling on a day: one-time entries on that exact date, plus any recurring
   // bill whose day-of-month matches and whose start month is on/before this month.
   function calDayEntries(k) {
@@ -930,6 +952,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
     var today = new Date();
     var mInc = 0, mExp = 0, wDays = 0, oDays = 0;
+    // Grid amounts to reflect onto this month's free days (only when viewing the grid's year).
+    var refl = (String(calView.y) === String(curYear)) ? gridReflections(calView.m) : [];
+    var reflIdx = 0;
     for (var dd = 1; dd <= days; dd++) {
       var k = ckey(calView.y, calView.m, dd);
       var dowi = new Date(calView.y, calView.m, dd).getDay();
@@ -954,9 +979,18 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       if (hasBill) dots += '<span class="cal-dot bill"></span>';
       if (hasExpense) dots += '<span class="cal-dot exp"></span>';
       if (inc > 0) dots += '<span class="cal-dot inc"></span>';
+      // A day with no logged money is "free" — drop the next grid amount here (display only).
+      var planHtml = "";
+      if (list.length === 0 && reflIdx < refl.length) {
+        var rf = refl[reflIdx++];
+        var pcls = rf.type === "income" ? "inc" : "exp", psign = rf.type === "income" ? "+" : "−";
+        planHtml = '<div class="cal-plan"><span class="cal-plan-name">' + esc(rf.name) + '</span>' +
+          '<span class="' + pcls + '">' + psign + money(rf.amount) + '</span></div>';
+        if (rf.type === "income") mInc += rf.amount; else mExp += rf.amount;
+      }
       cell.innerHTML = '<div class="top"><span class="d">' + dd + '</span>' + chip + '</div>' +
         (dots ? '<div class="cal-dots">' + dots + '</div>' : '') +
-        '<div class="cal-amts">' + amts + '</div>';
+        '<div class="cal-amts">' + amts + '</div>' + planHtml;
       cell.addEventListener("click", function () { openCalDay(this.getAttribute("data-k")); });
       grid.appendChild(cell);
     }
