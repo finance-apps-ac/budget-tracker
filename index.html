@@ -194,7 +194,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
      iOS Safari's position:sticky is unreliable on table cells. Relative + opaque + above the value
      cells so it covers them as it holds at the left edge. */
   th.cat, td.cat { text-align: left; position: relative; z-index: 2; background: var(--surface-2); border-right: 1px solid var(--border); min-width: 150px; will-change: transform; }
-  thead th.cat { z-index: 4; background: var(--surface); }
+  thead th.cat { position: sticky; top: 0; z-index: 4; background: var(--surface); }
   th.tot, td.tot { border-left: 1px solid var(--border); }
   td { padding: 5px 9px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
   tbody tr:hover td { background: var(--surface-2); }
@@ -216,7 +216,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
      of the horizontal scrollbar. */
   .total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; color: var(--ink);
                   position: sticky; bottom: 0; z-index: 3; background: var(--surface); padding-bottom: 14px; }
-  .total-row td.cat { position: relative; background: var(--surface); z-index: 4; }
+  .total-row td.cat { position: sticky; bottom: 0; background: var(--surface); z-index: 4; }
   .net-row td { font-weight: 700; border-top: 1px solid var(--border); }
   /* Derived "Recurring Bills" row: auto-summed from the calendar's fixed bills, read-only, amber. */
   tr.auto-row td { background: color-mix(in srgb, var(--amber) 7%, transparent); }
