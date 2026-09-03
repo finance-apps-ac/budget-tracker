@@ -190,11 +190,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Every header cell sticks to the top of the scroll box (frozen month row). */
   th { text-align: right; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); font-weight: 600; padding: 8px 9px; border-bottom: 1px solid var(--border);
        position: sticky; top: 0; z-index: 3; background: var(--surface); }
-  /* Frozen Category column: pinned horizontally by JS (`transform: translateX(scrollLeft)`) because
-     iOS Safari's position:sticky is unreliable on table cells. Relative + opaque + above the value
-     cells so it covers them as it holds at the left edge. */
-  th.cat, td.cat { text-align: left; position: relative; z-index: 2; background: var(--surface-2); border-right: 1px solid var(--border); min-width: 150px; will-change: transform; }
-  thead th.cat { position: sticky; top: 0; z-index: 4; background: var(--surface); }
+  /* Frozen Category column: pinned to the left edge with native `position: sticky; left: 0` so it
+     stays glued during momentum scroll (no JS-lag, no values poking out on the left). Opaque + above
+     the value cells (z-index) so it covers them as it holds. The header corner also sticks to the
+     top, and the Total label to the bottom, so those pin on both axes. */
+  th.cat, td.cat { text-align: left; position: sticky; left: 0; z-index: 2; background: var(--surface-2); border-right: 1px solid var(--border); min-width: 150px; }
+  thead th.cat { position: sticky; top: 0; left: 0; z-index: 4; background: var(--surface); }
   th.tot, td.tot { border-left: 1px solid var(--border); }
   td { padding: 5px 9px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
   tbody tr:hover td { background: var(--surface-2); }
@@ -216,7 +217,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
      of the horizontal scrollbar. */
   .total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; color: var(--ink);
                   position: sticky; bottom: 0; z-index: 3; background: var(--surface); padding-bottom: 14px; }
-  .total-row td.cat { position: sticky; bottom: 0; background: var(--surface); z-index: 4; }
+  .total-row td.cat { position: sticky; bottom: 0; left: 0; background: var(--surface); z-index: 4; }
   .net-row td { font-weight: 700; border-top: 1px solid var(--border); }
   /* Derived "Recurring Bills" row: auto-summed from the calendar's fixed bills, read-only, amber. */
   tr.auto-row td { background: color-mix(in srgb, var(--amber) 7%, transparent); }
@@ -598,15 +599,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // Re-fit when the viewport size changes (rotate, resize, split view).
   window.addEventListener("resize", function () { fitGrids(); });
 
-  // ---- Frozen Category column (JS pin) ----
-  // iOS Safari's position:sticky is unreliable on table cells (the column drifted with the scroll),
-  // so we pin it ourselves: on horizontal scroll, translate every left-column cell by scrollLeft so
-  // it stays locked at the container's left edge. Works identically on every browser.
+  // ---- Frozen Category column ----
+  // The left column is frozen with native CSS `position: sticky; left: 0` (see the grid styles),
+  // which stays glued during momentum scroll. pinCat now just clears any legacy inline transform
+  // left over from the old JS pin so it can't fight the sticky positioning after a re-render.
   function pinCat(wrap) {
-    var sl = wrap.scrollLeft;
     var cells = wrap.querySelectorAll(".cat");
-    var t = sl ? "translateX(" + sl + "px)" : "";
-    for (var i = 0; i < cells.length; i++) cells[i].style.transform = t;
+    for (var i = 0; i < cells.length; i++) if (cells[i].style.transform) cells[i].style.transform = "";
   }
   function wireFreeze() {
     Array.prototype.forEach.call(document.querySelectorAll(".grid-wrap"), function (wrap) {
