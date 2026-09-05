@@ -946,7 +946,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       if (exists) { inp.classList.add("dupe"); inp.select(); return; }   // don't create a duplicate category
       budget[sec].push(row(name, []));
       persist(); render();
-      inp.value = ""; inp.focus();   // cleared and ready for another
+      inp.value = "";
+      var d = f.closest("details"); if (d) d.open = false;   // collapse the form once the category is added
     });
   });
 
