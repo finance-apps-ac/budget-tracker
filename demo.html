@@ -43,8 +43,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
 <script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries":[{"id":"e_pay1","date":"2025-06-05","type":"income","amount":1850,"note":"Paycheck"},{"id":"e_ot","date":"2025-06-13","type":"income","amount":290,"note":"Overtime"},{"id":"e_pay2","date":"2025-06-20","type":"income","amount":1920,"note":"Paycheck"},{"id":"e_gr1","date":"2025-06-03","type":"expense","amount":85,"note":"Groceries"},{"id":"e_gas","date":"2025-06-08","type":"expense","amount":45,"note":"Gas"},{"id":"e_din","date":"2025-06-11","type":"expense","amount":58,"note":"Dining out"},{"id":"e_shop","date":"2025-06-18","type":"expense","amount":120,"note":"Shopping"},{"id":"e_gr2","date":"2025-06-24","type":"expense","amount":92,"note":"Groceries"},{"id":"e_misc","date":"2025-06-27","type":"expense","amount":61,"note":"Misc"}],"repeats":[{"id":"rdemo1","day":1,"amount":1800,"note":"Rent","start":"2025-01"},{"id":"rdemo2","day":5,"amount":340,"note":"Car payment","start":"2025-01"},{"id":"rdemo3","day":15,"amount":95,"note":"Phone bill","start":"2025-01"}],"work":{"2025-06-02":{"status":"work","shift":""},"2025-06-03":{"status":"work","shift":""},"2025-06-04":{"status":"work","shift":"Night"},"2025-06-05":{"status":"work","shift":""},"2025-06-06":{"status":"work","shift":""},"2025-06-07":{"status":"work","shift":""},"2025-06-10":{"status":"work","shift":""},"2025-06-11":{"status":"work","shift":""},"2025-06-12":{"status":"work","shift":""},"2025-06-13":{"status":"work","shift":""},"2025-06-16":{"status":"work","shift":""},"2025-06-17":{"status":"work","shift":"9–5"},"2025-06-18":{"status":"work","shift":""},"2025-06-20":{"status":"work","shift":""},"2025-06-21":{"status":"work","shift":""},"2025-06-23":{"status":"work","shift":""},"2025-06-24":{"status":"work","shift":"Night"},"2025-06-25":{"status":"work","shift":""},"2025-06-26":{"status":"work","shift":""},"2025-06-27":{"status":"work","shift":""},"2025-06-30":{"status":"work","shift":""},"2025-06-09":{"status":"off","shift":""},"2025-06-19":{"status":"off","shift":""}}}};</script>
 <script>
-/* SANDBOXED DEMO build. Replace localStorage with an in-memory shim seeded from DEMO_SEED so the
-   demo is fully isolated — it CANNOT touch the real site's stored data (same-origin safety). */
+/* SANDBOXED DEMO build. No cloud sync / login. Replace localStorage with an in-memory shim seeded
+   from DEMO_SEED so the demo is fully isolated — it CANNOT touch the real site's stored data. */
 (function () {
   var mem = {};
   mem["__demo_budget"] = "1";
@@ -61,6 +61,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   try { Object.defineProperty(window, "localStorage", { value: shim, configurable: true }); } catch (e) {}
 })();
 </script>
+<script src="native.js?v=1"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -207,11 +208,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Every header cell sticks to the top of the scroll box (frozen month row). */
   th { text-align: right; font-size: 10.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--accent); font-weight: 600; padding: 8px 9px; border-bottom: 1px solid var(--border);
        position: sticky; top: 0; z-index: 3; background: var(--surface); }
-  /* Frozen Category column: pinned horizontally by JS (`transform: translateX(scrollLeft)`) because
-     iOS Safari's position:sticky is unreliable on table cells. Relative + opaque + above the value
-     cells so it covers them as it holds at the left edge. */
-  th.cat, td.cat { text-align: left; position: relative; z-index: 2; background: var(--surface-2); border-right: 1px solid var(--border); min-width: 150px; will-change: transform; }
-  thead th.cat { z-index: 4; background: var(--surface); }
+  /* Frozen Category column: pinned to the left edge with native `position: sticky; left: 0` so it
+     stays glued during momentum scroll (no JS-lag, no values poking out on the left). Opaque + above
+     the value cells (z-index) so it covers them as it holds. The header corner also sticks to the
+     top, and the Total label to the bottom, so those pin on both axes. */
+  th.cat, td.cat { text-align: left; position: sticky; left: 0; z-index: 2; background: var(--surface-2); border-right: 1px solid var(--border); min-width: 150px; }
+  thead th.cat { position: sticky; top: 0; left: 0; z-index: 4; background: var(--surface); }
   th.tot, td.tot { border-left: 1px solid var(--border); }
   td { padding: 5px 9px; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
   tbody tr:hover td { background: var(--surface-2); }
@@ -222,6 +224,29 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .amt::placeholder { color: var(--ink-faint); }
   .amt::-webkit-outer-spin-button, .amt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .amt { -moz-appearance: textfield; appearance: textfield; }
+  .amt[readonly] { pointer-events: none; }   /* calendar-fed month: same look, edited on the calendar */
+  /* A month built from several calendar days: read-only here, tap the cell to edit those days on the
+     Calendar. The dashed underline is the hint that it's calendar-linked (not a plain typed value). */
+  td.cal-jump { cursor: pointer; }
+  td.cal-jump .amt { text-decoration: underline dashed; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); text-underline-offset: 3px; }
+  td.cal-jump:hover .amt { color: var(--accent); }
+  /* Read-only monthly-total cell. The calendar owns the amount; tap the cell to add/edit it there.
+     A dashed underline marks amounts as calendar-linked; hover highlights the whole cell. */
+  td.gcell { cursor: pointer; text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--ink); white-space: nowrap; }
+  td.gcell .gamt { text-decoration: underline dashed; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); text-underline-offset: 3px; }
+  td.gcell .dash { color: var(--ink-faint); }
+  tbody tr:hover td.gcell:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface-2)); }
+  td.gcell:hover .gamt { color: var(--accent); }
+  /* First tap "arms" a cell (cyan) to confirm the value; a second tap opens its day. */
+  td.gcell.armed, tbody tr:hover td.gcell.armed:hover {
+    background: color-mix(in srgb, var(--accent) 24%, var(--surface));
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  td.gcell.armed .gamt, td.gcell.armed:hover .gamt { color: var(--accent); font-weight: 700; text-decoration: none; }
+  td.gcell.armed .dash { color: var(--accent); }
+  /* Month header → tap to open that month on the calendar. */
+  th.mhead { cursor: pointer; }
+  th.mhead:hover { color: var(--accent); text-decoration: underline dashed; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); text-underline-offset: 3px; }
   .catname { width: 132px; margin-left: -7px; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; font-size: 12.5px; color: var(--gain); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   #expenseTable .catname { color: var(--violet); }
   .catname:hover { border-color: var(--border); }
@@ -232,7 +257,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
      of the horizontal scrollbar. */
   .total-row td { font-weight: 700; border-top: 2px solid var(--border); border-bottom: none; color: var(--ink);
                   position: sticky; bottom: 0; z-index: 3; background: var(--surface); padding-bottom: 14px; }
-  .total-row td.cat { position: relative; background: var(--surface); z-index: 4; }
+  .total-row td.cat { position: sticky; bottom: 0; left: 0; background: var(--surface); z-index: 4; }
   .net-row td { font-weight: 700; border-top: 1px solid var(--border); }
   /* Derived "Recurring Bills" row: auto-summed from the calendar's fixed bills, read-only, amber. */
   tr.auto-row td { background: color-mix(in srgb, var(--amber) 7%, transparent); }
@@ -246,6 +271,20 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .del { color: var(--ink-faint); cursor: pointer; border: none; background: none; padding: 3px 6px; border-radius: 6px; font-size: 14px; }
   .del:hover { color: var(--loss); background: var(--loss-soft); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
+  /* Add-category form (P&L style): tap the label → type a name → Add. No placeholder row to rename. */
+  .addform { margin-top: 12px; }
+  .addform > summary { list-style: none; cursor: pointer; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; padding: 4px 0; display: inline-block; }
+  .addform > summary::-webkit-details-marker { display: none; }
+  .addform[open] > summary { margin-bottom: 10px; }
+  .addrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .addname { flex: 1 1 200px; min-width: 160px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--ink); }
+  .addname:focus { border-color: var(--accent); outline: none; }
+  .addname::placeholder { color: var(--ink-faint); }
+  .addname.dupe { border-color: var(--loss); }
+  .addbtn { background: var(--accent); color: #04121a; border: none; border-radius: 8px; padding: 9px 16px; font-weight: 800; font-size: 12.5px; cursor: pointer; letter-spacing: .3px; }
+  .addbtn:hover { filter: brightness(1.06); }
+  .addbtn.ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--border); font-weight: 700; }
+  .addbtn.ghost:hover { border-color: var(--ink-faint); filter: none; }
   .hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 10px; }
   .foot { text-align: center; color: var(--ink-faint); font-size: 12px; margin-top: 32px; }
 
@@ -259,17 +298,25 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   /* ---------- Calendar ---------- */
   .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .cal-title { display: flex; align-items: baseline; gap: 6px; margin: 0; }
-  .cal-monsel, .cal-yrsel { -webkit-appearance: none; -moz-appearance: none; appearance: none; background-color: transparent; border: none; cursor: pointer;
-    font-family: var(--font-ui); border-radius: 8px; padding: 2px 22px 2px 6px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 5 6 2.5 9 5M3 7 6 9.5 9 7' fill='none' stroke='%23647294' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 4px center; background-size: 11px; }
-  .cal-monsel { font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); }
-  .cal-yrsel { font-size: 15px; font-weight: 600; letter-spacing: .5px; color: var(--ink-faint); }
-  .cal-monsel:hover, .cal-yrsel:hover, .cal-monsel:focus, .cal-yrsel:focus { background-color: var(--surface-2); outline: none; }
+  .cal-title { display: flex; align-items: center; gap: 8px; margin: 0; }
+  .cal-arrow { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 5px 12px; color: var(--ink); cursor: pointer; font-size: 16px; line-height: 1; }
+  .cal-arrow:hover { border-color: var(--accent); }
   .cal-nav { display: flex; gap: 8px; }
-  .cal-nav button { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 14px; color: var(--ink); cursor: pointer; font-size: 14px; }
-  .cal-nav button:hover { border-color: var(--accent); }
+  #calToday { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 14px; color: var(--ink); cursor: pointer; font-size: 14px; }
+  #calToday:hover { border-color: var(--accent); }
+  /* Custom month / year dropdowns — native <select> popups can't be themed, so we render our own. */
+  .cal-dd { position: relative; }
+  .cal-dd-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: none; cursor: pointer; font-family: var(--font-ui); color: var(--ink); padding: 2px 8px; border-radius: 8px; }
+  .cal-dd-btn:hover { background: var(--surface-2); }
+  .cal-monbtn { font-size: 22px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--ink); }
+  .cal-yrbtn { font-size: 15px; font-weight: 600; letter-spacing: .5px; color: var(--ink-faint); }
+  .cal-dd-chev { font-size: 11px; color: var(--ink-faint); line-height: 1; }
+  .cal-dd-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 60; display: none; background: color-mix(in srgb, var(--amber) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--amber) 38%, transparent); border-radius: 12px; box-shadow: 0 14px 36px rgba(0,0,0,.5); padding: 6px; max-height: 300px; overflow-y: auto; min-width: 150px; }
+  .cal-dd-menu-right { left: auto; right: 0; }
+  .cal-dd-menu.open { display: block; }
+  .cal-dd-item { padding: 8px 14px; border-radius: 8px; cursor: pointer; color: var(--amber); font-size: 13.5px; font-weight: 700; white-space: nowrap; letter-spacing: .3px; }
+  .cal-dd-item:hover { background: color-mix(in srgb, var(--amber) 22%, transparent); }
+  .cal-dd-item.sel { background: var(--amber); color: #1a1206; }
 
   /* Weekend columns (Sun + Sat) are narrower than weekdays. The header and the day grid share the
      exact same template so their columns stay aligned. */
@@ -339,6 +386,14 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-item { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
   .cal-item .amt2 { font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; }
   .cal-item .amt2.income { color: var(--gain); } .cal-item .amt2.expense { color: var(--loss); } .cal-item .amt2.bill { color: var(--amber); }
+  /* "Monthly" strip: category budget amounts for the displayed month that live only in the grid
+     (no dated entry). Same single value as the grid cell, shown here so every number appears in both. */
+  .cal-monthly { margin-top: 16px; }
+  .cal-mrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; margin-bottom: 6px; }
+  .cal-mname { font-weight: 700; text-transform: uppercase; letter-spacing: .3px; font-size: 12px; }
+  .cal-mrow.income .cal-mname { color: var(--gain); } .cal-mrow.expenses .cal-mname { color: var(--violet); }
+  .cal-mamt { font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; }
+  .cal-mamt.income { color: var(--gain); } .cal-mamt.expenses { color: var(--loss); }
   .cal-item .note2 { flex: 1; font-size: 13px; }
   .cal-item .rep { font-size: 10px; color: var(--accent); white-space: nowrap; }
   .cal-item .del2 { background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 14px; }
@@ -347,20 +402,25 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-typesel { display: flex; gap: 6px; margin-bottom: 9px; }
   .cal-typesel button { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 9px; padding: 9px; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); cursor: pointer; }
   .cal-typesel button.sel { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
-  .cal-addrow { display: flex; gap: 8px; }
-  .cal-in { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
+  .cal-in { display: block; width: 100%; box-sizing: border-box; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; color: var(--ink); font-size: 13px; }
   .cal-in:focus { border-color: var(--accent); outline: none; }
-  #calAmt { flex: none; width: 118px; font-family: var(--font-mono); }
-  #calNote { flex: 1; min-width: 0; }
+  .cal-catwrap { position: relative; margin-bottom: 8px; }
+  #calCat { padding-right: 30px; }
+  .cal-chev { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); font-size: 11px; pointer-events: none; }
+  #calAmt { font-family: var(--font-mono); }
   #calAmt::-webkit-outer-spin-button, #calAmt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .cal-repeat { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
   .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
   .cal-addbtn { margin-top: 14px; width: 100%; background: var(--accent); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 13.5px; color: #04121a; cursor: pointer; letter-spacing: .3px; }
   .cal-addbtn:hover { filter: brightness(1.06); }
+  .cal-cancelbtn { margin-top: 8px; width: 100%; background: transparent; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-weight: 700; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
+  .cal-cancelbtn:hover { border-color: var(--ink-faint); color: var(--ink); }
+  /* Tap the amount/note of an entry to edit it (the ✕ stays a separate delete). */
+  .cal-item .cal-edit { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; cursor: pointer; border-radius: 8px; padding: 2px 4px; margin: -2px -4px; }
+  .cal-item .cal-edit:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 </style>
 
 <div class="app">
-  <div id="demo-ribbon" style="position:fixed; left:50%; transform:translateX(-50%); bottom:calc(14px + env(safe-area-inset-bottom)); z-index:99999; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font:600 12px/1 var(--font-ui); color:var(--ink-soft); box-shadow:var(--shadow); letter-spacing:.3px; pointer-events:none;">✨ Demo — sample data</div>
   <header class="topbar">
     <div class="brand">
       <span class="mark" aria-hidden="true"><img src="icon-512.png" alt=""></span>
@@ -393,14 +453,28 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   <section class="card">
     <div class="card-head"><h2>Income</h2><span class="card-sub" id="incomeTotal"></span></div>
     <div class="grid-wrap"><table id="incomeTable"></table></div>
-    <button class="addcat" data-add="income">＋ Add income</button>
+    <details class="addform">
+      <summary>＋ Add income</summary>
+      <form class="addrow" data-addsec="income">
+        <input type="text" class="addname" placeholder="Category name (e.g. Bonus)" required>
+        <button type="submit" class="addbtn">Add income</button>
+        <button type="reset" class="addbtn ghost">Clear</button>
+      </form>
+    </details>
   </section>
 
   <section class="card">
     <div class="card-head"><h2>Expenses</h2><span class="card-sub" id="expenseTotal"></span></div>
     <div class="grid-wrap"><table id="expenseTable"></table></div>
-    <button class="addcat" data-add="expenses">＋ Add expense</button>
-    <p class="hint">Tap any amount to edit. Credit cards &amp; investments are excluded (tracked elsewhere).</p>
+    <details class="addform">
+      <summary>＋ Add expense</summary>
+      <form class="addrow" data-addsec="expenses">
+        <input type="text" class="addname" placeholder="Category name (e.g. Pet care)" required>
+        <button type="submit" class="addbtn">Add expense</button>
+        <button type="reset" class="addbtn ghost">Clear</button>
+      </form>
+    </details>
+    <p class="hint">Tap any amount to edit it on the calendar. Credit cards &amp; investments are excluded (tracked elsewhere).</p>
   </section>
 
   <section class="card">
@@ -417,17 +491,24 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   <div id="view-calendar" hidden>
     <div class="cal-head">
       <div class="cal-title">
-        <select id="calMonSel" class="cal-monsel" aria-label="Month"></select>
-        <select id="calYrSel" class="cal-yrsel" aria-label="Year"></select>
+        <button id="calPrev" class="cal-arrow" type="button" aria-label="Previous month">‹</button>
+        <div class="cal-dd" id="calMonDD">
+          <button class="cal-dd-btn cal-monbtn" id="calMonBtn" type="button" aria-haspopup="listbox"><span id="calMonLabel"></span><span class="cal-dd-chev">▾</span></button>
+          <div class="cal-dd-menu" id="calMonMenu" role="listbox"></div>
+        </div>
+        <button id="calNext" class="cal-arrow" type="button" aria-label="Next month">›</button>
+        <button id="calToday" type="button">Today</button>
       </div>
       <div class="cal-nav">
-        <button id="calPrev" type="button" aria-label="Previous month">‹</button>
-        <button id="calToday" type="button">Today</button>
-        <button id="calNext" type="button" aria-label="Next month">›</button>
+        <div class="cal-dd" id="calYrDD">
+          <button class="cal-dd-btn cal-yrbtn" id="calYrBtn" type="button" aria-haspopup="listbox"><span id="calYrLabel"></span><span class="cal-dd-chev">▾</span></button>
+          <div class="cal-dd-menu cal-dd-menu-right" id="calYrMenu" role="listbox"></div>
+        </div>
       </div>
     </div>
     <div class="cal-dow" id="calDow"></div>
     <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-monthly" id="calMonthly" hidden></div>
     <div class="cal-summary">
       <div class="cal-stat off"><div class="lbl">Days off</div><div class="val" id="calOff">0</div></div>
       <div class="cal-stat inc"><div class="lbl">Net income</div><div class="val" id="calInc">$0</div></div>
@@ -463,12 +544,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <button data-ct="expense" type="button">Expense</button>
       <button data-ct="bill" type="button">Bill</button>
     </div>
-    <div class="cal-addrow">
-      <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
-      <input class="cal-in" id="calNote" placeholder="Note (e.g. Rent, Paycheck)">
+    <div class="cal-catwrap">
+      <input class="cal-in" id="calCat" list="calCatList" autocomplete="off" placeholder="Category — pick one or type a new one">
+      <datalist id="calCatList"></datalist>
+      <span class="cal-chev" aria-hidden="true">▾</span>
     </div>
+    <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
     <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
     <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
+    <button class="cal-cancelbtn" id="calCancel" type="button" hidden>Cancel edit</button>
   </div>
 </div>
 
@@ -570,6 +654,23 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     bindInputs();
     fitGrids();
     wireFreeze();
+    scrollGridsToCurrentMonth();
+  }
+
+  // On the current year, position the grid so the CURRENT month sits just right of the frozen
+  // Category column — so opening the app lands on this month, like the calendar does.
+  function scrollGridsToCurrentMonth() {
+    var now = new Date();
+    if (+curYear !== now.getFullYear()) return;        // only meaningful for the current year
+    var m = now.getMonth();
+    Array.prototype.forEach.call(document.querySelectorAll(".grid-wrap"), function (wrap) {
+      if (!wrap.offsetParent) return;                  // view hidden — nothing to measure yet
+      var th = wrap.querySelector('th.mhead[data-mo="' + m + '"]');
+      var catTh = wrap.querySelector("th.cat");
+      if (!th) return;
+      var catW = catTh ? catTh.getBoundingClientRect().width : 0;
+      wrap.scrollLeft += (th.getBoundingClientRect().left - wrap.getBoundingClientRect().left) - catW;
+    });
   }
 
   // Size each scroll box to hold a WHOLE number of category rows (frozen header + N rows + frozen total),
@@ -598,15 +699,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // Re-fit when the viewport size changes (rotate, resize, split view).
   window.addEventListener("resize", function () { fitGrids(); });
 
-  // ---- Frozen Category column (JS pin) ----
-  // iOS Safari's position:sticky is unreliable on table cells (the column drifted with the scroll),
-  // so we pin it ourselves: on horizontal scroll, translate every left-column cell by scrollLeft so
-  // it stays locked at the container's left edge. Works identically on every browser.
+  // ---- Frozen Category column ----
+  // The left column is frozen with native CSS `position: sticky; left: 0` (see the grid styles),
+  // which stays glued during momentum scroll. pinCat now just clears any legacy inline transform
+  // left over from the old JS pin so it can't fight the sticky positioning after a re-render.
   function pinCat(wrap) {
-    var sl = wrap.scrollLeft;
     var cells = wrap.querySelectorAll(".cat");
-    var t = sl ? "translateX(" + sl + "px)" : "";
-    for (var i = 0; i < cells.length; i++) cells[i].style.transform = t;
+    for (var i = 0; i < cells.length; i++) if (cells[i].style.transform) cells[i].style.transform = "";
   }
   function wireFreeze() {
     Array.prototype.forEach.call(document.querySelectorAll(".grid-wrap"), function (wrap) {
@@ -744,7 +843,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   function headRow() {
     var h = '<thead><tr><th class="cat">Category</th>';
-    for (var m = 0; m < 12; m++) h += '<th>' + MON[m] + '</th>';
+    // Month headers are clickable → jump to that month on the calendar.
+    for (var m = 0; m < 12; m++) h += '<th class="mhead" data-mo="' + m + '" title="Open ' + MONF[m] + ' on the Calendar">' + MON[m] + '</th>';
     return h + '<th class="tot">Total</th><th></th></tr></thead>';
   }
 
@@ -759,9 +859,14 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td></td></tr>';
         return;
       }
-      body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
+      body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '" placeholder="Category name…"></td>';
       for (var m = 0; m < 12; m++) {
-        body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
+        // The calendar owns every amount. The grid is a read-only monthly-totals view: each cell shows
+        // the month's total and, when tapped, jumps to the calendar to add or edit it there.
+        var mv = r.vals[m];
+        var mHas = !(mv === "" || mv == null || +mv === 0);
+        body += '<td class="gcell" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" title="Tap to edit on the Calendar">' +
+          (mHas ? '<span class="gamt">' + money(+mv) + '</span>' : '<span class="dash">—</span>') + '</td>';
       }
       body += '<td class="tot rowtot">' + money(rowTotal(r)) + '</td><td><button class="del" title="Delete" data-del="' + sec + '" data-id="' + r.id + '">✕</button></td></tr>';
     });
@@ -774,11 +879,60 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   function findRow(sec, id) { return budget[sec].filter(function (r) { return r.id === id; })[0]; }
 
+  // A grid amount cell was tapped. The calendar is the single home for every amount, so all editing
+  // happens there. Three cases:
+  //  • the month already has calendar entries for this category → open the day of the most recent one.
+  //  • the amount was typed straight into the grid (no dated entry yet) → drop it onto the first empty
+  //    calendar day (least-busy if all are taken), then open that day. The monthly total is unchanged;
+  //    the value simply now lives on a day, editable like any other.
+  //  • the cell is empty → just open that month so a day can be picked.
+  function jumpToCalCell(sec, id, m) {
+    var r = findRow(sec, id);
+    if (!r) return;
+    calView = { y: +curYear, m: m };
+    var cells = calCellEntries(sec, r.name, m, curYear);
+    if (cells.length) {
+      var last = cells[cells.length - 1];   // most recently added entry for this category/month
+      setView("calendar");                  // setView("calendar") re-renders the calendar itself
+      if (last && last.date) { openCalDay(last.date); gridReturn = true; }   // come back to the grid after the edit
+      return;
+    }
+    var v = r.vals[m];
+    var num = (v === "" || v == null) ? 0 : (+v || 0);
+    if (num) {
+      var day = firstFreeDay(+curYear, m);
+      var k = ckey(+curYear, m, day);
+      calData.entries.push({ id: "e" + uid(), date: k, type: (sec === "income" ? "income" : "expense"), amount: num, note: r.name });
+      r.vals[m] = ""; persist(); saveCal();   // the amount now lives on the calendar day, not the grid cell
+      setView("calendar");
+      openCalDay(k); gridReturn = true;
+      return;
+    }
+    gridReturn = false;   // empty cell → just browse that month (no modal to return from)
+    setView("calendar");
+  }
+
   function bindInputs() {
-    Array.prototype.forEach.call(document.querySelectorAll(".amt"), function (inp) {
-      inp.addEventListener("change", function () {
-        var r = findRow(inp.getAttribute("data-sec"), inp.getAttribute("data-id"));
-        if (r) { r.vals[+inp.getAttribute("data-mo")] = inp.value === "" ? "" : parseFloat(inp.value); persist(); render(); }
+    // Every grid amount cell is read-only and jumps to the calendar, where all editing happens.
+    // Two-step to guard against a mis-click: the FIRST tap highlights (arms) the cell in cyan to
+    // confirm the value; a SECOND tap on that same cell opens its day on the calendar to edit.
+    Array.prototype.forEach.call(document.querySelectorAll("td.gcell"), function (td) {
+      td.addEventListener("click", function () {
+        if (td.classList.contains("armed")) {
+          td.classList.remove("armed");
+          jumpToCalCell(td.getAttribute("data-sec"), td.getAttribute("data-id"), +td.getAttribute("data-mo"));
+        } else {
+          var prev = document.querySelector("td.gcell.armed");
+          if (prev) prev.classList.remove("armed");
+          td.classList.add("armed");
+        }
+      });
+    });
+    // Tap a month header → open that month on the calendar.
+    Array.prototype.forEach.call(document.querySelectorAll("th.mhead"), function (th) {
+      th.addEventListener("click", function () {
+        calView = { y: +curYear, m: +th.getAttribute("data-mo") };
+        setView("calendar");
       });
     });
     Array.prototype.forEach.call(document.querySelectorAll(".catname"), function (inp) {
@@ -796,11 +950,22 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     });
   }
 
-  Array.prototype.forEach.call(document.querySelectorAll("[data-add]"), function (b) {
-    b.addEventListener("click", function () {
-      var sec = b.getAttribute("data-add");
-      budget[sec].push(row(sec === "income" ? "New income" : "New expense", []));
+  // Add-category form: type the name you want, then Add — no placeholder row to rename.
+  // Bound once (the forms are static markup, not rebuilt on render).
+  Array.prototype.forEach.call(document.querySelectorAll(".addform form"), function (f) {
+    var inp = f.querySelector(".addname");
+    inp.addEventListener("input", function () { inp.classList.remove("dupe"); });
+    f.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var sec = f.getAttribute("data-addsec");
+      var name = (inp.value || "").trim();
+      if (!name) { inp.focus(); return; }
+      var exists = (budget[sec] || []).some(function (r) { return (r.name || "").trim().toLowerCase() === name.toLowerCase(); });
+      if (exists) { inp.classList.add("dupe"); inp.select(); return; }   // don't create a duplicate category
+      budget[sec].push(row(name, []));
       persist(); render();
+      inp.value = "";
+      var d = f.closest("details"); if (d) d.open = false;   // collapse the form once the category is added
     });
   });
 
@@ -857,12 +1022,62 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
   function ckey(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
 
-  // Calendar entries are intentionally NOT rolled into the yearly grid. The grid stays purely the
-  // user's own manually-entered categories; the calendar is a fully independent tracker with its
-  // own monthly summary. (The derived Calendar Income / Recurring Bills / Calendar Expenses rows
-  // were removed 2026-08-29 because they double-counted amounts already listed in the grid.)
-  function incomeRows() { return budget.income.slice(); }
-  function expenseRows() { return budget.expenses.slice(); }
+  // Calendar ⇄ grid share ONE number per category/month. An amount is entered in a single place
+  // (the grid OR the calendar) and reflected in the other, so it is never counted twice. Here we roll
+  // the calendar totals INTO the grid rows: a category's month cell = its manual grid value PLUS the
+  // sum of every calendar entry tagged with that category that month. Because each amount lives in
+  // only one place, one side is always zero — the "+" can't double-count. Months that come from the
+  // calendar are flagged (calMask) so the grid shows them read-only (you edit those on the calendar).
+  // Every calendar entry / recurring bill that maps to a given category + month (this year).
+  // Returns {id, kind:"entry"|"repeat", amount} for each — the grid uses the COUNT to decide whether
+  // a cell is directly editable (exactly one) or edited on the calendar (several days).
+  function calCellEntries(sec, name, m, year) {
+    var nm = (name || "").trim().toLowerCase();
+    if (!nm) return [];
+    var yv = (year != null ? year : curYear);
+    var ym = String(yv) + "-" + pad2(m + 1);
+    var list = [];
+    calData.entries.forEach(function (e) {
+      if ((e.note || "").trim().toLowerCase() !== nm) return;
+      if (String(e.date || "").slice(0, 7) !== ym) return;
+      var isIncome = e.type === "income";
+      if (sec === "income" ? isIncome : !isIncome) list.push({ id: e.id, kind: "entry", amount: (+e.amount || 0), date: e.date });
+    });
+    if (sec === "expenses") {   // recurring bills count as expenses, from their start month onward
+      calData.repeats.forEach(function (r) {
+        if ((r.note || "").trim().toLowerCase() !== nm) return;
+        if (r.start && ym < r.start) return;
+        list.push({ id: r.id, kind: "repeat", amount: (+r.amount || 0), date: ckey(yv, m, r.day) });
+      });
+    }
+    return list;
+  }
+  function calSum(sec, name, m) {
+    var cells = calCellEntries(sec, name, m), t = 0;
+    for (var i = 0; i < cells.length; i++) t += cells[i].amount;
+    return t;
+  }
+  function effRows(sec) {
+    return (budget[sec] || []).map(function (r) {
+      var vals = [], mask = [], count = [], ref = [];
+      for (var m = 0; m < 12; m++) {
+        var cells = calCellEntries(sec, r.name, m);
+        // Calendar is PRIORITY: a logged actual REPLACES the typed budget value for that month
+        // (never adds to it) — so entering the same thing in both places can't double-count.
+        if (cells.length) {
+          var sum = 0; for (var i = 0; i < cells.length; i++) sum += cells[i].amount;
+          vals[m] = sum; mask[m] = true; count[m] = cells.length;
+          ref[m] = (cells.length === 1) ? cells[0] : null;   // the single entry to edit in place
+        } else {
+          vals[m] = r.vals[m]; mask[m] = false; count[m] = 0; ref[m] = null;
+        }
+      }
+      return { id: r.id, name: r.name, vals: vals, calMask: mask, calCount: count, calRef: ref };
+    });
+  }
+  function incomeRows() { return effRows("income"); }
+  function expenseRows() { return effRows("expenses"); }
+
 
   // All entries falling on a day: one-time entries on that exact date, plus any recurring
   // bill whose day-of-month matches and whose start month is on/before this month.
@@ -875,6 +1090,49 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     return list;
   }
 
+  // Where a grid-entered amount lands: the first day of the month with no entries; if every day
+  // already has something, the least-busy day. Recomputed each time, so several values spread out.
+  function firstFreeDay(year, month) {
+    var n = new Date(year, month + 1, 0).getDate(), best = 1, bestN = Infinity;
+    for (var d = 1; d <= n; d++) {
+      var c = calDayEntries(ckey(year, month, d)).length;
+      if (c === 0) return d;
+      if (c < bestN) { bestN = c; best = d; }
+    }
+    return best;
+  }
+
+  // "Monthly" strip for the displayed calendar month: category budget amounts that live only in the
+  // grid (no dated entry that month) — the SAME single value as the grid cell, shown so every number
+  // is visible in both views. Returns income/expense totals so the month summary can include them.
+  function renderMonthly() {
+    var box = document.getElementById("calMonthly");
+    var totals = { inc: 0, exp: 0 };
+    if (!box) return totals;
+    var b = store[String(calView.y)];
+    var items = [];
+    if (b) {
+      ["income", "expenses"].forEach(function (sec) {
+        (b[sec] || []).forEach(function (r) {
+          var v = r.vals[calView.m];
+          var num = (v === "" || v == null) ? 0 : (+v || 0);
+          if (!num) return;                                                        // blank / zero → skip
+          if (calCellEntries(sec, r.name, calView.m, calView.y).length) return;     // has dated entries → shown on the days instead
+          items.push({ sec: sec, id: r.id, name: r.name, amount: num });
+          if (sec === "income") totals.inc += num; else totals.exp += num;
+        });
+      });
+    }
+    if (!items.length) { box.hidden = true; box.innerHTML = ""; return totals; }
+    box.hidden = false;
+    box.innerHTML = '<p class="cal-seclabel">Monthly budget</p>' + items.map(function (it) {
+      return '<div class="cal-mrow ' + it.sec + '" data-sec="' + it.sec + '" data-id="' + it.id + '" data-mo="' + calView.m + '">' +
+             '<span class="cal-mname">' + esc(it.name) + '</span>' +
+             '<span class="cal-mamt ' + it.sec + '">' + (it.sec === "income" ? "+" : "−") + money(it.amount) + '</span></div>';
+    }).join("");
+    return totals;
+  }
+
   function renderCal() {
     if (!calView) {
       // In demo mode, open on the fully-populated sample month (June 2025) so the calendar
@@ -883,16 +1141,17 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       if (demo) { calView = { y: 2025, m: 5 }; }
       else { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; }
     }
-    var msel = document.getElementById("calMonSel");
-    msel.innerHTML = MONF.map(function (nm, i) { return '<option value="' + i + '">' + nm + '</option>'; }).join("");
-    msel.value = String(calView.m);
+    // Month dropdown (custom): current label + menu of all 12 months
+    document.getElementById("calMonLabel").textContent = MONF[calView.m];
+    document.getElementById("calMonMenu").innerHTML = MONF.map(function (nm, i) {
+      return '<div class="cal-dd-item' + (i === calView.m ? " sel" : "") + '" data-mon="' + i + '" role="option">' + nm + '</div>';
+    }).join("");
     var nowY = new Date().getFullYear();
     // Floor the year list at 2025 (kept as the baseline / demo year — no earlier years); window rolls forward over time.
-    var lo = Math.min(2025, calView.y), hi = Math.max(nowY, calView.y) + 6, yopts = "";
-    for (var yy = lo; yy <= hi; yy++) yopts += '<option value="' + yy + '">' + yy + '</option>';
-    var ysel = document.getElementById("calYrSel");
-    ysel.innerHTML = yopts;
-    ysel.value = String(calView.y);
+    var lo = Math.min(2025, calView.y), hi = Math.max(nowY, calView.y) + 6, yhtml = "";
+    for (var yy = lo; yy <= hi; yy++) yhtml += '<div class="cal-dd-item' + (yy === calView.y ? " sel" : "") + '" data-yr="' + yy + '" role="option">' + yy + '</div>';
+    document.getElementById("calYrLabel").textContent = calView.y;
+    document.getElementById("calYrMenu").innerHTML = yhtml;
 
     var dow = document.getElementById("calDow"); dow.innerHTML = "";
     DOWL.forEach(function (x, i) { var c = document.createElement("div"); c.className = (i === 0 || i === 6) ? "we" : "wd"; c.textContent = x; dow.appendChild(c); });
@@ -934,6 +1193,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       cell.addEventListener("click", function () { openCalDay(this.getAttribute("data-k")); });
       grid.appendChild(cell);
     }
+    // The month summary reflects what is on the calendar's days (the single source of every amount).
     document.getElementById("calInc").textContent = money(mInc);
     document.getElementById("calExp").textContent = money(mExp);
     document.getElementById("calWork").textContent = wDays;
@@ -960,6 +1220,31 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   function updateRepeatVis() { document.getElementById("calRepeatWrap").style.display = (calType === "bill") ? "flex" : "none"; }
 
+  // Fill the category dropdown from the user's own grid categories for the current entry type
+  // (income categories for Income; expense categories for Expense/Bill). She can also type a new one.
+  function fillCalCats() {
+    var src = (calType === "income") ? (budget.income || []) : (budget.expenses || []);
+    var seen = {}, opts = [];
+    src.forEach(function (r) {
+      var n = (r.name || "").trim();
+      if (n && !seen[n]) { seen[n] = 1; opts.push('<option value="' + esc(n) + '"></option>'); }
+    });
+    var dl = document.getElementById("calCatList");
+    if (dl) dl.innerHTML = opts.join("");
+  }
+
+  // Keep the grid and calendar sharing ONE category list: when a calendar entry uses a category
+  // that isn't in the yearly grid yet, add it as a new (empty-amount) row — same shape/styling as a
+  // hand-added category (uppercase, green for income / purple for expenses via the grid's own CSS).
+  function ensureGridCategory(sec, name) {
+    var trimmed = (name || "").trim();
+    if (!trimmed) return;
+    var exists = (budget[sec] || []).some(function (r) { return (r.name || "").trim().toLowerCase() === trimmed.toLowerCase(); });
+    if (exists) return;
+    budget[sec].push(row(trimmed, []));
+    persist(); render();
+  }
+
   function openCalDay(k) {
     calSel = k; calType = "expense";
     document.getElementById("calDayTitle").textContent = dayTitle(k);
@@ -967,23 +1252,38 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calShift").value = (calData.work[k] && calData.work[k].shift) || "";
     Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (b) { b.classList.toggle("sel", b.getAttribute("data-ct") === "expense"); });
     document.getElementById("calAmt").value = "";
-    document.getElementById("calNote").value = "";
+    document.getElementById("calCat").value = "";
+    fillCalCats();
     document.getElementById("calRepeat").checked = false;
+    calEditId = null; calEditKind = null;
+    gridReturn = false;   // opened directly on the calendar unless jumpToCalCell sets it true right after
+    document.getElementById("calAdd").textContent = "＋ Add";
+    document.getElementById("calCancel").hidden = true;
     updateRepeatVis();
     renderCalList();
     var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false");
   }
-  function closeCalModal() { var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true"); }
+  function closeCalModal() {
+    var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true");
+    if (gridReturn) { gridReturn = false; setView("budget"); }   // return to the grid the edit was launched from
+  }
 
   function renderCalList() {
     var box = document.getElementById("calList");
     var list = calDayEntries(calSel);
     if (!list.length) { box.innerHTML = '<div class="cal-empty">Nothing logged yet.</div>'; return; }
     box.innerHTML = list.map(function (e) {
-      return '<div class="cal-item"><span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
-        '<span class="note2">' + esc(e.note || "(no note)") + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
+      return '<div class="cal-item"><div class="cal-edit" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" title="Tap to edit">' +
+        '<span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
+        '<span class="note2">' + esc(e.note || "(no note)") + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span></div>' +
         '<button class="del2" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" aria-label="Delete">✕</button></div>';
     }).join("");
+    // Tap the amount/note to edit that entry in the form below.
+    Array.prototype.forEach.call(box.querySelectorAll(".cal-edit"), function (ed) {
+      ed.addEventListener("click", function () {
+        startEditEntry(ed.getAttribute("data-id"), ed.getAttribute("data-rep") === "1" ? "repeat" : "entry");
+      });
+    });
     Array.prototype.forEach.call(box.querySelectorAll(".del2"), function (b) {
       b.addEventListener("click", function () {
         var id = b.getAttribute("data-id");
@@ -993,10 +1293,41 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         } else {
           calData.entries = calData.entries.filter(function (e) { return e.id !== id; });
         }
-        saveCal(); renderCalList(); renderCal();
+        if (calEditId === id) resetCalForm();   // if we were editing this one, drop out of edit mode
+        saveCal(); renderCalList(); renderCal(); render();   // keep the grid total in sync
       });
     });
   }
+
+  // ---- Edit an existing entry / recurring bill (reuses the Add form as a Save form) ----
+  var calEditId = null, calEditKind = null;
+  // True when the calendar day was opened by tapping a grid cell — so after the edit we return to the grid.
+  var gridReturn = false;
+  function resetCalForm() {
+    document.getElementById("calAmt").value = "";
+    document.getElementById("calCat").value = "";
+    document.getElementById("calRepeat").checked = false;
+    calEditId = null; calEditKind = null;
+    document.getElementById("calAdd").textContent = "＋ Add";
+    document.getElementById("calCancel").hidden = true;
+  }
+  function startEditEntry(id, kind) {
+    var item = (kind === "repeat")
+      ? (calData.repeats || []).filter(function (r) { return r.id === id; })[0]
+      : (calData.entries || []).filter(function (e) { return e.id === id; })[0];
+    if (!item) return;
+    calEditId = id; calEditKind = kind;
+    calType = (kind === "repeat") ? "bill" : item.type;   // repeats are always bills; keep their kind
+    Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (x) { x.classList.toggle("sel", x.getAttribute("data-ct") === calType); });
+    updateRepeatVis(); fillCalCats();
+    document.getElementById("calAmt").value = item.amount;
+    document.getElementById("calCat").value = item.note || "";
+    document.getElementById("calRepeat").checked = (kind === "repeat");
+    document.getElementById("calAdd").textContent = "Save changes";
+    document.getElementById("calCancel").hidden = false;
+    document.getElementById("calAmt").focus();
+  }
+  document.getElementById("calCancel").addEventListener("click", resetCalForm);
 
   // work / day-off toggle (tap the active one again to clear it)
   Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
@@ -1024,22 +1355,40 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       calType = b.getAttribute("data-ct");
       Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (x) { x.classList.toggle("sel", x === b); });
       updateRepeatVis();
+      fillCalCats();
     });
   });
 
   document.getElementById("calAdd").addEventListener("click", function () {
     var amt = parseFloat(document.getElementById("calAmt").value);
     if (!(amt > 0)) { document.getElementById("calAmt").focus(); return; }
-    var note = document.getElementById("calNote").value.trim();
+    var note = document.getElementById("calCat").value.trim();
+    // Share one category list: a brand-new category typed here also appears in the yearly grid.
+    if (note) ensureGridCategory(calType === "income" ? "income" : "expenses", note);
+    if (calEditId) {
+      // ----- Save changes to the existing entry / recurring bill (in place) -----
+      if (calEditKind === "repeat") {
+        var er = (calData.repeats || []).filter(function (x) { return x.id === calEditId; })[0];
+        if (er) { er.amount = amt; er.note = note || "Bill"; }
+      } else {
+        var ee = (calData.entries || []).filter(function (x) { return x.id === calEditId; })[0];
+        if (ee) { ee.amount = amt; ee.type = calType; ee.note = note || (calType.charAt(0).toUpperCase() + calType.slice(1)); }
+      }
+      resetCalForm();
+      saveCal(); renderCalList(); renderCal(); render();
+      if (gridReturn) closeCalModal();   // launched from a grid cell → hop back to the grid after saving
+      return;
+    }
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
       calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7) });
     } else {
       calData.entries.push({ id: "e" + uid(), date: calSel, type: calType, amount: amt, note: note || (calType.charAt(0).toUpperCase() + calType.slice(1)) });
     }
     document.getElementById("calAmt").value = "";
-    document.getElementById("calNote").value = "";
+    document.getElementById("calCat").value = "";
     document.getElementById("calRepeat").checked = false;
-    saveCal(); renderCalList(); renderCal();
+    saveCal(); renderCalList(); renderCal(); render();   // render() so the grid total reflects this entry
+    if (gridReturn) closeCalModal();   // launched from a grid cell → hop back to the grid after adding
   });
 
   document.getElementById("calClose").addEventListener("click", closeCalModal);
@@ -1047,8 +1396,27 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   document.getElementById("calPrev").addEventListener("click", function () { calView.m--; if (calView.m < 0) { calView.m = 11; calView.y--; } renderCal(); });
   document.getElementById("calNext").addEventListener("click", function () { calView.m++; if (calView.m > 11) { calView.m = 0; calView.y++; } renderCal(); });
   document.getElementById("calToday").addEventListener("click", function () { var t = new Date(); calView = { y: t.getFullYear(), m: t.getMonth() }; renderCal(); });
-  document.getElementById("calMonSel").addEventListener("change", function () { calView.m = +this.value; renderCal(); });
-  document.getElementById("calYrSel").addEventListener("change", function () { calView.y = +this.value; renderCal(); });
+  // Custom month / year dropdowns: toggle open, pick an item, close on outside click.
+  function closeDropdowns() { Array.prototype.forEach.call(document.querySelectorAll(".cal-dd-menu"), function (m) { m.classList.remove("open"); }); }
+  function wireDD(btnId, menuId) {
+    document.getElementById(btnId).addEventListener("click", function (e) {
+      e.stopPropagation();
+      var menu = document.getElementById(menuId), wasOpen = menu.classList.contains("open");
+      closeDropdowns();
+      if (!wasOpen) { menu.classList.add("open"); var s = menu.querySelector(".sel"); if (s) s.scrollIntoView({ block: "nearest" }); }
+    });
+  }
+  wireDD("calMonBtn", "calMonMenu");
+  wireDD("calYrBtn", "calYrMenu");
+  document.getElementById("calMonMenu").addEventListener("click", function (e) {
+    var it = e.target.closest(".cal-dd-item"); if (!it) return;
+    calView.m = +it.getAttribute("data-mon"); closeDropdowns(); renderCal();
+  });
+  document.getElementById("calYrMenu").addEventListener("click", function (e) {
+    var it = e.target.closest(".cal-dd-item"); if (!it) return;
+    calView.y = +it.getAttribute("data-yr"); closeDropdowns(); renderCal();
+  });
+  document.addEventListener("click", closeDropdowns);
 
   // ---------- view toggle (Budget / Calendar) ----------
   var VKEY = "budget.view";
@@ -1067,6 +1435,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   document.getElementById("tabBudget").addEventListener("click", function () { setView("budget"); });
   document.getElementById("tabCalendar").addEventListener("click", function () { setView("calendar"); });
+  // Clicking anywhere that isn't an armed grid cell clears the cyan confirm-highlight.
+  document.addEventListener("click", function (e) {
+    if (e.target.closest && e.target.closest("td.gcell")) return;
+    var a = document.querySelector("td.gcell.armed"); if (a) a.classList.remove("armed");
+  });
 
   render();
 
