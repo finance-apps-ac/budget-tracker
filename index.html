@@ -351,6 +351,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
   .cal-addbtn { margin-top: 14px; width: 100%; background: var(--accent); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 13.5px; color: #04121a; cursor: pointer; letter-spacing: .3px; }
   .cal-addbtn:hover { filter: brightness(1.06); }
+  .cal-cancelbtn { margin-top: 8px; width: 100%; background: transparent; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-weight: 700; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
+  .cal-cancelbtn:hover { border-color: var(--ink-faint); color: var(--ink); }
+  /* Tap the amount/note of an entry to edit it (the ✕ stays a separate delete). */
+  .cal-item .cal-edit { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; cursor: pointer; border-radius: 8px; padding: 2px 4px; margin: -2px -4px; }
+  .cal-item .cal-edit:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
 </style>
 
 <div class="app">
@@ -470,6 +475,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
     <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
     <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
+    <button class="cal-cancelbtn" id="calCancel" type="button" hidden>Cancel edit</button>
   </div>
 </div>
 
@@ -1036,6 +1042,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calCat").value = "";
     fillCalCats();
     document.getElementById("calRepeat").checked = false;
+    calEditId = null; calEditKind = null;
+    document.getElementById("calAdd").textContent = "＋ Add";
+    document.getElementById("calCancel").hidden = true;
     updateRepeatVis();
     renderCalList();
     var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false");
@@ -1047,10 +1056,17 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var list = calDayEntries(calSel);
     if (!list.length) { box.innerHTML = '<div class="cal-empty">Nothing logged yet.</div>'; return; }
     box.innerHTML = list.map(function (e) {
-      return '<div class="cal-item"><span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
-        '<span class="note2">' + esc(e.note || "(no note)") + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span>' +
+      return '<div class="cal-item"><div class="cal-edit" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" title="Tap to edit">' +
+        '<span class="amt2 ' + e.type + '">' + (e.type === "income" ? "+" : "−") + money(e.amount) + '</span>' +
+        '<span class="note2">' + esc(e.note || "(no note)") + (e.repeat ? ' <span class="rep">↻ monthly</span>' : '') + '</span></div>' +
         '<button class="del2" data-id="' + e.id + '" data-rep="' + (e.repeat ? 1 : 0) + '" aria-label="Delete">✕</button></div>';
     }).join("");
+    // Tap the amount/note to edit that entry in the form below.
+    Array.prototype.forEach.call(box.querySelectorAll(".cal-edit"), function (ed) {
+      ed.addEventListener("click", function () {
+        startEditEntry(ed.getAttribute("data-id"), ed.getAttribute("data-rep") === "1" ? "repeat" : "entry");
+      });
+    });
     Array.prototype.forEach.call(box.querySelectorAll(".del2"), function (b) {
       b.addEventListener("click", function () {
         var id = b.getAttribute("data-id");
@@ -1060,10 +1076,39 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         } else {
           calData.entries = calData.entries.filter(function (e) { return e.id !== id; });
         }
+        if (calEditId === id) resetCalForm();   // if we were editing this one, drop out of edit mode
         saveCal(); renderCalList(); renderCal(); render();   // keep the grid total in sync
       });
     });
   }
+
+  // ---- Edit an existing entry / recurring bill (reuses the Add form as a Save form) ----
+  var calEditId = null, calEditKind = null;
+  function resetCalForm() {
+    document.getElementById("calAmt").value = "";
+    document.getElementById("calCat").value = "";
+    document.getElementById("calRepeat").checked = false;
+    calEditId = null; calEditKind = null;
+    document.getElementById("calAdd").textContent = "＋ Add";
+    document.getElementById("calCancel").hidden = true;
+  }
+  function startEditEntry(id, kind) {
+    var item = (kind === "repeat")
+      ? (calData.repeats || []).filter(function (r) { return r.id === id; })[0]
+      : (calData.entries || []).filter(function (e) { return e.id === id; })[0];
+    if (!item) return;
+    calEditId = id; calEditKind = kind;
+    calType = (kind === "repeat") ? "bill" : item.type;   // repeats are always bills; keep their kind
+    Array.prototype.forEach.call(document.querySelectorAll("[data-ct]"), function (x) { x.classList.toggle("sel", x.getAttribute("data-ct") === calType); });
+    updateRepeatVis(); fillCalCats();
+    document.getElementById("calAmt").value = item.amount;
+    document.getElementById("calCat").value = item.note || "";
+    document.getElementById("calRepeat").checked = (kind === "repeat");
+    document.getElementById("calAdd").textContent = "Save changes";
+    document.getElementById("calCancel").hidden = false;
+    document.getElementById("calAmt").focus();
+  }
+  document.getElementById("calCancel").addEventListener("click", resetCalForm);
 
   // work / day-off toggle (tap the active one again to clear it)
   Array.prototype.forEach.call(document.querySelectorAll("[data-work]"), function (b) {
@@ -1101,6 +1146,19 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var note = document.getElementById("calCat").value.trim();
     // Share one category list: a brand-new category typed here also appears in the yearly grid.
     if (note) ensureGridCategory(calType === "income" ? "income" : "expenses", note);
+    if (calEditId) {
+      // ----- Save changes to the existing entry / recurring bill (in place) -----
+      if (calEditKind === "repeat") {
+        var er = (calData.repeats || []).filter(function (x) { return x.id === calEditId; })[0];
+        if (er) { er.amount = amt; er.note = note || "Bill"; }
+      } else {
+        var ee = (calData.entries || []).filter(function (x) { return x.id === calEditId; })[0];
+        if (ee) { ee.amount = amt; ee.type = calType; ee.note = note || (calType.charAt(0).toUpperCase() + calType.slice(1)); }
+      }
+      resetCalForm();
+      saveCal(); renderCalList(); renderCal(); render();
+      return;
+    }
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
       calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7) });
     } else {
