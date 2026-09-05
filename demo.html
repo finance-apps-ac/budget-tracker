@@ -330,7 +330,17 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-cell:hover { border-color: var(--accent); }
   .cal-cell.blank { background: transparent; border: none; cursor: default; }
   .cal-cell.today { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .cal-cell .top { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }
+  /* Date + Work/Off chip share the top row. On wide screens the chip always sits inline beside the
+     date (no wrap) so it's consistent; on narrow phone cells (see the mobile query) it stacks below
+     the date instead — either way it's deterministic, never a mix of inline/wrapped in one month. */
+  .cal-cell .top { display: flex; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: nowrap; }
+  .cal-cell .top .d { flex: 0 0 auto; }
+  .cal-chip { flex: 0 0 auto; white-space: nowrap; }
+  /* Below ~700px the cells get too narrow to fit "WORK" beside the date without overflow, so stack the
+     chip under the date — uniformly for every cell, so it never mixes inline + stacked in one month. */
+  @media (max-width: 700px) {
+    .cal-cell .top { flex-direction: column; align-items: flex-start; justify-content: flex-start; }
+  }
   .cal-cell .d { font-size: 13px; font-weight: 700; }
   .cal-cell.wd .d { color: var(--gain); } .cal-cell.we .d { color: var(--violet); }
   .cal-chip { font-size: 9px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; padding: 2px 6px; border-radius: 6px; }
