@@ -226,6 +226,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   td.gcell.armed .gamt, td.gcell.armed:hover .gamt { color: var(--accent); font-weight: 700; text-decoration: none; }
   td.gcell.armed .dash { color: var(--accent); }
+  /* Month header → tap to open that month on the calendar. */
+  th.mhead { cursor: pointer; }
+  th.mhead:hover { color: var(--accent); text-decoration: underline dashed; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); text-underline-offset: 3px; }
   .catname { width: 132px; margin-left: -7px; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; font-size: 12.5px; color: var(--gain); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   #expenseTable .catname { color: var(--violet); }
   .catname:hover { border-color: var(--border); }
@@ -605,6 +608,23 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     bindInputs();
     fitGrids();
     wireFreeze();
+    scrollGridsToCurrentMonth();
+  }
+
+  // On the current year, position the grid so the CURRENT month sits just right of the frozen
+  // Category column — so opening the app lands on this month, like the calendar does.
+  function scrollGridsToCurrentMonth() {
+    var now = new Date();
+    if (+curYear !== now.getFullYear()) return;        // only meaningful for the current year
+    var m = now.getMonth();
+    Array.prototype.forEach.call(document.querySelectorAll(".grid-wrap"), function (wrap) {
+      if (!wrap.offsetParent) return;                  // view hidden — nothing to measure yet
+      var th = wrap.querySelector('th.mhead[data-mo="' + m + '"]');
+      var catTh = wrap.querySelector("th.cat");
+      if (!th) return;
+      var catW = catTh ? catTh.getBoundingClientRect().width : 0;
+      wrap.scrollLeft += (th.getBoundingClientRect().left - wrap.getBoundingClientRect().left) - catW;
+    });
   }
 
   // Size each scroll box to hold a WHOLE number of category rows (frozen header + N rows + frozen total),
@@ -777,7 +797,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   function headRow() {
     var h = '<thead><tr><th class="cat">Category</th>';
-    for (var m = 0; m < 12; m++) h += '<th>' + MON[m] + '</th>';
+    // Month headers are clickable → jump to that month on the calendar.
+    for (var m = 0; m < 12; m++) h += '<th class="mhead" data-mo="' + m + '" title="Open ' + MONF[m] + ' on the Calendar">' + MON[m] + '</th>';
     return h + '<th class="tot">Total</th><th></th></tr></thead>';
   }
 
@@ -859,6 +880,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
           if (prev) prev.classList.remove("armed");
           td.classList.add("armed");
         }
+      });
+    });
+    // Tap a month header → open that month on the calendar.
+    Array.prototype.forEach.call(document.querySelectorAll("th.mhead"), function (th) {
+      th.addEventListener("click", function () {
+        calView = { y: +curYear, m: +th.getAttribute("data-mo") };
+        setView("calendar");
       });
     });
     Array.prototype.forEach.call(document.querySelectorAll(".catname"), function (inp) {
