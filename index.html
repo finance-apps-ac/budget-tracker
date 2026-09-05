@@ -207,6 +207,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .amt::-webkit-outer-spin-button, .amt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .amt { -moz-appearance: textfield; appearance: textfield; }
   .amt[readonly] { pointer-events: none; }   /* calendar-fed month: same look, edited on the calendar */
+  /* A month built from several calendar days: read-only here, tap the cell to edit those days on the
+     Calendar. The dashed underline is the hint that it's calendar-linked (not a plain typed value). */
+  td.cal-jump { cursor: pointer; }
+  td.cal-jump .amt { text-decoration: underline dashed; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); text-underline-offset: 3px; }
+  td.cal-jump:hover .amt { color: var(--accent); }
   .catname { width: 132px; margin-left: -7px; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; font-size: 12.5px; color: var(--gain); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   #expenseTable .catname { color: var(--violet); }
   .catname:hover { border-color: var(--border); }
@@ -766,9 +771,14 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       }
       body += '<tr><td class="cat"><input class="catname" data-sec="' + sec + '" data-id="' + r.id + '" data-field="name" value="' + esc(r.name) + '"></td>';
       for (var m = 0; m < 12; m++) {
-        if (r.calMask && r.calMask[m]) {
-          // This month's amount comes from the calendar (edit it there). Read-only, identical look.
-          body += '<td><input class="amt" readonly tabindex="-1" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + esc(r.vals[m]) + '"></td>';
+        var cnt = r.calCount ? r.calCount[m] : 0;
+        if (cnt >= 2) {
+          // Built from several calendar days — read-only; tapping jumps to the calendar to edit them.
+          body += '<td class="cal-jump" data-mo="' + m + '" title="From several calendar days — tap to edit on the Calendar"><input class="amt" readonly tabindex="-1" value="' + esc(r.vals[m]) + '"></td>';
+        } else if (cnt === 1) {
+          // Exactly one calendar entry — editable right here; the edit writes back to that entry (syncs both ways).
+          var ref = r.calRef[m];
+          body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-calid="' + ref.id + '" data-calkind="' + ref.kind + '" value="' + esc(r.vals[m]) + '" title="Also on the calendar — edits sync both ways"></td>';
         } else {
           body += '<td><input class="amt" type="number" step="any" inputmode="decimal" data-sec="' + sec + '" data-id="' + r.id + '" data-mo="' + m + '" value="' + (r.vals[m] === "" || r.vals[m] == null ? "" : esc(r.vals[m])) + '" placeholder="—"></td>';
         }
@@ -787,8 +797,33 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function bindInputs() {
     Array.prototype.forEach.call(document.querySelectorAll(".amt"), function (inp) {
       inp.addEventListener("change", function () {
+        var calId = inp.getAttribute("data-calid");
+        if (calId) {
+          // Single calendar-fed cell edited in the grid → write the new amount back to that calendar
+          // entry / recurring bill, so both views stay in sync. Blank/0 removes it (the value is gone).
+          var kind = inp.getAttribute("data-calkind");
+          var amt = inp.value === "" ? 0 : parseFloat(inp.value);
+          if (!(amt > 0)) {
+            if (kind === "repeat") calData.repeats = calData.repeats.filter(function (x) { return x.id !== calId; });
+            else calData.entries = calData.entries.filter(function (x) { return x.id !== calId; });
+          } else {
+            var arr = (kind === "repeat") ? calData.repeats : calData.entries;
+            var item = arr.filter(function (x) { return x.id === calId; })[0];
+            if (item) item.amount = amt;
+          }
+          saveCal(); render();
+          return;
+        }
         var r = findRow(inp.getAttribute("data-sec"), inp.getAttribute("data-id"));
         if (r) { r.vals[+inp.getAttribute("data-mo")] = inp.value === "" ? "" : parseFloat(inp.value); persist(); render(); }
+      });
+    });
+    // Tap a multi-day calendar cell → jump to the calendar for that month to adjust the individual days.
+    Array.prototype.forEach.call(document.querySelectorAll("td.cal-jump"), function (td) {
+      td.addEventListener("click", function () {
+        calView = { y: +curYear, m: +td.getAttribute("data-mo") };
+        setView("calendar");
+        renderCal();
       });
     });
     Array.prototype.forEach.call(document.querySelectorAll(".catname"), function (inp) {
@@ -873,37 +908,50 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // sum of every calendar entry tagged with that category that month. Because each amount lives in
   // only one place, one side is always zero — the "+" can't double-count. Months that come from the
   // calendar are flagged (calMask) so the grid shows them read-only (you edit those on the calendar).
-  function calSum(sec, name, m) {
+  // Every calendar entry / recurring bill that maps to a given category + month (this year).
+  // Returns {id, kind:"entry"|"repeat", amount} for each — the grid uses the COUNT to decide whether
+  // a cell is directly editable (exactly one) or edited on the calendar (several days).
+  function calCellEntries(sec, name, m) {
     var nm = (name || "").trim().toLowerCase();
-    if (!nm) return 0;
+    if (!nm) return [];
     var ym = curYear + "-" + pad2(m + 1);
-    var total = 0;
+    var list = [];
     calData.entries.forEach(function (e) {
       if ((e.note || "").trim().toLowerCase() !== nm) return;
       if (String(e.date || "").slice(0, 7) !== ym) return;
       var isIncome = e.type === "income";
-      if (sec === "income" ? isIncome : !isIncome) total += (+e.amount || 0);
+      if (sec === "income" ? isIncome : !isIncome) list.push({ id: e.id, kind: "entry", amount: (+e.amount || 0) });
     });
     if (sec === "expenses") {   // recurring bills count as expenses, from their start month onward
       calData.repeats.forEach(function (r) {
         if ((r.note || "").trim().toLowerCase() !== nm) return;
         if (r.start && ym < r.start) return;
-        total += (+r.amount || 0);
+        list.push({ id: r.id, kind: "repeat", amount: (+r.amount || 0) });
       });
     }
-    return total;
+    return list;
+  }
+  function calSum(sec, name, m) {
+    var cells = calCellEntries(sec, name, m), t = 0;
+    for (var i = 0; i < cells.length; i++) t += cells[i].amount;
+    return t;
   }
   function effRows(sec) {
     return (budget[sec] || []).map(function (r) {
-      var vals = [], mask = [];
+      var vals = [], mask = [], count = [], ref = [];
       for (var m = 0; m < 12; m++) {
-        var cs = calSum(sec, r.name, m);
+        var cells = calCellEntries(sec, r.name, m);
         // Calendar is PRIORITY: a logged actual REPLACES the typed budget value for that month
         // (never adds to it) — so entering the same thing in both places can't double-count.
-        if (cs > 0) { vals[m] = cs; mask[m] = true; }
-        else { vals[m] = r.vals[m]; mask[m] = false; }
+        if (cells.length) {
+          var sum = 0; for (var i = 0; i < cells.length; i++) sum += cells[i].amount;
+          vals[m] = sum; mask[m] = true; count[m] = cells.length;
+          ref[m] = (cells.length === 1) ? cells[0] : null;   // the single entry to edit in place
+        } else {
+          vals[m] = r.vals[m]; mask[m] = false; count[m] = 0; ref[m] = null;
+        }
       }
-      return { id: r.id, name: r.name, vals: vals, calMask: mask };
+      return { id: r.id, name: r.name, vals: vals, calMask: mask, calCount: count, calRef: ref };
     });
   }
   function incomeRows() { return effRows("income"); }
