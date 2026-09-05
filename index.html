@@ -337,6 +337,14 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-item { display: flex; align-items: center; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; }
   .cal-item .amt2 { font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; }
   .cal-item .amt2.income { color: var(--gain); } .cal-item .amt2.expense { color: var(--loss); } .cal-item .amt2.bill { color: var(--amber); }
+  /* "Monthly" strip: category budget amounts for the displayed month that live only in the grid
+     (no dated entry). Same single value as the grid cell, shown here so every number appears in both. */
+  .cal-monthly { margin-top: 16px; }
+  .cal-mrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; margin-bottom: 6px; }
+  .cal-mname { font-weight: 700; text-transform: uppercase; letter-spacing: .3px; font-size: 12px; }
+  .cal-mrow.income .cal-mname { color: var(--gain); } .cal-mrow.expenses .cal-mname { color: var(--violet); }
+  .cal-mamt { font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; }
+  .cal-mamt.income { color: var(--gain); } .cal-mamt.expenses { color: var(--loss); }
   .cal-item .note2 { flex: 1; font-size: 13px; }
   .cal-item .rep { font-size: 10px; color: var(--accent); white-space: nowrap; }
   .cal-item .del2 { background: none; border: none; color: var(--ink-faint); cursor: pointer; font-size: 14px; }
@@ -437,6 +445,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     </div>
     <div class="cal-dow" id="calDow"></div>
     <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-monthly" id="calMonthly" hidden></div>
     <div class="cal-summary">
       <div class="cal-stat off"><div class="lbl">Days off</div><div class="val" id="calOff">0</div></div>
       <div class="cal-stat inc"><div class="lbl">Net income</div><div class="val" id="calInc">$0</div></div>
@@ -911,10 +920,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // Every calendar entry / recurring bill that maps to a given category + month (this year).
   // Returns {id, kind:"entry"|"repeat", amount} for each — the grid uses the COUNT to decide whether
   // a cell is directly editable (exactly one) or edited on the calendar (several days).
-  function calCellEntries(sec, name, m) {
+  function calCellEntries(sec, name, m, year) {
     var nm = (name || "").trim().toLowerCase();
     if (!nm) return [];
-    var ym = curYear + "-" + pad2(m + 1);
+    var ym = (year != null ? String(year) : curYear) + "-" + pad2(m + 1);
     var list = [];
     calData.entries.forEach(function (e) {
       if ((e.note || "").trim().toLowerCase() !== nm) return;
@@ -967,6 +976,37 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       if (r.day === d && (!r.start || ym >= r.start)) list.push({ id: r.id, date: k, type: "bill", amount: r.amount, note: r.note, repeat: true });
     });
     return list;
+  }
+
+  // "Monthly" strip for the displayed calendar month: category budget amounts that live only in the
+  // grid (no dated entry that month) — the SAME single value as the grid cell, shown so every number
+  // is visible in both views. Returns income/expense totals so the month summary can include them.
+  function renderMonthly() {
+    var box = document.getElementById("calMonthly");
+    var totals = { inc: 0, exp: 0 };
+    if (!box) return totals;
+    var b = store[String(calView.y)];
+    var items = [];
+    if (b) {
+      ["income", "expenses"].forEach(function (sec) {
+        (b[sec] || []).forEach(function (r) {
+          var v = r.vals[calView.m];
+          var num = (v === "" || v == null) ? 0 : (+v || 0);
+          if (!num) return;                                                        // blank / zero → skip
+          if (calCellEntries(sec, r.name, calView.m, calView.y).length) return;     // has dated entries → shown on the days instead
+          items.push({ sec: sec, id: r.id, name: r.name, amount: num });
+          if (sec === "income") totals.inc += num; else totals.exp += num;
+        });
+      });
+    }
+    if (!items.length) { box.hidden = true; box.innerHTML = ""; return totals; }
+    box.hidden = false;
+    box.innerHTML = '<p class="cal-seclabel">Monthly budget</p>' + items.map(function (it) {
+      return '<div class="cal-mrow ' + it.sec + '" data-sec="' + it.sec + '" data-id="' + it.id + '" data-mo="' + calView.m + '">' +
+             '<span class="cal-mname">' + esc(it.name) + '</span>' +
+             '<span class="cal-mamt ' + it.sec + '">' + (it.sec === "income" ? "+" : "−") + money(it.amount) + '</span></div>';
+    }).join("");
+    return totals;
   }
 
   function renderCal() {
@@ -1029,8 +1069,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       cell.addEventListener("click", function () { openCalDay(this.getAttribute("data-k")); });
       grid.appendChild(cell);
     }
-    document.getElementById("calInc").textContent = money(mInc);
-    document.getElementById("calExp").textContent = money(mExp);
+    var mt = renderMonthly();   // monthly budget amounts (grid values with no dated entry this month)
+    document.getElementById("calInc").textContent = money(mInc + mt.inc);
+    document.getElementById("calExp").textContent = money(mExp + mt.exp);
     document.getElementById("calWork").textContent = wDays;
     document.getElementById("calOff").textContent = oDays;
   }
