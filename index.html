@@ -219,6 +219,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   td.gcell .dash { color: var(--ink-faint); }
   tbody tr:hover td.gcell:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface-2)); }
   td.gcell:hover .gamt { color: var(--accent); }
+  /* First tap "arms" a cell (cyan) to confirm the value; a second tap opens its day. */
+  td.gcell.armed, tbody tr:hover td.gcell.armed:hover {
+    background: color-mix(in srgb, var(--accent) 24%, var(--surface));
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  td.gcell.armed .gamt, td.gcell.armed:hover .gamt { color: var(--accent); font-weight: 700; text-decoration: none; }
+  td.gcell.armed .dash { color: var(--accent); }
   .catname { width: 132px; margin-left: -7px; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 6px; font-size: 12.5px; color: var(--gain); font-weight: 600; text-transform: uppercase; letter-spacing: .3px; }
   #expenseTable .catname { color: var(--violet); }
   .catname:hover { border-color: var(--border); }
@@ -820,7 +827,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     if (cells.length) {
       var last = cells[cells.length - 1];   // most recently added entry for this category/month
       setView("calendar");                  // setView("calendar") re-renders the calendar itself
-      if (last && last.date) openCalDay(last.date);
+      if (last && last.date) { openCalDay(last.date); gridReturn = true; }   // come back to the grid after the edit
       return;
     }
     var v = r.vals[m];
@@ -831,17 +838,27 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       calData.entries.push({ id: "e" + uid(), date: k, type: (sec === "income" ? "income" : "expense"), amount: num, note: r.name });
       r.vals[m] = ""; persist(); saveCal();   // the amount now lives on the calendar day, not the grid cell
       setView("calendar");
-      openCalDay(k);
+      openCalDay(k); gridReturn = true;
       return;
     }
+    gridReturn = false;   // empty cell → just browse that month (no modal to return from)
     setView("calendar");
   }
 
   function bindInputs() {
     // Every grid amount cell is read-only and jumps to the calendar, where all editing happens.
+    // Two-step to guard against a mis-click: the FIRST tap highlights (arms) the cell in cyan to
+    // confirm the value; a SECOND tap on that same cell opens its day on the calendar to edit.
     Array.prototype.forEach.call(document.querySelectorAll("td.gcell"), function (td) {
       td.addEventListener("click", function () {
-        jumpToCalCell(td.getAttribute("data-sec"), td.getAttribute("data-id"), +td.getAttribute("data-mo"));
+        if (td.classList.contains("armed")) {
+          td.classList.remove("armed");
+          jumpToCalCell(td.getAttribute("data-sec"), td.getAttribute("data-id"), +td.getAttribute("data-mo"));
+        } else {
+          var prev = document.querySelector("td.gcell.armed");
+          if (prev) prev.classList.remove("armed");
+          td.classList.add("armed");
+        }
       });
     });
     Array.prototype.forEach.call(document.querySelectorAll(".catname"), function (inp) {
@@ -1154,13 +1171,17 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     fillCalCats();
     document.getElementById("calRepeat").checked = false;
     calEditId = null; calEditKind = null;
+    gridReturn = false;   // opened directly on the calendar unless jumpToCalCell sets it true right after
     document.getElementById("calAdd").textContent = "＋ Add";
     document.getElementById("calCancel").hidden = true;
     updateRepeatVis();
     renderCalList();
     var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false");
   }
-  function closeCalModal() { var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true"); }
+  function closeCalModal() {
+    var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true");
+    if (gridReturn) { gridReturn = false; setView("budget"); }   // return to the grid the edit was launched from
+  }
 
   function renderCalList() {
     var box = document.getElementById("calList");
@@ -1195,6 +1216,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   // ---- Edit an existing entry / recurring bill (reuses the Add form as a Save form) ----
   var calEditId = null, calEditKind = null;
+  // True when the calendar day was opened by tapping a grid cell — so after the edit we return to the grid.
+  var gridReturn = false;
   function resetCalForm() {
     document.getElementById("calAmt").value = "";
     document.getElementById("calCat").value = "";
@@ -1268,6 +1291,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       }
       resetCalForm();
       saveCal(); renderCalList(); renderCal(); render();
+      if (gridReturn) closeCalModal();   // launched from a grid cell → hop back to the grid after saving
       return;
     }
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
@@ -1279,6 +1303,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calCat").value = "";
     document.getElementById("calRepeat").checked = false;
     saveCal(); renderCalList(); renderCal(); render();   // render() so the grid total reflects this entry
+    if (gridReturn) closeCalModal();   // launched from a grid cell → hop back to the grid after adding
   });
 
   document.getElementById("calClose").addEventListener("click", closeCalModal);
@@ -1325,6 +1350,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   document.getElementById("tabBudget").addEventListener("click", function () { setView("budget"); });
   document.getElementById("tabCalendar").addEventListener("click", function () { setView("calendar"); });
+  // Clicking anywhere that isn't an armed grid cell clears the cyan confirm-highlight.
+  document.addEventListener("click", function (e) {
+    if (e.target.closest && e.target.closest("td.gcell")) return;
+    var a = document.querySelector("td.gcell.armed"); if (a) a.classList.remove("armed");
+  });
 
   render();
 
