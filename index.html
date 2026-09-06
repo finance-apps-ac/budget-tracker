@@ -930,7 +930,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     Array.prototype.forEach.call(document.querySelectorAll("[data-del]"), function (b) {
       b.addEventListener("click", function () {
         var sec = b.getAttribute("data-del"), id = b.getAttribute("data-id");
+        var row = findRow(sec, id);
+        var nm = row ? (row.name || "").trim().toLowerCase() : "";
         budget[sec] = budget[sec].filter(function (r) { return r.id !== id; });
+        // A category's amounts live on the calendar — so deleting the category must also remove its
+        // calendar entries + recurring bills, or they'd be orphaned (still showing on calendar days).
+        if (nm) {
+          calData.entries = calData.entries.filter(function (e) { return (e.note || "").trim().toLowerCase() !== nm; });
+          calData.repeats = calData.repeats.filter(function (x) { return (x.note || "").trim().toLowerCase() !== nm; });
+          saveCal();
+        }
         persist(); render();
       });
     });
