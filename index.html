@@ -252,6 +252,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   td.auto-cell .dash { color: var(--ink-faint); }
   .del { color: var(--ink-faint); cursor: pointer; border: none; background: none; padding: 3px 6px; border-radius: 6px; font-size: 14px; }
   .del:hover { color: var(--loss); background: var(--loss-soft); }
+  /* In-app confirmation (used for destructive actions like deleting a category). */
+  .confirm-ov { position: fixed; inset: 0; z-index: 2147483300; background: rgba(4,7,13,.62); display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .confirm-box { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px 22px; max-width: 340px; width: 100%; box-shadow: var(--shadow); }
+  .confirm-title { font-weight: 700; font-size: 15px; color: var(--ink); }
+  .confirm-detail { font-size: 13px; color: var(--ink-soft); margin-top: 8px; line-height: 1.45; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .confirm-actions button { padding: 9px 16px; border-radius: 9px; font-weight: 700; font-size: 13px; cursor: pointer; border: 1px solid var(--border); }
+  .confirm-cancel { background: var(--surface-2); color: var(--ink); }
+  .confirm-yes { background: var(--loss); color: #fff; border-color: var(--loss); }
+  .confirm-yes:hover { filter: brightness(1.06); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
   /* Add-category form (P&L style): tap the label → type a name → Add. No placeholder row to rename. */
   .addform { margin-top: 12px; }
@@ -865,6 +875,26 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   function findRow(sec, id) { return budget[sec].filter(function (r) { return r.id === id; })[0]; }
 
+  // Lightweight in-app confirmation (NOT window.confirm — a native dialog's blur can trip cloud sync).
+  function askConfirm(title, detail, confirmLabel, onYes) {
+    var ov = document.createElement("div");
+    ov.className = "confirm-ov";
+    ov.innerHTML =
+      '<div class="confirm-box">' +
+        '<div class="confirm-title">' + esc(title) + '</div>' +
+        (detail ? '<div class="confirm-detail">' + esc(detail) + '</div>' : '') +
+        '<div class="confirm-actions">' +
+          '<button class="confirm-cancel" type="button">Cancel</button>' +
+          '<button class="confirm-yes" type="button">' + esc(confirmLabel) + '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    function close() { ov.remove(); }
+    ov.querySelector(".confirm-cancel").addEventListener("click", close);
+    ov.addEventListener("click", function (e) { if (e.target === ov) close(); });   // tap the backdrop to cancel
+    ov.querySelector(".confirm-yes").addEventListener("click", function () { close(); onYes(); });
+  }
+
   // A grid amount cell was tapped. The calendar is the single home for every amount, so all editing
   // happens there. Three cases:
   //  • the month already has calendar entries for this category → open the day of the most recent one.
@@ -931,16 +961,24 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       b.addEventListener("click", function () {
         var sec = b.getAttribute("data-del"), id = b.getAttribute("data-id");
         var row = findRow(sec, id);
-        var nm = row ? (row.name || "").trim().toLowerCase() : "";
-        budget[sec] = budget[sec].filter(function (r) { return r.id !== id; });
-        // A category's amounts live on the calendar — so deleting the category must also remove its
-        // calendar entries + recurring bills, or they'd be orphaned (still showing on calendar days).
-        if (nm) {
-          calData.entries = calData.entries.filter(function (e) { return (e.note || "").trim().toLowerCase() !== nm; });
-          calData.repeats = calData.repeats.filter(function (x) { return (x.note || "").trim().toLowerCase() !== nm; });
-          saveCal();
-        }
-        persist(); render();
+        if (!row) return;
+        var nm = (row.name || "").trim().toLowerCase();
+        // Count what would be removed, so the confirmation can spell out the calendar impact.
+        var hits = nm
+          ? calData.entries.filter(function (e) { return (e.note || "").trim().toLowerCase() === nm; }).length
+            + calData.repeats.filter(function (x) { return (x.note || "").trim().toLowerCase() === nm; }).length
+          : 0;
+        var detail = "This can’t be undone." + (hits ? " It also removes " + hits + " calendar " + (hits === 1 ? "entry" : "entries") + "." : "");
+        askConfirm('Delete “' + (row.name || "this category") + '”?', detail, "Delete", function () {
+          budget[sec] = budget[sec].filter(function (r) { return r.id !== id; });
+          // A category's amounts live on the calendar — remove its calendar entries + bills too.
+          if (nm) {
+            calData.entries = calData.entries.filter(function (e) { return (e.note || "").trim().toLowerCase() !== nm; });
+            calData.repeats = calData.repeats.filter(function (x) { return (x.note || "").trim().toLowerCase() !== nm; });
+            saveCal();
+          }
+          persist(); render();
+        });
       });
     });
   }
