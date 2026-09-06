@@ -215,7 +215,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Read-only monthly-total cell. The calendar owns the amount; tap the cell to add/edit it there.
      A dashed underline marks amounts as calendar-linked; hover highlights the whole cell. */
   td.gcell { cursor: pointer; text-align: right; font-family: var(--font-mono); font-size: 12px; color: var(--ink); white-space: nowrap; }
-  td.gcell .gamt { text-decoration: underline dashed; text-decoration-color: color-mix(in srgb, var(--accent) 55%, transparent); text-underline-offset: 3px; }
+  td.gcell .gamt { }
   td.gcell .dash { color: var(--ink-faint); }
   tbody tr:hover td.gcell:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface-2)); }
   td.gcell:hover .gamt { color: var(--accent); }
