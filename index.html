@@ -279,6 +279,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .addbtn.ghost:hover { border-color: var(--ink-faint); filter: none; }
   .hint { font-size: 11.5px; color: var(--ink-faint); margin-top: 10px; }
   .foot { text-align: center; color: var(--ink-faint); font-size: 12px; margin-top: 32px; }
+  .data-actions { display: flex; justify-content: center; gap: 10px; margin: 30px 0 0; flex-wrap: wrap; }
+  .data-actions .btn { font-size: 13px; }
+  .import { position: relative; overflow: hidden; }
+  .import input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 0; }
 
   /* ---------- View tabs (Budget / Calendar) ---------- */
   .viewtabs { display: inline-flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 11px; padding: 4px; margin-bottom: 18px; }
@@ -514,6 +518,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     <p class="hint">Tap any day to log a work shift, day off, bill, one-time expense, or income. Bills you mark “Repeat monthly” appear on that date every following month automatically.</p>
   </div><!-- /view-calendar -->
 
+  <div class="data-actions">
+    <button class="btn" id="exportBtn" type="button" title="Download all your data as a CSV file">⤓ Export CSV</button>
+  </div>
   <footer class="foot">Private to you — saved in this browser only, never uploaded.</footer>
 </div>
 
@@ -1468,6 +1475,60 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   document.getElementById("tabBudget").addEventListener("click", function () { setView("budget"); });
   document.getElementById("tabCalendar").addEventListener("click", function () { setView("calendar"); });
+
+  // ---------- Export CSV (a full, spreadsheet-friendly backup — handy for taxes) ----------
+  // One file, every record kind tagged in the Section column so nothing is lost and it re-imports cleanly:
+  //   Budget   — a planned monthly amount for a category   (Date = YYYY-MM)
+  //   Calendar — a one-off income/expense on a day          (Date = YYYY-MM-DD)
+  //   Bill     — a recurring monthly bill                   (Date = first occurrence, encodes start month + day)
+  //   Work     — a work day / day off + shift note          (Date = YYYY-MM-DD)
+  function pad2(n) { n = String(n); return n.length < 2 ? "0" + n : n; }
+  function csvCell(v) {
+    var s = (v == null) ? "" : String(v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function buildCSV() {
+    var rows = [["Section", "Date", "Type", "Category", "Amount", "Note"]];
+    // Budget grid — every category-month that has a value, across all saved years.
+    Object.keys(store).sort().forEach(function (yr) {
+      var b = store[yr]; if (!b) return;
+      [["income", "Income"], ["expenses", "Expense"]].forEach(function (p) {
+        (b[p[0]] || []).forEach(function (r) {
+          for (var m = 0; m < 12; m++) {
+            if (r.vals[m] === "" || r.vals[m] == null) continue;
+            rows.push(["Budget", yr + "-" + pad2(m + 1), p[1], r.name || "", num(r.vals[m]), ""]);
+          }
+        });
+      });
+    });
+    // Calendar one-off entries.
+    (calData.entries || []).slice().sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); })
+      .forEach(function (e) { rows.push(["Calendar", e.date, e.type === "income" ? "Income" : "Expense", e.note || "", num(e.amount), ""]); });
+    // Recurring bills — Date encodes the start month + day so it re-imports as the same repeat.
+    (calData.repeats || []).slice().sort(function (a, b) { return (a.start + pad2(a.day)).localeCompare(b.start + pad2(b.day)); })
+      .forEach(function (r) { rows.push(["Bill", r.start + "-" + pad2(r.day), "Expense", r.note || "Bill", num(r.amount), ""]); });
+    // Work shifts / days off.
+    Object.keys(calData.work || {}).sort().forEach(function (k) {
+      var w = calData.work[k]; if (!w || (!w.status && !w.shift)) return;
+      rows.push(["Work", k, w.status || "", "", "", w.shift || ""]);
+    });
+    return rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n");
+  }
+  function exportCSV() {
+    var csv = buildCSV();
+    var name = "budget-" + new Date().toISOString().slice(0, 10) + ".csv";
+    if (window.nativeTap) window.nativeTap("LIGHT");
+    // On iOS the WKWebView can't download a blob — hand off to the native Share sheet if present.
+    if (window.__exportCSVFile) { try { window.__exportCSVFile(name, csv); return; } catch (e) {} }
+    var blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" });  // BOM so Excel reads UTF-8
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); URL.revokeObjectURL(url); }, 0);
+  }
+  var _expBtn = document.getElementById("exportBtn");
+  if (_expBtn) _expBtn.addEventListener("click", exportCSV);
   // Clicking anywhere that isn't an armed grid cell clears the cyan confirm-highlight.
   document.addEventListener("click", function (e) {
     if (e.target.closest && e.target.closest("td.gcell")) return;
