@@ -262,6 +262,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .confirm-cancel { background: var(--surface-2); color: var(--ink); }
   .confirm-yes { background: var(--loss); color: #fff; border-color: var(--loss); }
   .confirm-yes:hover { filter: brightness(1.06); }
+  .confirm-go { background: var(--accent); color: #04222b; border-color: var(--accent); }
+  .flash { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 2147483400;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--border); box-shadow: var(--shadow);
+    border-radius: 11px; padding: 11px 18px; font-size: 13px; font-weight: 600; max-width: 88vw; text-align: center;
+    opacity: 0; transition: opacity .18s ease, transform .18s ease; }
+  .flash.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
   .addcat { margin-top: 12px; background: none; border: none; color: var(--accent); font-weight: 700; font-size: 12.5px; letter-spacing: .4px; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
   /* Add-category form (P&L style): tap the label → type a name → Add. No placeholder row to rename. */
   .addform { margin-top: 12px; }
@@ -520,6 +526,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   <div class="data-actions">
     <button class="btn" id="exportBtn" type="button" title="Download all your data as a CSV file">⤓ Export CSV</button>
+    <label class="btn import" id="importLabel" title="Add data from a Budget CSV file">⤒ Import CSV<input type="file" id="importInput" accept=".csv,text/csv" aria-label="Import CSV file"></label>
   </div>
   <footer class="foot">Private to you — saved in this browser only, never uploaded.</footer>
 </div>
@@ -883,7 +890,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function findRow(sec, id) { return budget[sec].filter(function (r) { return r.id === id; })[0]; }
 
   // Lightweight in-app confirmation (NOT window.confirm — a native dialog's blur can trip cloud sync).
-  function askConfirm(title, detail, confirmLabel, onYes) {
+  function askConfirm(title, detail, confirmLabel, onYes, positive) {
     var ov = document.createElement("div");
     ov.className = "confirm-ov";
     ov.innerHTML =
@@ -892,7 +899,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         (detail ? '<div class="confirm-detail">' + esc(detail) + '</div>' : '') +
         '<div class="confirm-actions">' +
           '<button class="confirm-cancel" type="button">Cancel</button>' +
-          '<button class="confirm-yes" type="button">' + esc(confirmLabel) + '</button>' +
+          '<button class="confirm-yes' + (positive ? ' confirm-go' : '') + '" type="button">' + esc(confirmLabel) + '</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(ov);
@@ -1529,6 +1536,113 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   var _expBtn = document.getElementById("exportBtn");
   if (_expBtn) _expBtn.addEventListener("click", exportCSV);
+
+  // ---------- Import CSV (strictly additive — never changes or removes anything already here) ----------
+  var _flashT;
+  function flash(msg) {
+    var el = document.getElementById("__flash");
+    if (!el) { el = document.createElement("div"); el.id = "__flash"; el.className = "flash"; document.body.appendChild(el); }
+    el.textContent = msg; el.classList.add("show");
+    clearTimeout(_flashT); _flashT = setTimeout(function () { el.classList.remove("show"); }, 2800);
+  }
+  function parseCSV(text) {
+    text = String(text || "").replace(/^﻿/, "");   // strip a UTF-8 BOM if present
+    var rows = [], row = [], field = "", inQ = false, c;
+    for (var i = 0; i < text.length; i++) {
+      c = text[i];
+      if (inQ) {
+        if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
+        else field += c;
+      } else if (c === '"') { inQ = true; }
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c === '\r') { /* handled by the following \n */ }
+      else field += c;
+    }
+    if (field !== "" || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+  // Applies parsed rows into S (store-shaped) and C (calendar-shaped), mutating them, and returns counts.
+  // Runs first on throwaway clones for a preview, then for real on confirm — same code, so the count is exact.
+  function applyImport(rows, S, C) {
+    if (!rows || !rows.length) return null;
+    var h = (rows[0] || []).map(function (x) { return String(x).trim().toLowerCase(); });
+    var iSec = h.indexOf("section"), iDate = h.indexOf("date"), iType = h.indexOf("type"),
+        iCat = h.indexOf("category"), iAmt = h.indexOf("amount"), iNote = h.indexOf("note");
+    if (iSec < 0 || iDate < 0) return null;   // not a Budget export
+    var add = { budget: 0, calendar: 0, bill: 0, work: 0 }, skip = 0;
+    for (var r = 1; r < rows.length; r++) {
+      var cols = rows[r]; if (!cols) continue;
+      var g = function (ix) { return ix >= 0 ? String(cols[ix] == null ? "" : cols[ix]).trim() : ""; };
+      var section = g(iSec).toLowerCase();
+      if (!section) { continue; }   // blank line
+      var date = g(iDate), type = g(iType).toLowerCase(), cat = g(iCat), amt = g(iAmt), note = g(iNote);
+      if (section === "budget") {
+        var mm = date.match(/^(\d{4})-(\d{2})/), sec = type === "income" ? "income" : type === "expense" ? "expenses" : null;
+        if (!mm || !sec) { skip++; continue; }
+        var yr = mm[1], mi = +mm[2] - 1; if (mi < 0 || mi > 11) { skip++; continue; }
+        if (!S[yr]) S[yr] = { income: [], expenses: [] };
+        if (!S[yr][sec]) S[yr][sec] = [];
+        var arr = S[yr][sec], ex = null;
+        for (var j = 0; j < arr.length; j++) { if ((arr[j].name || "").trim().toLowerCase() === cat.toLowerCase()) { ex = arr[j]; break; } }
+        if (!ex) { ex = row(cat); arr.push(ex); }
+        if (ex.vals[mi] === "" || ex.vals[mi] == null) { ex.vals[mi] = amt; add.budget++; } else skip++;  // never overwrite
+      } else if (section === "calendar") {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { skip++; continue; }
+        var t = type === "income" ? "income" : "expense";
+        var key = date + "|" + t + "|" + num(amt) + "|" + cat.toLowerCase();
+        C.entries = C.entries || [];
+        if (C.entries.some(function (e) { return (e.date + "|" + e.type + "|" + num(e.amount) + "|" + (e.note || "").trim().toLowerCase()) === key; })) { skip++; continue; }
+        C.entries.push({ id: "e" + uid(), date: date, type: t, amount: amt, note: cat || note });
+        add.calendar++;
+      } else if (section === "bill") {
+        var bm = date.match(/^(\d{4}-\d{2})-(\d{2})$/); if (!bm) { skip++; continue; }
+        var start = bm[1], day = +bm[2], bkey = start + "|" + day + "|" + num(amt) + "|" + cat.toLowerCase();
+        C.repeats = C.repeats || [];
+        if (C.repeats.some(function (x) { return (x.start + "|" + x.day + "|" + num(x.amount) + "|" + (x.note || "").trim().toLowerCase()) === bkey; })) { skip++; continue; }
+        C.repeats.push({ id: "r" + uid(), day: day, amount: amt, note: cat || "Bill", start: start });
+        add.bill++;
+      } else if (section === "work") {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { skip++; continue; }
+        C.work = C.work || {};
+        if (C.work[date] && (C.work[date].status || C.work[date].shift)) { skip++; continue; }  // never overwrite a day
+        C.work[date] = { status: type || null, shift: note || "" };
+        add.work++;
+      } else { skip++; }
+    }
+    return { added: add, skipped: skip };
+  }
+  function handleImportFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var rows = parseCSV(reader.result);
+      // Dry run on deep clones so we can preview counts without touching real data.
+      var pre = applyImport(rows, JSON.parse(JSON.stringify(store)), JSON.parse(JSON.stringify(calData)));
+      if (!pre) { flash("That file isn’t a Budget CSV export."); return; }
+      var A = pre.added, tot = A.budget + A.calendar + A.bill + A.work;
+      if (!tot) { flash(pre.skipped ? "Nothing new — that file’s already in your budget." : "No rows found to import."); return; }
+      var parts = [];
+      if (A.budget) parts.push(A.budget + " budget " + (A.budget === 1 ? "amount" : "amounts"));
+      if (A.calendar) parts.push(A.calendar + " calendar " + (A.calendar === 1 ? "entry" : "entries"));
+      if (A.bill) parts.push(A.bill + " " + (A.bill === 1 ? "bill" : "bills"));
+      if (A.work) parts.push(A.work + " work " + (A.work === 1 ? "day" : "days"));
+      var detail = "Adds " + parts.join(", ") + ". Nothing already in your budget is changed or removed" +
+        (pre.skipped ? " (" + pre.skipped + " duplicate/existing skipped)" : "") + ".";
+      askConfirm("Import “" + file.name + "”?", detail, "Import", function () {
+        applyImport(rows, store, calData);      // for real this time
+        persist(); saveCal(); render();
+        if (!document.getElementById("view-calendar").hidden) renderCal();
+        flash("Imported " + tot + " " + (tot === 1 ? "item" : "items") + ".");
+      }, true);
+    };
+    reader.readAsText(file);
+  }
+  var _impInput = document.getElementById("importInput");
+  if (_impInput) _impInput.addEventListener("change", function () {
+    var f = this.files && this.files[0];
+    this.value = "";                 // let the same file be re-chosen later
+    if (f) handleImportFile(f);
+  });
   // Clicking anywhere that isn't an armed grid cell clears the cyan confirm-highlight.
   document.addEventListener("click", function (e) {
     if (e.target.closest && e.target.closest("td.gcell")) return;
