@@ -1,3 +1,5 @@
+<img src="icon-512.png" width="96" alt="">
+
 # Budget — Annual Tracker
 
 A clean, private annual budget. Track income and expenses month by month, see monthly
