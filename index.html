@@ -41,7 +41,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 <body>
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
-<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [{"id": "e_pay1", "date": "2025-06-05", "type": "income", "amount": 1850, "note": "Paycheck"}, {"id": "e_ot", "date": "2025-06-13", "type": "income", "amount": 290, "note": "Overtime"}, {"id": "e_pay2", "date": "2025-06-20", "type": "income", "amount": 1920, "note": "Paycheck"}, {"id": "e_gr1", "date": "2025-06-03", "type": "expense", "amount": 85, "note": "Groceries"}, {"id": "e_gas", "date": "2025-06-08", "type": "expense", "amount": 45, "note": "Gas"}, {"id": "e_din", "date": "2025-06-11", "type": "expense", "amount": 58, "note": "Dining out"}, {"id": "e_shop", "date": "2025-06-18", "type": "expense", "amount": 120, "note": "Shopping"}, {"id": "e_gr2", "date": "2025-06-24", "type": "expense", "amount": 92, "note": "Groceries"}, {"id": "e_misc", "date": "2025-06-27", "type": "expense", "amount": 61, "note": "Misc"}], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent", "start": "2025-01"}, {"id": "rdemo2", "day": 5, "amount": 340, "note": "Car payment", "start": "2025-01"}, {"id": "rdemo3", "day": 15, "amount": 95, "note": "Phone bill", "start": "2025-01"}], "work": {"2025-06-02": {"status": "work", "shift": "9–5"}, "2025-06-03": {"status": "work", "shift": "9–5"}, "2025-06-04": {"status": "work", "shift": "Night 10p–6a"}, "2025-06-05": {"status": "work", "shift": "9–5"}, "2025-06-06": {"status": "work", "shift": "Mid 2–10p"}, "2025-06-07": {"status": "work", "shift": "Weekend 8–4"}, "2025-06-10": {"status": "work", "shift": "9–5"}, "2025-06-11": {"status": "work", "shift": "Opening 7a"}, "2025-06-12": {"status": "work", "shift": "9–5"}, "2025-06-13": {"status": "work", "shift": "9–5"}, "2025-06-16": {"status": "work", "shift": "9–5"}, "2025-06-17": {"status": "work", "shift": "9–5"}, "2025-06-18": {"status": "work", "shift": "Double shift"}, "2025-06-20": {"status": "work", "shift": "Closing 10p"}, "2025-06-21": {"status": "work", "shift": "Weekend 8–4"}, "2025-06-23": {"status": "work", "shift": "9–5"}, "2025-06-24": {"status": "work", "shift": "Night 10p–6a"}, "2025-06-25": {"status": "work", "shift": "9–5"}, "2025-06-26": {"status": "work", "shift": "Half day"}, "2025-06-27": {"status": "work", "shift": "9–5"}, "2025-06-30": {"status": "work", "shift": "9–5"}, "2025-06-09": {"status": "off", "shift": ""}, "2025-06-19": {"status": "off", "shift": ""}}}};</script>
+<script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [{"id": "e_pay1", "date": "2025-06-05", "type": "income", "amount": 1850, "note": "Salary"}, {"id": "e_ot", "date": "2025-06-13", "type": "income", "amount": 290, "note": "Other Income"}, {"id": "e_pay2", "date": "2025-06-20", "type": "income", "amount": 1920, "note": "Salary"}, {"id": "e_gr1", "date": "2025-06-03", "type": "expense", "amount": 85, "note": "Groceries"}, {"id": "e_gas", "date": "2025-06-08", "type": "expense", "amount": 45, "note": "Transport / Gas"}, {"id": "e_din", "date": "2025-06-11", "type": "expense", "amount": 58, "note": "Going Out"}, {"id": "e_shop", "date": "2025-06-18", "type": "expense", "amount": 120, "note": "Shopping"}, {"id": "e_gr2", "date": "2025-06-24", "type": "expense", "amount": 92, "note": "Groceries"}, {"id": "e_misc", "date": "2025-06-27", "type": "expense", "amount": 61, "note": "Other"}], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent / Mortgage", "start": "2025-01"}, {"id": "rdemo2", "day": 5, "amount": 340, "note": "Car Payment", "start": "2025-01"}, {"id": "rdemo3", "day": 15, "amount": 95, "note": "Phone", "start": "2025-01"}], "work": {"2025-06-02": {"status": "work", "shift": "9–5"}, "2025-06-03": {"status": "work", "shift": "9–5"}, "2025-06-04": {"status": "work", "shift": "Night 10p–6a"}, "2025-06-05": {"status": "work", "shift": "9–5"}, "2025-06-06": {"status": "work", "shift": "Mid 2–10p"}, "2025-06-07": {"status": "work", "shift": "Weekend 8–4"}, "2025-06-10": {"status": "work", "shift": "9–5"}, "2025-06-11": {"status": "work", "shift": "Opening 7a"}, "2025-06-12": {"status": "work", "shift": "9–5"}, "2025-06-13": {"status": "work", "shift": "9–5"}, "2025-06-16": {"status": "work", "shift": "9–5"}, "2025-06-17": {"status": "work", "shift": "9–5"}, "2025-06-18": {"status": "work", "shift": "Double shift"}, "2025-06-20": {"status": "work", "shift": "Closing 10p"}, "2025-06-21": {"status": "work", "shift": "Weekend 8–4"}, "2025-06-23": {"status": "work", "shift": "9–5"}, "2025-06-24": {"status": "work", "shift": "Night 10p–6a"}, "2025-06-25": {"status": "work", "shift": "9–5"}, "2025-06-26": {"status": "work", "shift": "Half day"}, "2025-06-27": {"status": "work", "shift": "9–5"}, "2025-06-30": {"status": "work", "shift": "9–5"}, "2025-06-09": {"status": "off", "shift": ""}, "2025-06-19": {"status": "off", "shift": ""}}}};</script>
 <script src="supabase-sync.js?v=30"></script>
 <script src="native.js?v=1"></script>
 <style>
@@ -440,6 +440,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <select id="yearFilter" aria-label="Budget year"></select>
       <input type="number" id="newYear" class="year-input" placeholder="2027" hidden aria-label="New year">
       <button class="btn" id="addYearBtn" title="Add a year">＋ Year</button>
+      <button class="btn" id="removeYearBtn" title="Remove this empty year" hidden>Remove year</button>
     </div>
   </header>
 
@@ -528,7 +529,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     <button class="btn" id="exportBtn" type="button" title="Download all your data as a CSV file">⤓ Export CSV</button>
     <label class="btn import" id="importLabel" title="Add data from a Budget CSV file">⤒ Import CSV<input type="file" id="importInput" accept=".csv,text/csv" aria-label="Import CSV file"></label>
   </div>
-  <footer class="foot">Private to you — saved in this browser only, never uploaded.</footer>
+  <footer class="foot">Private to you — synced only to your own account. Never sold or shared.</footer>
   <div class="foot" style="margin-top:10px;">Also from the same maker — <a href="https://apps.apple.com/app/p-l-trading-journal/id6805278220" onclick="event.preventDefault();try{window.open(this.href,window.Capacitor?'_system':'_blank');}catch(e){location.href=this.href;}" style="color:var(--accent);text-decoration:none;white-space:nowrap;">P&amp;L: your trading journal →</a></div>
 </div>
 
@@ -632,7 +633,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
 
   var usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-  function money(v) { return usd.format(v || 0); }
+  var usd2 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function money(v) { v = Math.round((v || 0) * 100) / 100; return (Number.isInteger(v) ? usd : usd2).format(v); }
   function signed(v) { return (v > 0 ? "+" : v < 0 ? "−" : "") + money(Math.abs(v)); }
   // Compact form for chart axis labels so big numbers ($12,000) don't overflow the y-gutter on phones.
   function axisMoney(v) {
@@ -1023,6 +1025,18 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var ys = years().slice().reverse();  // newest first
     sel.innerHTML = ys.map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join("");
     sel.value = curYear;
+    var rb = document.getElementById("removeYearBtn");
+    if (rb) rb.hidden = !(ys.length > 1 && yearIsEmpty(curYear));   // only an empty year can be removed
+  }
+  // A year can be removed only while it holds nothing: no grid amounts, no calendar entries, no bills starting in it.
+  function yearIsEmpty(y) {
+    var b = store[y]; if (!b) return false;
+    var hasAmt = ["income", "expenses"].some(function (sec) { return (b[sec] || []).some(function (r) { return (r.vals || []).some(function (v) { return v !== "" && v != null && +v !== 0; }); }); });
+    if (hasAmt) return false;
+    var pre = String(y) + "-", cd = (typeof calData !== "undefined" && calData) || { entries: [], repeats: [] };
+    if ((cd.entries || []).some(function (e) { return String(e.date || "").indexOf(pre) === 0; })) return false;
+    if ((cd.repeats || []).some(function (r) { return String(r.start || "").indexOf(pre) === 0; })) return false;
+    return true;
   }
   function addYear(y) {
     y = String(y);
@@ -1046,9 +1060,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     else commitYear();
   });
   newYearInput.addEventListener("keydown", function (e) { if (e.key === "Enter") commitYear(); });
+  document.getElementById("removeYearBtn").addEventListener("click", function () {
+    if (!yearIsEmpty(curYear) || years().length < 2) return;
+    if (!confirm("Remove the empty " + curYear + " budget?")) return;
+    delete store[curYear]; localStorage.setItem(SKEY, JSON.stringify(store));
+    curYear = latestYear(); budget = store[curYear]; render();
+  });
   function commitYear() {
     var y = String(newYearInput.value || "").trim();
-    if (!/^\d{4}$/.test(y)) { newYearInput.focus(); return; }
+    if (!/^\d{4}$/.test(y) || +y < 2000 || +y > 2100) { flash("Enter a year between 2000 and 2100"); newYearInput.focus(); return; }
     newYearInput.hidden = true; addYear(y);
   }
 
@@ -1339,6 +1359,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
           if (!confirm("Remove this recurring bill from every month?")) return;
           calData.repeats = calData.repeats.filter(function (r) { return r.id !== id; });
         } else {
+          if (!confirm("Delete this entry?")) return;
           calData.entries = calData.entries.filter(function (e) { return e.id !== id; });
         }
         if (calEditId === id) resetCalForm();   // if we were editing this one, drop out of edit mode
@@ -1407,9 +1428,27 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     });
   });
 
+  // Legacy safety net: a month that still has an amount TYPED in the grid (older data) would be
+  // REPLACED by the first calendar entry for that category – silently dropping the typed amount.
+  // So before a new entry lands, move that typed amount onto the calendar (same as tapping the cell),
+  // and the new entry ADDS to it. Months that already live on the calendar are untouched.
+  function moveTypedToCalendar(sec, name, y, fromM, toM) {
+    var b = store[String(y)], nm = (name || "").trim().toLowerCase(), moved = false;
+    if (!b || !nm) return;
+    var r = (b[sec] || []).filter(function (x) { return (x.name || "").trim().toLowerCase() === nm; })[0];
+    if (!r) return;
+    for (var m = fromM; m <= toM; m++) {
+      var v = r.vals[m], num = (v === "" || v == null) ? 0 : (+v || 0);
+      if (!num || calCellEntries(sec, r.name, m, y).length) continue;
+      calData.entries.push({ id: "e" + uid(), date: ckey(+y, m, firstFreeDay(+y, m)), type: (sec === "income" ? "income" : "expense"), amount: num, note: r.name });
+      r.vals[m] = ""; moved = true;
+    }
+    if (moved) localStorage.setItem(SKEY, JSON.stringify(store));
+  }
+
   document.getElementById("calAdd").addEventListener("click", function () {
     var amt = parseFloat(document.getElementById("calAmt").value);
-    if (!(amt > 0)) { document.getElementById("calAmt").focus(); return; }
+    if (!(amt > 0)) { flash(document.getElementById("calAmt").value === "" ? "Enter an amount" : "Enter an amount above $0"); document.getElementById("calAmt").focus(); return; }
     var note = document.getElementById("calCat").value.trim();
     // Share one category list: a brand-new category typed here also appears in the yearly grid.
     if (note) ensureGridCategory(calType === "income" ? "income" : "expenses", note);
@@ -1426,6 +1465,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       saveCal(); renderCalList(); renderCal(); render();
       if (gridReturn) closeCalModal();   // launched from a grid cell → hop back to the grid after saving
       return;
+    }
+    if (note) {
+      var addY = +calSel.slice(0, 4), addM = +calSel.slice(5, 7) - 1, isRepeat = calType === "bill" && document.getElementById("calRepeat").checked;
+      moveTypedToCalendar(calType === "income" ? "income" : "expenses", note, addY, addM, isRepeat ? 11 : addM);
     }
     if (calType === "bill" && document.getElementById("calRepeat").checked) {
       calData.repeats.push({ id: "r" + uid(), day: +calSel.slice(8, 10), amount: amt, note: note || "Bill", start: calSel.slice(0, 7) });
@@ -1451,7 +1494,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       e.stopPropagation();
       var menu = document.getElementById(menuId), wasOpen = menu.classList.contains("open");
       closeDropdowns();
-      if (!wasOpen) { menu.classList.add("open"); var s = menu.querySelector(".sel"); if (s) s.scrollIntoView({ block: "nearest" }); }
+      if (!wasOpen) {
+        menu.classList.add("open"); menu.style.left = ""; menu.style.right = "";
+        var mr = menu.getBoundingClientRect(), vw = window.innerWidth || document.documentElement.clientWidth;
+        if (mr.left < 8) { menu.style.left = "0"; menu.style.right = "auto"; }            // would open off the left edge
+        else if (mr.right > vw - 8) { menu.style.left = "auto"; menu.style.right = "0"; } // or off the right edge
+        var s = menu.querySelector(".sel"); if (s) s.scrollIntoView({ block: "nearest" });
+      }
     });
   }
   wireDD("calMonBtn", "calMonMenu");
