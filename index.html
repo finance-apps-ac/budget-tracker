@@ -1450,6 +1450,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var amt = parseFloat(document.getElementById("calAmt").value);
     if (!(amt > 0)) { flash(document.getElementById("calAmt").value === "" ? "Enter an amount" : "Enter an amount above $0"); document.getElementById("calAmt").focus(); return; }
     var note = document.getElementById("calCat").value.trim();
+    // A category is required: an entry without one would show on the calendar but never reach the yearly grid totals.
+    if (!note) { flash("Pick or type a category"); document.getElementById("calCat").focus(); return; }
     // Share one category list: a brand-new category typed here also appears in the yearly grid.
     if (note) ensureGridCategory(calType === "income" ? "income" : "expenses", note);
     if (calEditId) {
