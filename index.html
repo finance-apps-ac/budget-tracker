@@ -108,7 +108,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     #incomeTable .amt, #expenseTable .amt { width: 100%; margin: 0; padding-left: 0; padding-right: 0; }
   }
 
-  .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+  .topbar { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 16px; margin-bottom: 22px; }
   .brand { display: flex; align-items: flex-start; gap: 13px; }
   .mark { width: 38px; height: 38px; border-radius: 10px; flex: none; overflow: hidden;
           border: 1px solid var(--border); background: var(--surface-2);
@@ -117,7 +117,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .brand h1 { font-size: 22px; font-weight: 800; margin: 0; letter-spacing: 1.6px; text-transform: uppercase; }
   .brand h1 .yr { color: var(--accent); }
   .tagline { margin: 2px 0 0; font-size: 12px; color: var(--ink-soft); letter-spacing: .4px; text-transform: uppercase; }
-  .topbar-actions { display: flex; align-items: center; gap: 9px; }
+  .topbar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
   select, .btn { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 8px 12px; color: var(--ink); cursor: pointer; font-size: 13.5px; white-space: nowrap; }
   #yearFilter { font-weight: 700; }
   /* Settled-grey custom chevron (the native black up/down arrow is nearly invisible
@@ -148,6 +148,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .c-yaxis span { position: absolute; right: 7px; transform: translateY(-50%); white-space: nowrap; font: 10px/1 var(--font-mono); color: var(--ink-faint); }
   .c-xaxis { position: absolute; left: 0; right: 0; bottom: 4px; pointer-events: none; }
   .c-xaxis span { position: absolute; transform: translateX(-50%); white-space: nowrap; font: 12px/1 var(--font-mono); color: var(--ink-faint); }
+  @media (max-width: 480px) { .c-xaxis span { font-size: 10px; letter-spacing: -.3px; } }
   .grid-line { stroke: var(--border); stroke-width: 1; }
   .axis-text { fill: var(--ink-faint); font-size: 10px; font-family: var(--font-mono); }
   .zero-line { stroke: var(--ink-faint); stroke-width: 1; stroke-dasharray: 3 3; opacity: .55; }
@@ -175,6 +176,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
                   never come to rest half-cut at the top or bottom edge. Gentle (proximity), so it never fights you. */
                scroll-snap-type: y proximity; scroll-padding-top: 34px; scroll-padding-bottom: 42px; }
   .grid-wrap tbody tr:not(.total-row) { scroll-snap-align: start; }
+  /* Safety net: the page itself never slides sideways (only the tables do). `clip` (not `hidden`) so sticky still works. */
+  html, body { overflow-x: hidden; } @supports (overflow: clip) { html, body { overflow-x: clip; } }
+  /* Phones / touch screens: no box-inside-the-page for up/down. A table nested in the scrolling page
+     caught vertical swipes (and snapped row by row), so on Android the page felt stuck. Here the table
+     shows at full height and only slides sideways through the months; up/down always moves the page. */
+  @media (pointer: coarse) {
+    .grid-wrap { max-height: none !important; overflow-y: hidden; overscroll-behavior-y: auto; overscroll-behavior-x: contain;
+                 scroll-snap-type: none; touch-action: pan-x pan-y; }
+  }
   /* Slim, muted scrollbar that sits in its own gutter (no longer overlaps the ✕ column, no longer bright/bulky). */
   .grid-wrap::-webkit-scrollbar { width: 9px; height: 9px; }
   .grid-wrap::-webkit-scrollbar-track { background: transparent; }
@@ -373,11 +383,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
 
   /* Day detail modal */
-  .cal-modal { position: fixed; inset: 0; background: rgba(4,8,18,.62); display: none; align-items: flex-end; justify-content: center; z-index: 60; }
+  .cal-modal { position: fixed; inset: 0; background: rgba(4,8,18,.88); display: none; align-items: flex-start; justify-content: center; z-index: 60;
+                padding: calc(env(safe-area-inset-top, 0px) + 14px) 10px 10px; }
   .cal-modal.open { display: flex; }
-  .cal-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 18px 18px 0 0; width: 100%; max-width: 520px; max-height: 88vh; overflow: auto;
-               padding: 20px 20px calc(24px + env(safe-area-inset-bottom)); box-shadow: var(--shadow); }
-  @media (min-width: 560px) { .cal-modal { align-items: center; } .cal-sheet { border-radius: 18px; } }
+  .cal-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 520px; max-height: calc(100% - 4px); overflow: auto;
+               padding: 20px 20px 22px; box-shadow: var(--shadow); }
+  html.cal-open #sync-badge { display: none !important; }   /* the account pill must not cover + Add */
+  @media (min-width: 560px) { .cal-modal { align-items: center; } }
   .cal-sheet h3 { margin: 0 0 3px; font-size: 17px; }
   .cal-sheet .sub { color: var(--ink-soft); font-size: 12.5px; margin: 0 0 16px; }
   .cal-close { float: right; background: none; border: none; color: var(--ink-faint); font-size: 20px; cursor: pointer; line-height: 1; padding: 2px 4px; }
@@ -412,7 +424,15 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-in:focus { border-color: var(--accent); outline: none; }
   .cal-catwrap { position: relative; margin-bottom: 8px; }
   #calCat { padding-right: 30px; }
-  .cal-chev { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); font-size: 11px; pointer-events: none; }
+  /* Our own category menu (the phone's built-in suggestion list ignores the app theme on Android) */
+  .cat-menu { margin-top: 6px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
+              padding: 6px; max-height: 236px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .cat-menu[hidden] { display: none; }
+  .cat-item { padding: 11px 12px; border-radius: 8px; color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+  .cat-item + .cat-item { margin-top: 2px; }
+  .cat-item:hover, .cat-item.act { background: var(--accent-soft); color: var(--ink); }
+  .cat-item b { color: var(--accent); font-weight: 800; }
+  .cal-chev { position: absolute; right: 12px; top: 20.75px; transform: translateY(-50%);   /* centred on the input, not the open menu below it */ color: var(--ink-faint); font-size: 11px; pointer-events: none; }
   #calAmt { font-family: var(--font-mono); }
   #calAmt::-webkit-outer-spin-button, #calAmt::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .cal-repeat { display: flex; align-items: center; gap: 8px; margin-top: 11px; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
@@ -557,8 +577,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <button data-ct="bill" type="button">Bill</button>
     </div>
     <div class="cal-catwrap">
-      <input class="cal-in" id="calCat" list="calCatList" autocomplete="off" placeholder="Category — pick one or type a new one">
-      <datalist id="calCatList"></datalist>
+      <input class="cal-in" id="calCat" autocomplete="off" autocapitalize="words" role="combobox" aria-autocomplete="list" aria-controls="calCatMenu" aria-expanded="false" placeholder="Category — pick one or type a new one">
+      <div class="cat-menu" id="calCatMenu" role="listbox" hidden></div>
       <span class="cal-chev" aria-hidden="true">▾</span>
     </div>
     <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
@@ -644,7 +664,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       var s = (k >= 10) ? String(Math.round(k)) : String(Math.round(k * 10) / 10).replace(/\.0$/, "");
       return (neg ? "−$" : "$") + s + "k";
     }
-    return money(v);
+    return money(Math.round(v));
   }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"'/]/g, function (c) { return ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;","/":"&#47;" })[c]; }); }
   function num(v) { return (v === "" || v == null) ? 0 : Number(v) || 0; }
@@ -695,6 +715,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       var totalRow = wrap.querySelector(".total-row");
       var bodyRows = wrap.querySelectorAll("tbody tr:not(.total-row)");
       wrap.style.maxHeight = "";                       // reset before measuring
+      if (window.matchMedia && matchMedia("(pointer: coarse)").matches) return;   // touch: full-height table, page scrolls (see CSS)
       if (!thead || !totalRow || !bodyRows.length) return;
       var rh = bodyRows[0].getBoundingClientRect().height;
       var hh = thead.getBoundingClientRect().height;
@@ -765,6 +786,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var W = 720, H = 220, padL = 58, padR = 12, padT = 12, padB = 30;
     var min = Math.min(0, Math.min.apply(null, vals)), max = Math.max(0, Math.max.apply(null, vals));
     if (min === max) max = min + 1;
+    // round grid steps ($500, $1k, $2.5k…); a small dip below $0 gets breathing room, not a whole labelled step
+    var raw = (max - min) / 3, mag = Math.pow(10, Math.floor(Math.log10(raw))), nstep = [1, 2, 2.5, 5, 10].map(function (f) { return f * mag; }).filter(function (v) { return v >= raw; })[0];
+    var rawMin = min; max = Math.ceil(max / nstep) * nstep;
+    min = rawMin >= 0 ? 0 : (-rawMin < nstep ? rawMin - nstep * 0.12 : Math.floor(rawMin / nstep) * nstep);
     var y = function (v) { return padT + (1 - (v - min) / (max - min)) * (H - padT - padB); };
     var bw = (W - padL - padR) / 12, zeroY = y(0);
     var xTicks = [];
@@ -775,7 +800,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       return '<rect class="bar ' + (v >= 0 ? "gain" : "loss") + '" x="' + bx.toFixed(1) + '" y="' + top.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + Math.max(1, h).toFixed(1) + '" rx="2"/>';
     }).join("");
     var grid = "", yTicks = [];
-    for (var g = 0; g <= 3; g++) { var val = min + (max - min) * g / 3, gy = y(val); grid += '<line class="grid-line" x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '"/>'; yTicks.push({ y: gy, text: axisMoney(val) }); }
+    for (var val = Math.ceil(min / nstep - 0.001) * nstep; val <= max + nstep * 0.001; val += nstep) { var gy = y(val); grid += '<line class="grid-line" x1="' + padL + '" y1="' + gy.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + gy.toFixed(1) + '"/>'; yTicks.push({ y: gy, text: axisMoney(val) }); }
     host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Monthly net savings">' + grid + '<line class="zero-line" x1="' + padL + '" y1="' + zeroY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + zeroY.toFixed(1) + '"/>' + bars + '</svg>' + axisHTML(W, H, padL, yTicks, xTicks);
   }
 
@@ -1295,11 +1320,37 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     var seen = {}, opts = [];
     src.forEach(function (r) {
       var n = (r.name || "").trim();
-      if (n && !seen[n]) { seen[n] = 1; opts.push('<option value="' + esc(n) + '"></option>'); }
+      if (n && !seen[n]) { seen[n] = 1; opts.push(n); }
     });
-    var dl = document.getElementById("calCatList");
-    if (dl) dl.innerHTML = opts.join("");
+    calCatOpts = opts; renderCatMenu(false);
   }
+  // Themed category menu under the input: tap to see every category, type to filter, or type a new one.
+  var calCatOpts = [];
+  function renderCatMenu(show) {
+    var inp = document.getElementById("calCat"), menu = document.getElementById("calCatMenu"); if (!inp || !menu) return;
+    var q = inp.value.trim().toLowerCase();
+    var list = calCatOpts.filter(function (n) { return !q || n.toLowerCase().indexOf(q) >= 0; });
+    if (list.length === 1 && list[0].toLowerCase() === q) list = [];          // already typed exactly – nothing to suggest
+    menu.innerHTML = list.map(function (n) {
+      var i = q ? n.toLowerCase().indexOf(q) : -1, lab = i < 0 ? esc(n) : esc(n.slice(0, i)) + "<b>" + esc(n.slice(i, i + q.length)) + "</b>" + esc(n.slice(i + q.length));
+      return '<div class="cat-item" role="option" data-v="' + esc(n) + '">' + lab + "</div>";
+    }).join("");
+    var on = !!show && list.length > 0; menu.hidden = !on; inp.setAttribute("aria-expanded", on ? "true" : "false");
+  }
+  (function () {
+    var inp = document.getElementById("calCat"), menu = document.getElementById("calCatMenu"); if (!inp || !menu) return;
+    inp.addEventListener("focus", function () { renderCatMenu(true); });
+    inp.addEventListener("click", function () { renderCatMenu(true); });
+    inp.addEventListener("input", function () { renderCatMenu(true); });
+    inp.addEventListener("keydown", function (e) { if (e.key === "Escape") renderCatMenu(false); });
+    inp.addEventListener("blur", function () { setTimeout(function () { renderCatMenu(false); }, 150); });
+    // pointerdown (not click) so picking an item doesn't blur the input first and close the menu
+    menu.addEventListener("pointerdown", function (e) {
+      var it = e.target.closest(".cat-item"); if (!it) return; e.preventDefault();
+      inp.value = it.getAttribute("data-v"); renderCatMenu(false);
+      var amt = document.getElementById("calAmt"); if (amt) amt.focus();
+    });
+  })();
 
   // Keep the grid and calendar sharing ONE category list: when a calendar entry uses a category
   // that isn't in the yearly grid yet, add it as a new (empty-amount) row — same shape/styling as a
@@ -1329,10 +1380,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calCancel").hidden = true;
     updateRepeatVis();
     renderCalList();
-    var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false");
+    var mo = document.getElementById("calModal"); mo.classList.add("open"); mo.setAttribute("aria-hidden", "false"); document.documentElement.classList.add("cal-open");
   }
   function closeCalModal() {
-    var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true");
+    var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true"); document.documentElement.classList.remove("cal-open");
     if (gridReturn) { gridReturn = false; setView("budget"); }   // return to the grid the edit was launched from
   }
 
