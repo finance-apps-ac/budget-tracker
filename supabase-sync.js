@@ -451,7 +451,13 @@
     var btn = document.getElementById("set-del-go");
     if (btn) { btn.disabled = true; btn.textContent = "Deleting…"; }
 
-    sb.functions.invoke("delete-account", { body: {} }).then(function (r) {
+    var uid = currentUser.id;
+    sb.storage.from("avatars").list(uid).then(function (l) {
+      var names = (l && l.data || []).map(function (o) { return uid + "/" + o.name; });
+      return names.length ? sb.storage.from("avatars").remove(names) : null;
+    }).catch(function () {}).then(function () {
+      return sb.functions.invoke("delete-account", { body: {} });
+    }).then(function (r) {
       if (r.error) throw r.error;
       clearLocal();                     // wipe this device's copy
       return sb.auth.signOut();
@@ -519,7 +525,112 @@
     var ok = document.getElementById("set-email-ok"); if (ok) ok.style.display = "none";
     var er = document.getElementById("set-email-err"); if (er) er.textContent = "";
     highlightTheme(themeMode());
+    // Guest demo has no account: show only "Exit demo" + Appearance.
+    var demo = !currentUser && isDemo();
+    ["set-acct-sec", "set-av-sec", "set-sess-sec"].forEach(function (id) { var x = document.getElementById(id); if (x) x.style.display = demo ? "none" : ""; });
+    var ds = document.getElementById("set-demo-sec"); if (ds) ds.style.display = demo ? "" : "none";
+    var ap = document.getElementById("set-app-sec"); if (ap) ap.style.borderBottom = demo ? "0" : "";
+    if (!demo) { avErr = ""; renderAvatars(); }
   }
+  // The round account button in the top bar (index.html) opens Settings.
+  window.__openSettings = openSettings;
+  /* ---------------- avatar (top-bar account button) ----------------
+     Same picker as Tradeology: 7 line icons or your own photo. The choice is saved on the account
+     (auth user_metadata.<app>_avatar) so every device shows it, and cached locally for instant paint.
+     Photos: cropped to a 256 px JPEG in the browser, uploaded to Storage avatars/<uid>/<app>-avatar.jpg
+     (own-folder policies; one file per app, so P&L / Budget / Tradeology photos never clash). */
+  var AV = {
+    user: '<circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 19.6c1.4-3.3 4-4.9 7.2-4.9s5.8 1.6 7.2 4.9"/>',
+    candles: '<path d="M7 3v4M7 15v6M17 5v3M17 17v2"/><rect x="5" y="7" width="4" height="8" rx="1"/><rect x="15" y="8" width="4" height="9" rx="1"/>',
+    chart: '<path d="M3 20h18"/><path d="M4 16l5-5 4 3 7-8"/><path d="M15 6h5v5"/>',
+    target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',
+    bolt: '<path d="M13 2L4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/>',
+    diamond: '<path d="M6 3h12l3.5 5L12 21 2.5 8 6 3z"/><path d="M2.5 8h19M9 3l3 18 3-18"/>',
+    shield: '<path d="M12 2.5l8 3v6c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10v-6l8-3z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>'
+  };
+  var CAM = '<path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/>';
+  var AV_CACHE = cfg.app + ".avatar", avBusy = false, avErr = "";
+  function isPhoto(k) { return typeof k === "string" && k.indexOf("photo:") === 0; }
+  function avSvg(k) {
+    if (isPhoto(k)) return '<img src="' + esc(k.slice(6)) + '" alt="">';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (AV[k] || AV.user) + '</svg>';
+  }
+  function curAvatar() {
+    var m = currentUser && currentUser.user_metadata && currentUser.user_metadata[cfg.app + "_avatar"];
+    if (m) return m;
+    try { return localStorage.getItem(AV_CACHE) || "user"; } catch (e) { return "user"; }
+  }
+  // Swap the icon inside the account button, keeping the sync dot.
+  function paintAcct() {
+    var b = document.getElementById("acctBtn"); if (!b) return;
+    var k = currentUser ? curAvatar() : "user", dot = document.getElementById("sync-dot");
+    b.innerHTML = avSvg(k); if (dot && currentUser) b.appendChild(dot);
+    b.classList.toggle("ph", isPhoto(k));
+    var img = b.querySelector("img"); if (img) img.onerror = function () { b.classList.remove("ph"); img.replaceWith(document.createRange().createContextualFragment(avSvg("user"))); };
+  }
+  function saveAvatar(k) {
+    try { localStorage.setItem(AV_CACHE, k); } catch (e) {}
+    if (currentUser) { currentUser.user_metadata = currentUser.user_metadata || {}; currentUser.user_metadata[cfg.app + "_avatar"] = k; }
+    paintAcct(); renderAvatars();
+    if (!sb || !currentUser) return Promise.resolve();
+    return sb.auth.updateUser({ data: (function () { var o = {}; o[cfg.app + "_avatar"] = k; return o; })() }).then(function (r) {
+      if (r && r.data && r.data.user && currentUser) currentUser.user_metadata = r.data.user.user_metadata;
+    }).catch(function () {});
+  }
+  function avPath() { return currentUser.id + "/" + cfg.app + "-avatar.jpg"; }
+  function renderAvatars() {
+    var host = document.getElementById("set-av"); if (!host) return;
+    var cur = curAvatar(), ph = isPhoto(cur);
+    host.innerHTML = Object.keys(AV).map(function (k) {
+      return '<button type="button" class="set-avp' + (k === cur ? " on" : "") + '" data-av="' + k + '" aria-label="Avatar ' + k + '">' + avSvg(k) + '</button>';
+    }).join("") + '<button type="button" class="set-avp photo' + (ph ? " on has" : "") + '" id="set-av-photo" aria-label="Use your own photo">' +
+      (ph ? avSvg(cur) : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + CAM + '</svg>') + '</button>';
+    var note = document.getElementById("set-av-note");
+    if (avBusy) note.textContent = "Uploading your photo…";
+    else if (avErr) note.innerHTML = '<span style="color:var(--cr)">' + esc(avErr) + '</span>';
+    else if (ph) note.innerHTML = 'Your photo is set. <button type="button" class="set-a" id="set-av-rm">Remove photo</button>';
+    else note.textContent = "Tap the camera to use your own photo.";
+    Array.prototype.forEach.call(host.querySelectorAll(".set-avp[data-av]"), function (b) {
+      b.onclick = function () {
+        var was = curAvatar(); avErr = "";
+        saveAvatar(b.getAttribute("data-av"));
+        if (isPhoto(was)) removePhoto();                 // switching back to an icon: delete the old photo
+      };
+    });
+    document.getElementById("set-av-photo").onclick = function () {
+      if (avBusy) return;
+      if (!sb || !currentUser) { avErr = "Sign in first – your photo is saved to your account."; return renderAvatars(); }
+      avErr = ""; var f = document.getElementById("set-av-file"); f.value = ""; f.click();
+    };
+    var rm = document.getElementById("set-av-rm");
+    if (rm) rm.onclick = function () { removePhoto(); saveAvatar("user"); };
+  }
+  function removePhoto() {
+    return sb && currentUser ? sb.storage.from("avatars").remove([avPath()]).catch(function () {}) : Promise.resolve();
+  }
+  function onAvatarFile() {
+    var f = this.files && this.files[0]; if (!f) return;
+    if (!/^image\//.test(f.type)) { avErr = "Please choose an image file."; return renderAvatars(); }
+    avBusy = true; avErr = ""; renderAvatars();
+    var url = URL.createObjectURL(f), img = new Image();
+    function fail(m) { avBusy = false; avErr = m; renderAvatars(); }
+    img.onload = function () {
+      var side = Math.min(img.naturalWidth, img.naturalHeight), c = document.createElement("canvas"); c.width = c.height = 256;
+      c.getContext("2d").drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, 256, 256);
+      URL.revokeObjectURL(url);
+      c.toBlob(function (blob) {
+        if (!blob) return fail("Couldn’t read that photo. Try another one.");
+        sb.storage.from("avatars").upload(avPath(), blob, { upsert: true, contentType: "image/jpeg", cacheControl: "3600" }).then(function (r) {
+          if (r.error) return fail("Upload failed: " + r.error.message);
+          avBusy = false;
+          saveAvatar("photo:" + sb.storage.from("avatars").getPublicUrl(avPath()).data.publicUrl + "?v=" + Date.now());
+        }).catch(function () { fail("Upload failed. Check your connection and try again."); });
+      }, "image/jpeg", 0.86);
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); fail("Couldn’t read that photo. Try a JPG or PNG."); };
+    img.src = url;
+  }
+
   function openSettings() {
     var d = document.getElementById("set-scrim");
     if (d) { d.style.display = "grid"; refreshSettings(); return; }
@@ -529,17 +640,25 @@
       '<div id="set-modal" role="dialog" aria-modal="true" aria-label="Settings">' +
         '<div class="set-head"><h2>Settings</h2><button class="set-x" id="set-close" aria-label="Close">✕</button></div>' +
         '<div class="set-body">' +
-          '<div class="set-sec"><div class="set-lbl">Account</div>' +
+          '<div class="set-sec" id="set-demo-sec"><div class="set-lbl">Demo mode</div>' +
+            '<div class="set-who">You\u2019re exploring sample data. Nothing here is saved to an account.</div>' +
+            '<div class="set-row"><button class="set-btn primary" id="set-exitdemo">Exit demo &amp; sign in</button></div>' +
+          '</div>' +
+          '<div class="set-sec" id="set-acct-sec"><div class="set-lbl">Account</div>' +
             '<div class="set-who">Signed in as <b id="set-who-email"></b></div>' +
             '<div class="set-row"><input id="set-email" type="email" autocomplete="email" spellcheck="false"><button class="set-btn primary" id="set-email-save">Save</button></div>' +
             '<div class="set-hint">Changing your email sends a confirmation link to <b>both</b> your old and new address — the change applies once you confirm.</div>' +
             '<div class="set-err" id="set-email-err"></div>' +
             '<div class="set-ok" id="set-email-ok">✓ Confirmation links sent. Check both inboxes to finish.</div>' +
           '</div>' +
-          '<div class="set-sec"><div class="set-lbl">Appearance</div>' +
-            '<div class="set-seg" id="set-seg"><button data-t="system">System</button><button data-t="light">Light</button><button data-t="dark">Dark</button></div>' +
+          '<div class="set-sec" id="set-app-sec"><div class="set-lbl">Appearance</div>' +
+            '<div class="set-seg" id="set-seg"><button data-t="dark">Dark</button><button data-t="light">Light</button><button data-t="system">Auto</button></div>' +
           '</div>' +
-          '<div class="set-sec"><div class="set-lbl">Session</div><div class="set-stack">' +
+          '<div class="set-sec" id="set-av-sec"><div class="set-lbl">Avatar</div>' +
+            '<div class="set-av" id="set-av"></div><div class="set-hint" id="set-av-note"></div>' +
+            '<input type="file" id="set-av-file" accept="image/*" hidden>' +
+          '</div>' +
+          '<div class="set-sec" id="set-sess-sec"><div class="set-lbl">Session</div><div class="set-stack">' +
             '<button class="set-btn ghost" id="set-logout">Log out</button>' +
             '<button class="set-btn danger" id="set-del">Delete account…</button>' +
             '<div class="set-danger" id="set-danger"><p>This permanently deletes your account and all your data on every device. This can’t be undone.</p><div class="set-cf"><button class="set-btn ghost" id="set-del-cancel">Cancel</button><button class="set-btn danger solid" id="set-del-go">Delete forever</button></div></div>' +
@@ -554,6 +673,8 @@
     document.getElementById("set-del").onclick = function () { var x = document.getElementById("set-danger"); if (x) x.style.display = "block"; };
     document.getElementById("set-del-cancel").onclick = function () { var x = document.getElementById("set-danger"); if (x) x.style.display = "none"; };
     document.getElementById("set-del-go").onclick = deleteAccount;
+    document.getElementById("set-exitdemo").onclick = exitDemo;
+    document.getElementById("set-av-file").addEventListener("change", onAvatarFile);
     var seg = document.getElementById("set-seg");
     Array.prototype.forEach.call(seg.querySelectorAll("button"), function (btn) {
       btn.onclick = function () { applyTheme(btn.getAttribute("data-t")); };
@@ -622,11 +743,20 @@
       + "background:rgba(3,7,15,.6);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);"
       + "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}"
       + "#set-modal{width:100%;max-width:420px;background:#0F1728;color:#EAF2FB;"
-      + "--s2:#16213A;--bd:rgba(127,140,170,.28);--sf:#93a4bf;--ft:#66768f;--ac:#2FD3E1;--cr:#FF5C72;--acink:#04222a;"
-      + "border:1px solid var(--bd);border-radius:20px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);overflow:hidden;}"
-      + "@media (prefers-color-scheme:light){#set-modal{background:#fff;color:#131A2B;--s2:#F2F5FA;--bd:#DBE2ED;--sf:#4C586F;--ft:#7A879E;--ac:#0C8FA0;--cr:#D5354C;--acink:#ffffff;}}"
-      + ":root[data-theme='light'] #set-modal{background:#fff;color:#131A2B;--s2:#F2F5FA;--bd:#DBE2ED;--sf:#4C586F;--ft:#7A879E;--ac:#0C8FA0;--cr:#D5354C;--acink:#ffffff;}"
-      + ":root[data-theme='dark'] #set-modal{background:#0F1728;color:#EAF2FB;--s2:#16213A;--bd:rgba(127,140,170,.28);--sf:#93a4bf;--ft:#66768f;--ac:#2FD3E1;--cr:#FF5C72;--acink:#04222a;}"
+      + "--s2:#16213A;--bd:rgba(127,140,170,.28);--sf:#93a4bf;--ft:#66768f;--ac:#2FD3E1;--cr:#FF5C72;--acink:#04222a;--avb:#0A1120;"
+      + "border:1px solid var(--bd);border-radius:20px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);overflow:hidden auto;max-height:calc(100vh - 36px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch;}"
+      + ".set-av{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;}"
+      + "@media (max-width:400px){.set-av{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}.set-av .set-avp{max-width:52px;justify-self:center;width:100%;}}"
+      + ".set-avp{aspect-ratio:1;border-radius:50%;border:1px solid var(--bd);background:var(--avb);color:var(--sf);display:grid;place-items:center;cursor:pointer;padding:0;}"
+      + ".set-avp svg{width:55%;height:55%;}"
+      + ".set-avp.on{color:var(--ac);border:2px solid var(--ac);background:color-mix(in srgb,var(--ac) 14%,transparent);}"
+      + ".set-avp.photo{border-style:dashed;}.set-avp.photo.on,.set-avp.photo.has{border-style:solid;}"
+      + ".set-avp.photo.has{padding:2px;}"
+      + ".set-avp img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;}"
+      + ".set-a{border:0;background:none;color:var(--ac);font:600 12px -apple-system,sans-serif;cursor:pointer;padding:0;text-decoration:underline;}"
+      + "@media (prefers-color-scheme:light){#set-modal{background:#fff;color:#131A2B;--s2:#F2F5FA;--bd:#DBE2ED;--sf:#4C586F;--ft:#7A879E;--ac:#0C8FA0;--cr:#D5354C;--acink:#ffffff;--avb:#F2F5FA;}}"
+      + ":root[data-theme='light'] #set-modal{background:#fff;color:#131A2B;--s2:#F2F5FA;--bd:#DBE2ED;--sf:#4C586F;--ft:#7A879E;--ac:#0C8FA0;--cr:#D5354C;--acink:#ffffff;--avb:#F2F5FA;}"
+      + ":root[data-theme='dark'] #set-modal{background:#0F1728;color:#EAF2FB;--s2:#16213A;--bd:rgba(127,140,170,.28);--sf:#93a4bf;--ft:#66768f;--ac:#2FD3E1;--cr:#FF5C72;--acink:#04222a;--avb:#0A1120;}"
       + ".set-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--bd);}"
       + ".set-head h2{font-size:17px;font-weight:700;margin:0;}"
       + ".set-x{background:none;border:0;color:var(--ft);font-size:18px;cursor:pointer;line-height:1;padding:2px 6px;}"
@@ -882,6 +1012,20 @@
   }
 
   function showBadge(email) {
+    var acct = document.getElementById("acctBtn");
+    if (acct) {
+      acct.classList.add("in");
+      acct.setAttribute("aria-label", "Account and settings \u2013 signed in as " + email);
+      acct.title = email;
+      if (!document.getElementById("sync-dot")) {
+        var dot = document.createElement("span"); dot.id = "sync-dot"; dot.className = "acct-dot"; acct.appendChild(dot);
+      }
+      var m = currentUser && currentUser.user_metadata && currentUser.user_metadata[cfg.app + "_avatar"];
+      if (m) { try { localStorage.setItem(AV_CACHE, m); } catch (e) {} }
+      paintAcct();
+      updatePendingBadge();
+      return;
+    }
     if (document.getElementById("sync-badge")) return;
     var b = document.createElement("div");
     b.id = "sync-badge";
@@ -904,10 +1048,18 @@
   // Driven by the DURABLE counter (hasUnpushed), so it correctly stays lit across an iOS reload —
   // and doubles as a live diagnostic: if it never clears, the phone's push isn't getting through.
   function updatePendingBadge() {
+    var dot = document.getElementById("sync-dot");
+    var acct = document.getElementById("acctBtn");
+    if (dot && acct && acct.contains(dot)) {
+      var p = !!(currentUser && hasUnpushed());
+      dot.style.background = "#FFB020";                           // no dot when synced; amber only while edits wait to upload
+      dot.style.display = p ? "" : "none";
+      acct.title = (currentUser && currentUser.email || "") + (p ? " \u2022 Pending sync" : "");
+      return;
+    }
     var badge = document.getElementById("sync-badge");
     if (!badge) return;
     var pending = document.getElementById("sync-pending");
-    var dot = document.getElementById("sync-dot");
     if (currentUser && hasUnpushed()) {
       if (dot) dot.style.background = "#FFB020";                 // amber dot = unsaved
       if (!pending) {
