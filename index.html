@@ -402,6 +402,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; width: 100%; max-width: 520px; max-height: calc(100% - 4px); overflow: auto;
                padding: 20px 20px 22px; box-shadow: var(--shadow); }
   html.cal-open #sync-badge { display: none !important; }   /* the account pill must not cover + Add */
+  /* Add-form message sits right above + Add: a bottom toast would hide behind the iPhone keyboard. */
+  .cal-msg { margin: 10px 0 0; color: var(--loss); font-size: 13px; font-weight: 600; text-align: center; }
   @media (min-width: 560px) { .cal-modal { align-items: center; } }
   .cal-sheet h3 { margin: 0 0 3px; font-size: 17px; }
   .cal-sheet .sub { color: var(--ink-soft); font-size: 12.5px; margin: 0 0 16px; }
@@ -596,6 +598,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     </div>
     <input class="cal-in" id="calAmt" type="number" step="any" inputmode="decimal" placeholder="$ amount">
     <label class="cal-repeat" id="calRepeatWrap"><input type="checkbox" id="calRepeat"> Fixed bill — repeats every month (car payment, loan…)</label>
+    <p class="cal-msg" id="calMsg" role="alert" hidden></p>
     <button class="cal-addbtn" id="calAdd" type="button">＋ Add</button>
     <button class="cal-cancelbtn" id="calCancel" type="button" hidden>Cancel edit</button>
   </div>
@@ -1378,7 +1381,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
 
   function openCalDay(k) {
-    calSel = k; calType = "expense";
+    calSel = k; calType = "expense"; calMsg("");
     document.getElementById("calDayTitle").textContent = dayTitle(k);
     setWorkButtons();
     document.getElementById("calShift").value = (calData.work[k] && calData.work[k].shift) || "";
@@ -1510,12 +1513,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     if (moved) localStorage.setItem(SKEY, JSON.stringify(store));
   }
 
+  function calMsg(text) { var el = document.getElementById("calMsg"); el.textContent = text; el.hidden = !text; }
+  document.getElementById("calAmt").addEventListener("input", function () { calMsg(""); });
+
   document.getElementById("calAdd").addEventListener("click", function () {
     var amt = parseFloat(document.getElementById("calAmt").value);
-    if (!(amt > 0)) { flash(document.getElementById("calAmt").value === "" ? "Enter an amount" : "Enter an amount above $0"); document.getElementById("calAmt").focus(); return; }
+    if (!(amt > 0)) { calMsg(document.getElementById("calAmt").value === "" ? "Enter an amount" : "Enter an amount above $0"); document.getElementById("calAmt").focus(); return; }
+    calMsg("");
     var note = document.getElementById("calCat").value.trim();
-    // A category is required: an entry without one would show on the calendar but never reach the yearly grid totals.
-    if (!note) { flash("Pick or type a category"); document.getElementById("calCat").focus(); return; }
+    // No category picked: file it under a default, so Add never stalls and the amount still reaches the yearly grid totals.
+    if (!note) note = calType === "bill" ? "Bills" : calType === "income" ? "Other Income" : "Other";
     // Share one category list: a brand-new category typed here also appears in the yearly grid.
     if (note) ensureGridCategory(calType === "income" ? "income" : "expenses", note);
     if (calEditId) {
