@@ -42,6 +42,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 <!-- Cross-device sync: login + cloud storage. Must load before the app script. -->
 <script>window.SYNC_CONFIG = { app: "budget", name: "Budget", keys: ["budget.store.v1", "budget.calendar.v1"] };</script>
 <script>window.DEMO_SEED = {"budget.store.v1": {"2025": {"income": [{"id": "i1", "name": "Salary", "vals": [4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200, 4200]}, {"id": "i2", "name": "Side Hustle", "vals": [300, 500, 400, 250, 600, 300, 150, 450, 200, 350, 700, 300]}, {"id": "i3", "name": "Other Income", "vals": [0, 150, 200, 900, 0, 300, 1200, 0, 150, 300, 0, 400]}], "expenses": [{"id": "e1", "name": "Rent / Mortgage", "vals": [1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800, 1800]}, {"id": "e2", "name": "Utilities", "vals": [140, 150, 130, 120, 110, 160, 180, 175, 150, 140, 150, 160]}, {"id": "e3", "name": "Phone", "vals": [95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95, 95]}, {"id": "e4", "name": "Groceries", "vals": [520, 480, 510, 600, 470, 540, 560, 500, 530, 510, 600, 650]}, {"id": "e5", "name": "Transport / Gas", "vals": [180, 160, 170, 200, 150, 190, 175, 160, 180, 170, 160, 150]}, {"id": "e6", "name": "Car Payment", "vals": [340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340, 340]}, {"id": "e7", "name": "Insurance", "vals": [120, 120, 240, 120, 120, 120, 240, 120, 120, 120, 240, 120]}, {"id": "e8", "name": "Subscriptions", "vals": [60, 60, 60, 65, 60, 60, 70, 60, 60, 60, 60, 80]}, {"id": "e9", "name": "Taxes", "vals": [0, 0, 600, 1400, 0, 0, 0, 0, 0, 0, 0, 300]}, {"id": "e10", "name": "Going Out", "vals": [200, 260, 180, 220, 300, 280, 350, 320, 240, 260, 300, 500]}, {"id": "e11", "name": "Shopping", "vals": [150, 90, 120, 300, 80, 140, 200, 110, 90, 180, 260, 700]}, {"id": "e12", "name": "Other", "vals": [80, 60, 100, 90, 70, 120, 80, 90, 60, 100, 90, 150]}]}}, "budget.calendar.v1": {"entries": [{"id": "e_pay1", "date": "2025-06-05", "type": "income", "amount": 1850, "note": "Salary"}, {"id": "e_ot", "date": "2025-06-13", "type": "income", "amount": 290, "note": "Other Income"}, {"id": "e_pay2", "date": "2025-06-20", "type": "income", "amount": 1920, "note": "Salary"}, {"id": "e_gr1", "date": "2025-06-03", "type": "expense", "amount": 85, "note": "Groceries"}, {"id": "e_gas", "date": "2025-06-08", "type": "expense", "amount": 45, "note": "Transport / Gas"}, {"id": "e_din", "date": "2025-06-11", "type": "expense", "amount": 58, "note": "Going Out"}, {"id": "e_shop", "date": "2025-06-18", "type": "expense", "amount": 120, "note": "Shopping"}, {"id": "e_gr2", "date": "2025-06-24", "type": "expense", "amount": 92, "note": "Groceries"}, {"id": "e_misc", "date": "2025-06-27", "type": "expense", "amount": 61, "note": "Other"}, {"id": "x_tip", "date": "2025-06-20", "type": "income", "amount": 85, "note": "Other Income"}, {"id": "x_gro", "date": "2025-06-20", "type": "expense", "amount": 64, "note": "Groceries"}, {"id": "x_gas", "date": "2025-06-20", "type": "expense", "amount": 42, "note": "Transport / Gas"}, {"id": "v1", "date": "2025-07-05", "type": "income", "amount": 1880, "note": "Salary"}, {"id": "v2", "date": "2025-07-20", "type": "income", "amount": 1910, "note": "Salary"}, {"id": "v3", "date": "2025-07-12", "type": "income", "amount": 240, "note": "Side Hustle"}, {"id": "v4", "date": "2025-07-26", "type": "income", "amount": 95, "note": "Other Income"}, {"id": "v5", "date": "2025-07-03", "type": "expense", "amount": 82, "note": "Groceries"}, {"id": "v6", "date": "2025-07-08", "type": "expense", "amount": 46, "note": "Transport / Gas"}, {"id": "v7", "date": "2025-07-11", "type": "expense", "amount": 54, "note": "Going Out"}, {"id": "v8", "date": "2025-07-14", "type": "expense", "amount": 38, "note": "Shopping"}, {"id": "v9", "date": "2025-07-17", "type": "expense", "amount": 96, "note": "Groceries"}, {"id": "v10", "date": "2025-07-22", "type": "expense", "amount": 44, "note": "Transport / Gas"}, {"id": "v11", "date": "2025-07-28", "type": "expense", "amount": 61, "note": "Groceries"}, {"id": "v12", "date": "2025-08-05", "type": "income", "amount": 1850, "note": "Salary"}, {"id": "v13", "date": "2025-08-20", "type": "income", "amount": 1940, "note": "Salary"}, {"id": "v14", "date": "2025-08-12", "type": "income", "amount": 310, "note": "Side Hustle"}, {"id": "v15", "date": "2025-08-26", "type": "income", "amount": 120, "note": "Other Income"}, {"id": "v16", "date": "2025-08-04", "type": "expense", "amount": 89, "note": "Groceries"}, {"id": "v17", "date": "2025-08-09", "type": "expense", "amount": 53, "note": "Transport / Gas"}, {"id": "v18", "date": "2025-08-12", "type": "expense", "amount": 61, "note": "Going Out"}, {"id": "v19", "date": "2025-08-15", "type": "expense", "amount": 45, "note": "Shopping"}, {"id": "v20", "date": "2025-08-18", "type": "expense", "amount": 103, "note": "Groceries"}, {"id": "v21", "date": "2025-08-23", "type": "expense", "amount": 51, "note": "Transport / Gas"}, {"id": "v22", "date": "2025-08-29", "type": "expense", "amount": 68, "note": "Groceries"}], "repeats": [{"id": "rdemo1", "day": 1, "amount": 1800, "note": "Rent / Mortgage", "start": "2025-01"}, {"id": "rdemo2", "day": 5, "amount": 340, "note": "Car Payment", "start": "2025-01"}, {"id": "rdemo3", "day": 15, "amount": 95, "note": "Phone", "start": "2025-01"}], "work": {"2025-06-02": {"status": "work", "shift": "9–5"}, "2025-06-03": {"status": "work", "shift": "9–5"}, "2025-06-04": {"status": "work", "shift": "Night 10p–6a"}, "2025-06-05": {"status": "work", "shift": "9–5"}, "2025-06-06": {"status": "work", "shift": "Mid 2–10p"}, "2025-06-07": {"status": "work", "shift": "Weekend 8–4"}, "2025-06-10": {"status": "work", "shift": "9–5"}, "2025-06-11": {"status": "work", "shift": "Opening 7a"}, "2025-06-12": {"status": "work", "shift": "9–5"}, "2025-06-13": {"status": "work", "shift": "9–5"}, "2025-06-16": {"status": "work", "shift": "9–5"}, "2025-06-17": {"status": "work", "shift": "9–5"}, "2025-06-18": {"status": "work", "shift": "Double shift"}, "2025-06-20": {"status": "work", "shift": "Closing shift 2–10pm"}, "2025-06-21": {"status": "work", "shift": "Weekend 8–4"}, "2025-06-23": {"status": "work", "shift": "9–5"}, "2025-06-24": {"status": "work", "shift": "Night 10p–6a"}, "2025-06-25": {"status": "work", "shift": "9–5"}, "2025-06-26": {"status": "work", "shift": "Half day"}, "2025-06-27": {"status": "work", "shift": "9–5"}, "2025-06-30": {"status": "work", "shift": "9–5"}, "2025-06-09": {"status": "off", "shift": ""}, "2025-06-19": {"status": "off", "shift": ""}, "2025-07-01": {"status": "work", "shift": "9–5"}, "2025-07-02": {"status": "work", "shift": "Opening 7a"}, "2025-07-03": {"status": "work", "shift": "Mid 2–10p"}, "2025-07-04": {"status": "off", "shift": ""}, "2025-07-07": {"status": "work", "shift": "9–5"}, "2025-07-08": {"status": "work", "shift": "9–5"}, "2025-07-09": {"status": "work", "shift": "Opening 7a"}, "2025-07-10": {"status": "work", "shift": "Mid 2–10p"}, "2025-07-11": {"status": "off", "shift": ""}, "2025-07-14": {"status": "work", "shift": "9–5"}, "2025-07-15": {"status": "work", "shift": "9–5"}, "2025-07-16": {"status": "work", "shift": "Opening 7a"}, "2025-07-17": {"status": "work", "shift": "Mid 2–10p"}, "2025-07-18": {"status": "work", "shift": "9–5"}, "2025-07-21": {"status": "work", "shift": "9–5"}, "2025-07-22": {"status": "off", "shift": ""}, "2025-07-23": {"status": "work", "shift": "Opening 7a"}, "2025-07-24": {"status": "work", "shift": "Mid 2–10p"}, "2025-07-25": {"status": "work", "shift": "9–5"}, "2025-07-28": {"status": "work", "shift": "9–5"}, "2025-07-29": {"status": "work", "shift": "9–5"}, "2025-07-30": {"status": "work", "shift": "Opening 7a"}, "2025-07-31": {"status": "work", "shift": "Mid 2–10p"}, "2025-08-01": {"status": "work", "shift": "9–5"}, "2025-08-04": {"status": "work", "shift": "9–5"}, "2025-08-05": {"status": "work", "shift": "Closing 10p"}, "2025-08-06": {"status": "work", "shift": "Night 10p–6a"}, "2025-08-07": {"status": "work", "shift": "9–5"}, "2025-08-08": {"status": "work", "shift": "9–5"}, "2025-08-11": {"status": "off", "shift": ""}, "2025-08-12": {"status": "work", "shift": "Closing 10p"}, "2025-08-13": {"status": "work", "shift": "Night 10p–6a"}, "2025-08-14": {"status": "work", "shift": "9–5"}, "2025-08-15": {"status": "work", "shift": "9–5"}, "2025-08-18": {"status": "work", "shift": "9–5"}, "2025-08-19": {"status": "work", "shift": "Closing 10p"}, "2025-08-20": {"status": "work", "shift": "Night 10p–6a"}, "2025-08-21": {"status": "work", "shift": "9–5"}, "2025-08-22": {"status": "off", "shift": ""}, "2025-08-25": {"status": "work", "shift": "9–5"}, "2025-08-26": {"status": "work", "shift": "Closing 10p"}, "2025-08-27": {"status": "work", "shift": "Night 10p–6a"}, "2025-08-28": {"status": "work", "shift": "9–5"}, "2025-08-29": {"status": "work", "shift": "9–5"}}}};</script>
+<script>window.I18N_CURRENCY = true;</script>
+<script src="lang.js?v=2"></script>
+<script src="i18n.js?v=2"></script>
 <script src="supabase-sync.js?v=31"></script>
 <script src="native.js?v=1"></script>
 <style>
@@ -466,7 +469,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     <div class="brand">
       <span class="mark" aria-hidden="true"><img src="icon-512.png" alt=""></span>
       <div>
-        <h1><span class="yr">Budget</span></h1>
+        <h1><span class="yr" translate="no">Budget</span></h1>
         <p class="tagline" id="tagline">Annual Tracker</p>
       </div>
     </div>
@@ -480,7 +483,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   </header>
 
   <nav class="viewtabs">
-    <button id="tabBudget" class="active" type="button">Budget</button>
+    <button id="tabBudget" class="active" type="button" data-i18n="tab:Budget">Budget</button>
     <button id="tabCalendar" type="button">Calendar</button>
   </nav>
 
@@ -587,9 +590,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
     <p class="cal-seclabel">Add entry</p>
     <div class="cal-typesel">
-      <button data-ct="income" type="button">Income</button>
-      <button data-ct="expense" type="button">Expense</button>
-      <button data-ct="bill" type="button">Bill</button>
+      <button data-ct="income" type="button" data-i18n="type:Income">Income</button>
+      <button data-ct="expense" type="button" data-i18n="type:Expense">Expense</button>
+      <button data-ct="bill" type="button" data-i18n="type:Bill">Bill</button>
     </div>
     <div class="cal-catwrap">
       <input class="cal-in" id="calCat" autocomplete="off" autocapitalize="words" role="combobox" aria-autocomplete="list" aria-controls="calCatMenu" aria-expanded="false" placeholder="Category — pick one or type a new one">
@@ -608,7 +611,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 (function () {
   "use strict";
   var SKEY = "budget.store.v1", OLDKEY = "budget.2026.v1";
-  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var MON = (window.I18N && I18N.list("__mon")) || ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
   var store = loadStore();
   var curYear = latestYear();
@@ -636,6 +639,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     if (!document.getElementById("view-calendar").hidden) renderCal();
   };
 
+  // Language: native dialogs (confirm) are not in the page, so translate them here; redraw when the language changes.
+  function T(s) { return window.I18N ? I18N.t(s) : s; }
+  window.addEventListener("i18n:change", function () { location.reload(); });
+  (function () { var a = document.getElementById("calAmt"), c = window.I18N ? I18N.sym : "$"; if (a && c !== "$") a.placeholder = c + " " + T("amount"); })();
+
   function row(name, vals) {
     var v = [];
     for (var i = 0; i < 12; i++) v[i] = (vals && vals[i] != null) ? vals[i] : "";
@@ -643,6 +651,11 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   // New install: generic starter categories, no amounts. Users fill in their own.
   function seed() {
+    var sd = seedEn();  // starter category names in the chosen language
+    if (window.I18N) sd.income.concat(sd.expenses).forEach(function (r) { r.name = I18N.t(r.name); });
+    return sd;
+  }
+  function seedEn() {
     return {
       income: [
         row("Salary"),
@@ -668,9 +681,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     };
   }
 
-  var usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-  var usd2 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // Money in the currency chosen in Settings (display only, never converted); plain US dollars without i18n.js.
+  var usd = window.I18N ? I18N.fmt(0) : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  var usd2 = window.I18N ? I18N.fmt(2) : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var CUR = window.I18N ? I18N.sym : "$";
   function money(v) { v = Math.round((v || 0) * 100) / 100; return (Number.isInteger(v) ? usd : usd2).format(v); }
+  // Calendar day cells are narrow: other currencies show just the number there (the month summary shows the symbol).
+  var CUR_AFTER = /[^\d\s.,\u00a0\u202f]\s*$/.test(usd.format(1));   // "1 ₽" puts the symbol after the number
+  var NLOC = window.I18N ? (I18N.loc || (I18N.lang === "en" ? "en-US" : I18N.lang)) : "en-US";   // number locale (es: Spain style with €, Latin American with $)
+  var DEC = (1.5).toLocaleString(NLOC).charAt(1);
+  function cellMoney(v) { if (CUR === "$") return money(v); v = Math.round((v || 0) * 100) / 100; return v.toLocaleString(NLOC, { maximumFractionDigits: 2 }); }
   function signed(v) { return (v > 0 ? "+" : v < 0 ? "−" : "") + money(Math.abs(v)); }
   // Compact form for chart axis labels so big numbers ($12,000) don't overflow the y-gutter on phones.
   function axisMoney(v) {
@@ -678,7 +698,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     if (a >= 1000) {
       var k = a / 1000;
       var s = (k >= 10) ? String(Math.round(k)) : String(Math.round(k * 10) / 10).replace(/\.0$/, "");
-      return (neg ? "−$" : "$") + s + "k";
+      if (DEC !== ".") s = s.replace(".", DEC);
+      return (neg ? "−" : "") + (CUR_AFTER ? s + "k " + CUR : CUR + s + "k");   // $1.5k · R$1,5k · 1,5k ₽
     }
     return money(Math.round(v));
   }
@@ -1103,7 +1124,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   newYearInput.addEventListener("keydown", function (e) { if (e.key === "Enter") commitYear(); });
   document.getElementById("removeYearBtn").addEventListener("click", function () {
     if (!yearIsEmpty(curYear) || years().length < 2) return;
-    if (!confirm("Remove the empty " + curYear + " budget?")) return;
+    if (!confirm(T("Remove the empty " + curYear + " budget?"))) return;
     delete store[curYear]; localStorage.setItem(SKEY, JSON.stringify(store));
     curYear = latestYear(); budget = store[curYear]; render();
   });
@@ -1116,7 +1137,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // ---------- calendar ----------
   var CKEY = "budget.calendar.v1";
   var DOWL = ["S", "M", "T", "W", "T", "F", "S"];
-  var MONF = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var MONF = (window.I18N && I18N.list("__monf")) || ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var DAYF = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var calView = null;      // {y, m} — 0-based month
   var calSel = null;       // selected date key "YYYY-MM-DD" while the modal is open
@@ -1263,7 +1284,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calYrMenu").innerHTML = yhtml;
 
     var dow = document.getElementById("calDow"); dow.innerHTML = "";
-    DOWL.forEach(function (x, i) { var c = document.createElement("div"); c.className = (i === 0 || i === 6) ? "we" : "wd"; c.textContent = x; dow.appendChild(c); });
+    ((window.I18N && I18N.list("__dow")) || DOWL).forEach(function (x, i) { var c = document.createElement("div"); c.className = (i === 0 || i === 6) ? "we" : "wd"; c.textContent = x; dow.appendChild(c); });
 
     var grid = document.getElementById("calGrid"); grid.innerHTML = "";
     var first = new Date(calView.y, calView.m, 1).getDay();
@@ -1290,8 +1311,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       if (st === "work") wDays++;
       if (st === "off") oDays++;
       var amts = "";
-      if (inc > 0) amts += '<span class="inc">+' + money(inc) + '</span>';
-      if (exp > 0) amts += '<span class="exp">−' + money(exp) + '</span>';
+      if (inc > 0) amts += '<span class="inc">+' + cellMoney(inc) + '</span>';
+      if (exp > 0) amts += '<span class="exp">−' + cellMoney(exp) + '</span>';
       var dots = "";
       if (hasBill) dots += '<span class="cal-dot bill"></span>';
       if (hasExpense) dots += '<span class="cal-dot exp"></span>';
@@ -1311,6 +1332,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   function dayTitle(k) {
     var p = k.split("-"), dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    if (window.I18N && I18N.lang !== "en") {  // e.g. "Quinta-feira, 2 de janeiro" / "Четверг, 2 января"
+      try { var f = new Intl.DateTimeFormat(I18N.lang, { weekday: "long", month: "long", day: "numeric" }).format(dt); return f.charAt(0).toUpperCase() + f.slice(1); } catch (e) {}
+    }
     return DAYF[dt.getDay()] + ", " + MONF[dt.getMonth()] + " " + (+p[2]);
   }
   // Effective work status for a day: an explicit stored status wins; otherwise weekends
@@ -1423,10 +1447,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       b.addEventListener("click", function () {
         var id = b.getAttribute("data-id");
         if (b.getAttribute("data-rep") === "1") {
-          if (!confirm("Remove this recurring bill from every month?")) return;
+          if (!confirm(T("Remove this recurring bill from every month?"))) return;
           calData.repeats = calData.repeats.filter(function (r) { return r.id !== id; });
         } else {
-          if (!confirm("Delete this entry?")) return;
+          if (!confirm(T("Delete this entry?"))) return;
           calData.entries = calData.entries.filter(function (e) { return e.id !== id; });
         }
         if (calEditId === id) resetCalForm();   // if we were editing this one, drop out of edit mode
@@ -1745,10 +1769,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       var A = pre.added, tot = A.budget + A.calendar + A.bill + A.work;
       if (!tot) { flash(pre.skipped ? "Nothing new — that file’s already in your budget." : "No rows found to import."); return; }
       var parts = [];
-      if (A.budget) parts.push(A.budget + " budget " + (A.budget === 1 ? "amount" : "amounts"));
-      if (A.calendar) parts.push(A.calendar + " calendar " + (A.calendar === 1 ? "entry" : "entries"));
-      if (A.bill) parts.push(A.bill + " " + (A.bill === 1 ? "bill" : "bills"));
-      if (A.work) parts.push(A.work + " work " + (A.work === 1 ? "day" : "days"));
+      if (A.budget) parts.push(T(A.budget + " budget " + (A.budget === 1 ? "amount" : "amounts")));
+      if (A.calendar) parts.push(T(A.calendar + " calendar " + (A.calendar === 1 ? "entry" : "entries")));
+      if (A.bill) parts.push(T(A.bill + " " + (A.bill === 1 ? "bill" : "bills")));
+      if (A.work) parts.push(T(A.work + " work " + (A.work === 1 ? "day" : "days")));
       var detail = "Adds " + parts.join(", ") + ". Nothing already in your budget is changed or removed" +
         (pre.skipped ? " (" + pre.skipped + " duplicate/existing skipped)" : "") + ".";
       askConfirm("Import “" + file.name + "”?", detail, "Import", function () {
