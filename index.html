@@ -370,6 +370,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Color-identify each mode when active: Budget = cyan, Calendar = amber. */
   #tabBudget.active { color: var(--accent); background: var(--accent-soft); }
   #tabCalendar.active { color: var(--amber); background: color-mix(in srgb, var(--amber) 18%, transparent); }
+  :root[data-theme="light"] #tabBudget.active { color: #3F9147; background: #D5E0D0; }   /* sage, like the calendar day tiles (Anna Nov 20) */
+  @media (prefers-color-scheme: light) { :root:not([data-theme]) #tabBudget.active { color: #3F9147; background: #D5E0D0; } }
 
   /* ---------- Calendar ---------- */
   .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
