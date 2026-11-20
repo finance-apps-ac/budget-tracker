@@ -100,13 +100,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   :root[data-theme="light"] .viewtabs { background: #FCFBF8; border-color: #E5E1D9; }
   :root[data-theme="light"] .viewtabs button.active { box-shadow: none; }
   :root[data-theme="light"] .bar { rx: 4px; ry: 4px; }
-  :root[data-theme="light"] .tr-line { stroke-width: 2.4; }
+  :root[data-theme="light"] .tr-line { stroke-width: 0.6; }
   :root[data-theme="light"] .tr-inc-area { opacity: .07; }
   :root[data-theme="light"] .tr-exp-area { opacity: .06; }
   :root[data-theme="light"] .tr-sav-area { opacity: .14; }
-  :root[data-theme="light"] .tr-inc-line { stroke: #2BB3C0; } :root[data-theme="light"] .tr-exp-line { stroke: #E0A33A; } :root[data-theme="light"] .tr-sav-line { stroke: #3F9147; }
+  :root[data-theme="light"] .tr-inc-line { stroke: #6FD3BB; } :root[data-theme="light"] .tr-exp-line { stroke: #B39BE6; } :root[data-theme="light"] .tr-sav-line { stroke: #E6BC6E; }
   :root[data-theme="light"] .tr-inc-area { fill: url(#trgi); opacity: 1; } :root[data-theme="light"] .tr-exp-area { fill: url(#trge); opacity: 1; } :root[data-theme="light"] .tr-sav-area { fill: url(#trgs); opacity: 1; }
-  :root[data-theme="light"] .chart-legend .lg-inc { background: #2BB3C0 !important; } :root[data-theme="light"] .chart-legend .lg-exp { background: #E0A33A !important; } :root[data-theme="light"] .chart-legend .lg-sav { background: #3F9147 !important; }
+  :root[data-theme="light"] .chart-legend .lg-inc { background: #86D3C1 !important; } :root[data-theme="light"] .chart-legend .lg-exp { background: #B7A6DA !important; } :root[data-theme="light"] .chart-legend .lg-sav { background: #DFC085 !important; }
   :root[data-theme="light"] .grid-line { stroke: #ECE8E1; }
   :root[data-theme="light"] .cal-cell { border-radius: 14px; border-color: #E8E3DA; }
   :root[data-theme="light"] .cal-stat { border-radius: 18px; }
@@ -121,13 +121,13 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     :root:not([data-theme]) .viewtabs { background: #FCFBF8; border-color: #E5E1D9; }
     :root:not([data-theme]) .viewtabs button.active { box-shadow: none; }
     :root:not([data-theme]) .bar { rx: 4px; ry: 4px; }
-    :root:not([data-theme]) .tr-line { stroke-width: 2.4; }
+    :root:not([data-theme]) .tr-line { stroke-width: 0.6; }
     :root:not([data-theme]) .tr-inc-area { opacity: .07; }
     :root:not([data-theme]) .tr-exp-area { opacity: .06; }
     :root:not([data-theme]) .tr-sav-area { opacity: .14; }
-    :root:not([data-theme]) .tr-inc-line { stroke: #2BB3C0; } :root:not([data-theme]) .tr-exp-line { stroke: #E0A33A; } :root:not([data-theme]) .tr-sav-line { stroke: #3F9147; }
+    :root:not([data-theme]) .tr-inc-line { stroke: #6FD3BB; } :root:not([data-theme]) .tr-exp-line { stroke: #B39BE6; } :root:not([data-theme]) .tr-sav-line { stroke: #E6BC6E; }
     :root:not([data-theme]) .tr-inc-area { fill: url(#trgi); opacity: 1; } :root:not([data-theme]) .tr-exp-area { fill: url(#trge); opacity: 1; } :root:not([data-theme]) .tr-sav-area { fill: url(#trgs); opacity: 1; }
-    :root:not([data-theme]) .chart-legend .lg-inc { background: #2BB3C0 !important; } :root:not([data-theme]) .chart-legend .lg-exp { background: #E0A33A !important; } :root:not([data-theme]) .chart-legend .lg-sav { background: #3F9147 !important; }
+    :root:not([data-theme]) .chart-legend .lg-inc { background: #86D3C1 !important; } :root:not([data-theme]) .chart-legend .lg-exp { background: #B7A6DA !important; } :root:not([data-theme]) .chart-legend .lg-sav { background: #DFC085 !important; }
     :root:not([data-theme]) .grid-line { stroke: #ECE8E1; }
     :root:not([data-theme]) .cal-cell { border-radius: 14px; border-color: #E8E3DA; }
     :root:not([data-theme]) .cal-stat { border-radius: 18px; }
@@ -218,6 +218,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Income / expenses / savings trend chart (blue / purple / green). Thin lines that
      stay crisp at any width via non-scaling-stroke; soft fills underneath. */
   .tr-line { fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .tr-band { display: none; }
   .tr-inc-line { stroke: var(--blue); }   .tr-inc-area { fill: var(--blue);   opacity: .15; }
   .tr-exp-line { stroke: var(--violet); } .tr-exp-area { fill: var(--violet); opacity: .13; }
   .tr-sav-line { stroke: var(--gain); }   .tr-sav-area { fill: var(--gain);   opacity: .16; }
@@ -955,9 +956,16 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
              a.map(function (val, i) { return "L" + x(i).toFixed(1) + " " + y(val).toFixed(1); }).join(" ") +
              " L" + x(11).toFixed(1) + " " + zeroY.toFixed(1) + " Z";
     }
-    var trG = function (id, c, o) { return '<linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + c + '" stop-opacity="' + o + '"/><stop offset="1" stop-color="' + c + '" stop-opacity="0"/></linearGradient>'; };
+    var trG = function (id, c, o) { return '<linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + c + '" stop-opacity="' + o + '"/><stop offset="1" stop-color="' + c + '" stop-opacity="' + (o * .22).toFixed(3) + '"/></linearGradient>'; };   // fuller colour fill (Anna Nov 20)
+    function bandPath(a, b) {
+      return a.map(function (v, i) { return (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1); }).join(" ") + " " +
+             b.slice().reverse().map(function (v, k) { var i = b.length - 1 - k; return "L" + x(i).toFixed(1) + " " + y(v).toFixed(1); }).join(" ") + " Z";
+    }
     var series =
-        '<defs>' + trG("trgi", "#2BB3C0", .20) + trG("trge", "#E0A33A", .10) + trG("trgs", "#3F9147", .30) + '</defs>' +   // light mode fading fills
+        '<defs>' + trG("trgi", "#86D3C1", .42) + trG("trge", "#B7A6DA", .34) + trG("trgs", "#DFC085", .55) + '</defs>' +   // light mode fading fills
+        // light mode: clean colour bands that never overlap - mint between income and expenses, lilac between expenses and savings (or $0), sand under savings
+        '<path class="tr-band tr-inc-band" d="' + bandPath(inc, exp) + '"/>' +
+        '<path class="tr-band tr-exp-band" d="' + bandPath(exp, sav.map(function (v) { return Math.max(0, v); })) + '"/>' +
         '<path class="tr-inc-area" d="' + areaPath(inc) + '"/>' +
         '<path class="tr-exp-area" d="' + areaPath(exp) + '"/>' +
         '<path class="tr-sav-area" d="' + areaPath(sav) + '"/>' +
