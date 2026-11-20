@@ -45,7 +45,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 <script>window.I18N_CURRENCY = true;</script>
 <script src="lang.js?v=3"></script>
 <script src="i18n.js?v=3"></script>
-<script src="supabase-sync.js?v=32"></script>
+<script src="supabase-sync.js?v=33"></script>
 <script src="native.js?v=1"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
@@ -98,11 +98,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   :root[data-theme="light"] .card-head h2 { text-transform: none; letter-spacing: -.1px; font-size: 18px; font-weight: 500; }
   :root[data-theme="light"] .cal-monbtn { text-transform: none; letter-spacing: 0; font-weight: 500; }
   :root[data-theme="light"] .tagline { color: #8B8377; }
-  :root[data-theme="light"] select, :root[data-theme="light"] .btn, :root[data-theme="light"] .acct, :root[data-theme="light"] .cal-arrow, :root[data-theme="light"] #calToday { background-color: #FCFBF8; border-color: #E0DBD2; border-radius: 999px; }
+  :root[data-theme="light"] select, :root[data-theme="light"] .btn, :root[data-theme="light"] .acct, :root[data-theme="light"] .cal-arrow, :root[data-theme="light"] #calToday { background-color: #FCFBF8; border-color: #E0DBD2; }
   :root[data-theme="light"] .btn.primary, :root[data-theme="light"] .confirm-go { background: #6DD5C0; border-color: #6DD5C0; color: #063A30; }
   :root[data-theme="light"] .addbtn, :root[data-theme="light"] .cal-addbtn { background: #3F9147; color: #FFFFFF; }
-  :root[data-theme="light"] .viewtabs { border-radius: 999px; background: #FCFBF8; border-color: #E5E1D9; }
-  :root[data-theme="light"] .viewtabs button { border-radius: 999px; }
+  :root[data-theme="light"] .viewtabs { background: #FCFBF8; border-color: #E5E1D9; }
   :root[data-theme="light"] .viewtabs button.active { box-shadow: none; }
   :root[data-theme="light"] .tile .value, :root[data-theme="light"] .cal-stat .val { font-family: var(--font-ui); font-variant-numeric: tabular-nums; }
   :root[data-theme="light"] .tile .value { font-weight: 600; letter-spacing: -.8px; font-size: 26px; }
@@ -128,11 +127,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     :root:not([data-theme]) .card-head h2 { text-transform: none; letter-spacing: -.1px; font-size: 18px; font-weight: 500; }
     :root:not([data-theme]) .cal-monbtn { text-transform: none; letter-spacing: 0; font-weight: 500; }
     :root:not([data-theme]) .tagline { color: #8B8377; }
-    :root:not([data-theme]) select, :root:not([data-theme]) .btn, :root:not([data-theme]) .acct, :root:not([data-theme]) .cal-arrow, :root:not([data-theme]) #calToday { background-color: #FCFBF8; border-color: #E0DBD2; border-radius: 999px; }
+    :root:not([data-theme]) select, :root:not([data-theme]) .btn, :root:not([data-theme]) .acct, :root:not([data-theme]) .cal-arrow, :root:not([data-theme]) #calToday { background-color: #FCFBF8; border-color: #E0DBD2; }
     :root:not([data-theme]) .btn.primary, :root:not([data-theme]) .confirm-go { background: #6DD5C0; border-color: #6DD5C0; color: #063A30; }
     :root:not([data-theme]) .addbtn, :root:not([data-theme]) .cal-addbtn { background: #3F9147; color: #FFFFFF; }
-    :root:not([data-theme]) .viewtabs { border-radius: 999px; background: #FCFBF8; border-color: #E5E1D9; }
-    :root:not([data-theme]) .viewtabs button { border-radius: 999px; }
+    :root:not([data-theme]) .viewtabs { background: #FCFBF8; border-color: #E5E1D9; }
     :root:not([data-theme]) .viewtabs button.active { box-shadow: none; }
     :root:not([data-theme]) .tile .value, :root:not([data-theme]) .cal-stat .val { font-family: var(--font-ui); font-variant-numeric: tabular-nums; }
     :root:not([data-theme]) .tile .value { font-weight: 600; letter-spacing: -.8px; font-size: 26px; }
