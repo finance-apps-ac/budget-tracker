@@ -511,6 +511,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Korean wraps between words (not inside them); Japanese uses strict line-break rules (no small kana or closing marks at a line start) */
   html:lang(ko) body { word-break: keep-all; overflow-wrap: anywhere; }
   html:lang(ja) body { line-break: strict; }
+
+  #tiles .tile:nth-child(3) .value, #tiles .tile:nth-child(3) .value.pos, #tiles .tile:nth-child(3) .value.neg { color: var(--ink); }   /* Net savings number: white in dark, black in light (Anna Nov 20) */
 </style>
 
 <div class="app">
