@@ -45,7 +45,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 <script>window.I18N_CURRENCY = true;</script>
 <script src="lang.js?v=3"></script>
 <script src="i18n.js?v=3"></script>
-<script src="supabase-sync.js?v=31"></script>
+<script src="supabase-sync.js?v=32"></script>
 <script src="native.js?v=1"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
@@ -67,24 +67,88 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
 
   /* ---------- Light theme (auto = follows system; toggle = manual override) ---------- */
   :root[data-theme="light"] {
-    --bg:#F4F6FB; --surface:#FFFFFF; --surface-2:#EDF1F8; --border:#DCE3EE;
-    --ink:#0F1A2E; --ink-soft:#54627C; --ink-faint:#8492AC;
-    --accent:#0AA3B2; --accent-soft:#E1F4F6;
-    --gain:#0E9C63; --gain-soft:#E4F6EE;
-    --loss:#DE344E; --loss-soft:#FCE6EA;
-    --violet:#7A4DFF; --blue:#2B82F6; --amber:#C77D0E;
-    --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
+    --bg:#F1EFEA; --surface:#FCFBF8; --surface-2:#F4F2ED; --border:#E5E1D9;   /* Sand & Honey + Sea glass */
+    --ink:#1E1B17; --ink-soft:#5B544B; --ink-faint:#8B8377;
+    --accent:#1C9883; --accent-soft:#DDF3EE;
+    --gain:#3F9147; --gain-soft:#E2EFE3;
+    --loss:#CA4630; --loss-soft:#F8E2DC;
+    --violet:#8467A8; --blue:#1C9883; --amber:#B9821A;
+    --shadow:0 1px 2px rgba(60,45,25,.03), 0 4px 14px rgba(60,45,25,.035);
+    --radius:22px;
   }
   @media (prefers-color-scheme: light) {
     :root:not([data-theme]) {
-      --bg:#F4F6FB; --surface:#FFFFFF; --surface-2:#EDF1F8; --border:#DCE3EE;
-      --ink:#0F1A2E; --ink-soft:#54627C; --ink-faint:#8492AC;
-      --accent:#0AA3B2; --accent-soft:#E1F4F6;
-      --gain:#0E9C63; --gain-soft:#E4F6EE;
-      --loss:#DE344E; --loss-soft:#FCE6EA;
-      --violet:#7A4DFF; --blue:#2B82F6; --amber:#C77D0E;
-      --shadow:0 1px 2px rgba(16,24,40,.06), 0 12px 30px rgba(16,24,40,.10);
+      --bg:#F1EFEA; --surface:#FCFBF8; --surface-2:#F4F2ED; --border:#E5E1D9;   /* Sand & Honey + Sea glass */
+      --ink:#1E1B17; --ink-soft:#5B544B; --ink-faint:#8B8377;
+      --accent:#1C9883; --accent-soft:#DDF3EE;
+      --gain:#3F9147; --gain-soft:#E2EFE3;
+      --loss:#CA4630; --loss-soft:#F8E2DC;
+      --violet:#8467A8; --blue:#1C9883; --amber:#B9821A;
+      --shadow:0 1px 2px rgba(60,45,25,.03), 0 4px 14px rgba(60,45,25,.035);
+      --radius:22px;
     }
+  }
+  /* ---------- Light mode "Sand & Honey" (Nov 20 2026), same palette as P&L: warm neutrals, Sea glass accent,
+     green #3F9147, brick #CA4630, plum expenses, espresso Net savings card, serif titles. Dark mode is untouched. ---------- */
+  :root[data-theme="light"] .tile, :root[data-theme="light"] .card, :root[data-theme="light"] .cal-stat { border-color: #E5E1D9; }
+  :root[data-theme="light"] .tile .label { color: #1C9883; font-weight: 600; letter-spacing: .7px; }
+  :root[data-theme="light"] .brand h1, :root[data-theme="light"] .card-head h2, :root[data-theme="light"] .cal-monbtn { font-family: ui-serif, "New York", "Iowan Old Style", Georgia, serif; }
+  :root[data-theme="light"] .brand h1 { text-transform: none; letter-spacing: 0; font-weight: 500; }
+  :root[data-theme="light"] .brand h1 .yr { color: #1E1B17; }
+  :root[data-theme="light"] .card-head h2 { text-transform: none; letter-spacing: -.1px; font-size: 18px; font-weight: 500; }
+  :root[data-theme="light"] .cal-monbtn { text-transform: none; letter-spacing: 0; font-weight: 500; }
+  :root[data-theme="light"] .tagline { color: #8B8377; }
+  :root[data-theme="light"] select, :root[data-theme="light"] .btn, :root[data-theme="light"] .acct, :root[data-theme="light"] .cal-arrow, :root[data-theme="light"] #calToday { background-color: #FCFBF8; border-color: #E0DBD2; border-radius: 999px; }
+  :root[data-theme="light"] .btn.primary, :root[data-theme="light"] .confirm-go { background: #6DD5C0; border-color: #6DD5C0; color: #063A30; }
+  :root[data-theme="light"] .addbtn, :root[data-theme="light"] .cal-addbtn { background: #3F9147; color: #FFFFFF; }
+  :root[data-theme="light"] .viewtabs { border-radius: 999px; background: #FCFBF8; border-color: #E5E1D9; }
+  :root[data-theme="light"] .viewtabs button { border-radius: 999px; }
+  :root[data-theme="light"] .viewtabs button.active { box-shadow: none; }
+  :root[data-theme="light"] .tile .value, :root[data-theme="light"] .cal-stat .val { font-family: var(--font-ui); font-variant-numeric: tabular-nums; }
+  :root[data-theme="light"] .tile .value { font-weight: 600; letter-spacing: -.8px; font-size: 26px; }
+  :root[data-theme="light"] #tiles .tile:nth-child(3) { background: #8FD49A; border-color: #8FD49A; box-shadow: 0 6px 18px rgba(40,60,50,.10); }
+  :root[data-theme="light"] #tiles .tile:nth-child(3) .label { color: #7A4E0E; font-weight: 700; }
+  :root[data-theme="light"] #tiles .tile:nth-child(3) .sub { color: #2C6B36; font-weight: 500; }
+  :root[data-theme="light"] #tiles .tile:nth-child(3) .value, :root[data-theme="light"] #tiles .tile:nth-child(3) .value.pos, :root[data-theme="light"] #tiles .tile:nth-child(3) .value.neg { color: #1E1B17; }
+  :root[data-theme="light"] #tiles .tile:nth-child(3) .hn { color: inherit; font-weight: inherit; }
+  :root[data-theme="light"] .bar { rx: 4px; ry: 4px; }
+  :root[data-theme="light"] .tr-line { stroke-width: 2.2; }
+  :root[data-theme="light"] .tr-inc-area { opacity: .07; }
+  :root[data-theme="light"] .tr-exp-area { opacity: .06; }
+  :root[data-theme="light"] .tr-sav-area { opacity: .14; }
+  :root[data-theme="light"] .grid-line { stroke: #ECE8E1; }
+  :root[data-theme="light"] .cal-cell { border-radius: 14px; border-color: #E8E3DA; }
+  :root[data-theme="light"] .cal-stat { border-radius: 18px; }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme]) .tile, :root:not([data-theme]) .card, :root:not([data-theme]) .cal-stat { border-color: #E5E1D9; }
+    :root:not([data-theme]) .tile .label { color: #1C9883; font-weight: 600; letter-spacing: .7px; }
+    :root:not([data-theme]) .brand h1, :root:not([data-theme]) .card-head h2, :root:not([data-theme]) .cal-monbtn { font-family: ui-serif, "New York", "Iowan Old Style", Georgia, serif; }
+    :root:not([data-theme]) .brand h1 { text-transform: none; letter-spacing: 0; font-weight: 500; }
+    :root:not([data-theme]) .brand h1 .yr { color: #1E1B17; }
+    :root:not([data-theme]) .card-head h2 { text-transform: none; letter-spacing: -.1px; font-size: 18px; font-weight: 500; }
+    :root:not([data-theme]) .cal-monbtn { text-transform: none; letter-spacing: 0; font-weight: 500; }
+    :root:not([data-theme]) .tagline { color: #8B8377; }
+    :root:not([data-theme]) select, :root:not([data-theme]) .btn, :root:not([data-theme]) .acct, :root:not([data-theme]) .cal-arrow, :root:not([data-theme]) #calToday { background-color: #FCFBF8; border-color: #E0DBD2; border-radius: 999px; }
+    :root:not([data-theme]) .btn.primary, :root:not([data-theme]) .confirm-go { background: #6DD5C0; border-color: #6DD5C0; color: #063A30; }
+    :root:not([data-theme]) .addbtn, :root:not([data-theme]) .cal-addbtn { background: #3F9147; color: #FFFFFF; }
+    :root:not([data-theme]) .viewtabs { border-radius: 999px; background: #FCFBF8; border-color: #E5E1D9; }
+    :root:not([data-theme]) .viewtabs button { border-radius: 999px; }
+    :root:not([data-theme]) .viewtabs button.active { box-shadow: none; }
+    :root:not([data-theme]) .tile .value, :root:not([data-theme]) .cal-stat .val { font-family: var(--font-ui); font-variant-numeric: tabular-nums; }
+    :root:not([data-theme]) .tile .value { font-weight: 600; letter-spacing: -.8px; font-size: 26px; }
+    :root:not([data-theme]) #tiles .tile:nth-child(3) { background: #8FD49A; border-color: #8FD49A; box-shadow: 0 6px 18px rgba(40,60,50,.10); }
+    :root:not([data-theme]) #tiles .tile:nth-child(3) .label { color: #7A4E0E; font-weight: 700; }
+    :root:not([data-theme]) #tiles .tile:nth-child(3) .sub { color: #2C6B36; font-weight: 500; }
+    :root:not([data-theme]) #tiles .tile:nth-child(3) .value, :root:not([data-theme]) #tiles .tile:nth-child(3) .value.pos, :root:not([data-theme]) #tiles .tile:nth-child(3) .value.neg { color: #1E1B17; }
+    :root:not([data-theme]) #tiles .tile:nth-child(3) .hn { color: inherit; font-weight: inherit; }
+    :root:not([data-theme]) .bar { rx: 4px; ry: 4px; }
+    :root:not([data-theme]) .tr-line { stroke-width: 2.2; }
+    :root:not([data-theme]) .tr-inc-area { opacity: .07; }
+    :root:not([data-theme]) .tr-exp-area { opacity: .06; }
+    :root:not([data-theme]) .tr-sav-area { opacity: .14; }
+    :root:not([data-theme]) .grid-line { stroke: #ECE8E1; }
+    :root:not([data-theme]) .cal-cell { border-radius: 14px; border-color: #E8E3DA; }
+    :root:not([data-theme]) .cal-stat { border-radius: 18px; }
   }
   :root[data-theme="dark"] {
     --bg:#080D1A; --surface:#0F1728; --surface-2:#172139; --border:#26324E;
