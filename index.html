@@ -198,7 +198,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .tile .value { font-family: var(--font-mono); font-size: 23px; font-weight: 600; margin-top: 7px; font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
   .tile .sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 3px; }
   .pos { color: var(--gain); } .neg { color: var(--loss); }
-  #tiles .tile:first-child .value.pos, #tiles .tile.wide .value.pos { color: var(--gain-num, var(--gain)); }   /* ONLY Income + Avg / month numbers: mint sea-glass (Anna Nov 21) */
+  #tiles .tile.wide .value.pos { color: var(--gain-num, var(--gain)); }   /* ONLY the Avg / month number: mint sea-glass; Income total keeps the original green (Anna Nov 21) */
 
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; margin-top: 18px; }
   .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; flex-wrap: wrap; }
@@ -422,9 +422,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-chip { flex: 0 0 auto; white-space: nowrap; }
   .cal-cell .d { font-size: 13px; font-weight: 700; }
   .cal-cell.wd .d { color: var(--gain); } .cal-cell.we .d { color: var(--violet); }
-  :root[data-theme="dark"] .cal-cell.we .d { color: #A48BE3; }   /* day-off numbers + weekend letters in the new lilac (Anna Nov 21) */
-  :root[data-theme="dark"] .cal-dow .we { background: color-mix(in srgb, #A48BE3 22%, transparent); color: #A48BE3; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme]) .cal-cell.we .d { color: #A48BE3; } :root:not([data-theme]) .cal-dow .we { background: color-mix(in srgb, #A48BE3 22%, transparent); color: #A48BE3; } }
+  :root[data-theme="dark"] .cal-cell.wd .d { color: #7FDCCB; }   /* work-day numbers settled to mint sea-glass (Anna Nov 21) */
+  :root[data-theme="dark"] .cal-cell.we .d { color: #A48BE3; }   /* day-off numbers in the new lilac; weekend header letters keep the original colours (Anna Nov 21) */
+  @media (prefers-color-scheme: dark) { :root:not([data-theme]) .cal-cell.wd .d { color: #7FDCCB; } :root:not([data-theme]) .cal-cell.we .d { color: #A48BE3; } }
   .cal-chip { font-size: 9px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; padding: 2px 6px; border-radius: 6px; }
   .cal-chip.work { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
   .cal-chip.off { background: color-mix(in srgb, var(--ink-faint) 22%, transparent); color: var(--ink-soft); }
