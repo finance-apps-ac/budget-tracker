@@ -370,8 +370,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Color-identify each mode when active: Budget = cyan, Calendar = amber. */
   #tabBudget.active { color: var(--accent); background: var(--accent-soft); }
   #tabCalendar.active { color: var(--amber); background: color-mix(in srgb, var(--amber) 18%, transparent); }
-  :root[data-theme="light"] #tabBudget.active { color: #3F9147; background: #D5E0D0; }   /* sage, like the calendar day tiles (Anna Nov 20) */
-  @media (prefers-color-scheme: light) { :root:not([data-theme]) #tabBudget.active { color: #3F9147; background: #D5E0D0; } }
+  :root[data-theme="light"] #tabBudget.active { color: #3F9147; background: #D9F0E9; }   /* soft mint (Anna Nov 21) */
+  @media (prefers-color-scheme: light) { :root:not([data-theme]) #tabBudget.active { color: #3F9147; background: #D9F0E9; } }
 
   /* ---------- Calendar ---------- */
   .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
@@ -433,7 +433,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-stat.work .val { color: var(--accent); }
   .trend-days { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }   /* year totals under the trend chart (Anna Nov 20) */
   .trend-days .cal-stat { background: var(--surface-2); box-shadow: none; }
-  .cal-stat.sav .val { color: var(--ink); }   /* monthly net savings: same white/black as the Net savings tile (Anna Nov 20) */
+  .cal-stat.sav .val { color: var(--ink); }
+  td.gcell.gflash { box-shadow: inset 0 0 0 2px var(--accent); border-radius: 6px; transition: box-shadow .3s; }   /* the cell you just edited, on return from the calendar */   /* monthly net savings: same white/black as the Net savings tile (Anna Nov 20) */
   @media (max-width: 560px) {
     .cal-summary { grid-template-columns: repeat(2, 1fr); }
     .cal-stat.sav { grid-column: 1 / -1; }   /* phones: Net savings spans the full row under the other four */
@@ -1071,6 +1072,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function jumpToCalCell(sec, id, m) {
     var r = findRow(sec, id);
     if (!r) return;
+    gridOrigin = { sec: sec, id: id, m: m };   // the cell to come back to (Anna Nov 21)
     calView = { y: +curYear, m: m };
     var cells = calCellEntries(sec, r.name, m, curYear);
     if (cells.length) {
@@ -1512,7 +1514,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   }
   function closeCalModal() {
     var mo = document.getElementById("calModal"); mo.classList.remove("open"); mo.setAttribute("aria-hidden", "true"); document.documentElement.classList.remove("cal-open");
-    if (gridReturn) { gridReturn = false; setView("budget"); }   // return to the grid the edit was launched from
+    if (gridReturn) { gridReturn = false; setView("budget"); backToGridCell(); }   // return to the grid row the edit was launched from
   }
 
   function renderCalList() {
@@ -1550,7 +1552,17 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // ---- Edit an existing entry / recurring bill (reuses the Add form as a Save form) ----
   var calEditId = null, calEditKind = null;
   // True when the calendar day was opened by tapping a grid cell — so after the edit we return to the grid.
-  var gridReturn = false;
+  var gridReturn = false, gridOrigin = null;
+  // after an edit launched from a grid cell: scroll that same row/month back into view and flash it softly
+  function backToGridCell() {
+    var o = gridOrigin; gridOrigin = null; if (!o) return;
+    requestAnimationFrame(function () { requestAnimationFrame(function () {
+      var td = document.querySelector('td.gcell[data-sec="' + o.sec + '"][data-id="' + o.id + '"][data-mo="' + o.m + '"]');
+      if (!td) { var sec = document.querySelector('[data-sec="' + o.sec + '"]'); if (sec) sec.scrollIntoView({ block: "center" }); return; }
+      td.scrollIntoView({ block: "center", inline: "center" });
+      td.classList.add("gflash"); setTimeout(function () { td.classList.remove("gflash"); }, 1400);
+    }); });
+  }
   function resetCalForm() {
     document.getElementById("calAmt").value = "";
     document.getElementById("calCat").value = "";
