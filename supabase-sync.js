@@ -828,6 +828,7 @@
       + ".set-seg button.on{background:var(--acb,var(--ac));color:var(--acink);}"
       + ".set-stack{display:flex;flex-direction:column;gap:10px;}"
       + "#set-modal{--am:#FFB547;--sent:#2FE79B;}:root[data-theme='light'] #set-modal{--am:#B9821A;--sent:#3F9147;}@media (prefers-color-scheme:light){:root:not([data-theme]) #set-modal{--am:#B9821A;--sent:#3F9147;}}"
+      + "#set-modal{--ac:#7FDCCB;--acb:#44AB9F;--acink:#06201C;}:root[data-theme='dark'] #set-modal{--ac:#7FDCCB;--acb:#44AB9F;--acink:#06201C;}"   // settled sea-glass in dark, like Tradeology (Anna Nov 21)
       + "#set-req-type button.on{background:none;color:var(--am);box-shadow:inset 0 0 0 1px var(--am);}"
       + "#set-req-text{display:block;width:100%;box-sizing:border-box;margin:10px 0;min-height:84px;resize:vertical;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;color:inherit;font:400 14px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;}"
       + "#set-req-text:focus{outline:none;border-color:var(--ac);}"
@@ -1011,7 +1012,7 @@
       '<div class="sync-big-emoji">🔒</div>' +
       '<h1>' + esc(cfg.name) + ' Pro</h1>' +
       '<p class="sub">The web app is included with your subscription. Start it in the <b>' + esc(cfg.name) +
-        '</b> app for iPhone — 1 week free, then $1.99/month — then sign in here with the same account.</p>' +
+        '</b> app for iPhone — 7 days free, then $1.99/month — then sign in here with the same account.</p>' +
       '<div id="sync-err"></div>' +
       (window.DEMO_SEED ? '<div id="sync-demo-wrap"><button type="button" id="sync-demo">Try the demo — no sign-up</button></div>' : '') +
       '<div id="sync-toggle"><a id="sync-signout">Sign out (' + esc(user.email) + ')</a></div>';
