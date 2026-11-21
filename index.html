@@ -519,7 +519,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   html:lang(ko) body { word-break: keep-all; overflow-wrap: anywhere; }
   html:lang(ja) body { line-break: strict; }
 
-  #tiles .tile:nth-child(3) .value, #tiles .tile:nth-child(3) .value.pos, #tiles .tile:nth-child(3) .value.neg { color: var(--ink); }   /* Net savings number: white in dark, black in light (Anna Nov 20) */
+  #tiles .tile:nth-child(3) .value, #tiles .tile:nth-child(3) .value.pos, #tiles .tile:nth-child(3) .value.neg,
+  #tiles .tile:nth-child(4) .value, #tiles .tile:nth-child(4) .value.pos, #tiles .tile:nth-child(4) .value.neg { color: var(--ink); }   /* Savings rate too: white in dark, black in light (Anna Nov 20) */   /* Net savings number: white in dark, black in light (Anna Nov 20) */
 </style>
 
 <div class="app">
@@ -615,8 +616,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     <div class="cal-monthly" id="calMonthly" hidden></div>
     <div class="cal-summary">
       <div class="cal-stat off"><div class="lbl">Days off</div><div class="val" id="calOff">0</div></div>
-      <div class="cal-stat inc"><div class="lbl">Net income</div><div class="val" id="calInc">$0</div></div>
       <div class="cal-stat work"><div class="lbl">Work days</div><div class="val" id="calWork">0</div></div>
+      <div class="cal-stat inc"><div class="lbl">Net income</div><div class="val" id="calInc">$0</div></div>
       <div class="cal-stat exp"><div class="lbl">Net expenses</div><div class="val" id="calExp">$0</div></div>
       <div class="cal-stat sav"><div class="lbl">Net savings</div><div class="val" id="calSav">$0</div></div>
     </div>
@@ -994,7 +995,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
         '<path class="tr-line tr-exp-line" d="' + linePath(exp) + '"/>' +
         '<path class="tr-line tr-sav-line" d="' + linePath(sav) + '"/>';
     host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Income, expenses and savings by month">' +
-      grid + '<line class="zero-line" x1="' + padL + '" y1="' + zeroY.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + zeroY.toFixed(1) + '"/>' +
+      grid +   // no dashed $0 line on this chart (Anna Nov 20)
       series + '</svg>' + axisHTML(W, H, padL, yTicks, xTicks);
   }
 
