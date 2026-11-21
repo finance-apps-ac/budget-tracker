@@ -522,6 +522,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-repeat input { width: 16px; height: 16px; accent-color: var(--accent); }
   .cal-addbtn { margin-top: 14px; width: 100%; background: var(--accent); border: none; border-radius: 10px; padding: 12px; font-weight: 800; font-size: 13.5px; color: #04121a; cursor: pointer; letter-spacing: .3px; }
   .cal-addbtn:hover { filter: brightness(1.06); }
+  :root[data-theme="dark"] .cal-addbtn { background: #44AB9F; color: #06201C; }   /* solid sea-glass like the Settings pills (Anna Nov 21) */
+  @media (prefers-color-scheme: dark) { :root:not([data-theme]) .cal-addbtn { background: #44AB9F; color: #06201C; } }
   .cal-cancelbtn { margin-top: 8px; width: 100%; background: transparent; border: 1px solid var(--border); border-radius: 10px; padding: 10px; font-weight: 700; font-size: 12.5px; color: var(--ink-soft); cursor: pointer; }
   .cal-cancelbtn:hover { border-color: var(--ink-faint); color: var(--ink); }
   /* Tap the amount/note of an entry to edit it (the ✕ stays a separate delete). */
