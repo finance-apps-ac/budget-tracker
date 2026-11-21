@@ -528,9 +528,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Light: yearly totals use the same light tile color as the calendar totals (Anna Nov 20) */
   :root[data-theme="light"] .trend-days .cal-stat { background: var(--surface); }
   @media (prefers-color-scheme: light) { :root:not([data-theme]) .trend-days .cal-stat { background: var(--surface); } }
-  /* Light: the yearly totals sit in a footer band in the page color at the bottom of the trend card (Anna Nov 20) */
-  :root[data-theme="light"] .trend-days { margin: 16px -18px -18px; padding: 16px 18px 18px; background: var(--bg); border-top: 1px solid var(--border); border-radius: 0 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px); }
-  @media (prefers-color-scheme: light) { :root:not([data-theme]) .trend-days { margin: 16px -18px -18px; padding: 16px 18px 18px; background: var(--bg); border-top: 1px solid var(--border); border-radius: 0 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px); } }
 </style>
 
 <div class="app">
