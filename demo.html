@@ -346,7 +346,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-amts { margin-top: 4px; display: flex; flex-direction: column; gap: 1px; font-family: var(--font-mono); font-size: 11px; white-space: nowrap; }
   .cal-amts .inc { color: var(--gain); } .cal-amts .exp { color: var(--loss); }
 
-  .cal-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+  .cal-summary { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 16px; }
   .cal-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 13px; padding: 14px 16px; box-shadow: var(--shadow); }
   .cal-stat .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-soft); }
   .cal-stat .val { font-family: var(--font-mono); font-size: 21px; font-weight: 700; margin-top: 5px; font-variant-numeric: tabular-nums; }
@@ -354,8 +354,12 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-stat.inc .val { color: var(--gain); }
   .cal-stat.exp .val { color: var(--loss); }
   .cal-stat.work .val { color: var(--accent); }
+  .trend-days { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }   /* year totals under the trend chart (Anna Nov 20) */
+  .trend-days .cal-stat { background: var(--surface-2); box-shadow: none; }
+  .cal-stat.sav .val { color: var(--ink); }
   @media (max-width: 560px) {
     .cal-summary { grid-template-columns: repeat(2, 1fr); }
+    .cal-stat.sav { grid-column: 1 / -1; }
     /* Tighter side padding + gaps give the 7-column grid more room on a phone. */
     .app { padding-left: calc(12px + env(safe-area-inset-left)); padding-right: calc(12px + env(safe-area-inset-right)); }
     .cal-dow, .cal-grid { gap: 4px; }
@@ -489,6 +493,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <span><i style="background:var(--gain)"></i>Monthly savings</span>
     </div>
     <div class="chart" id="trendChart"></div>
+    <div class="trend-days"><div class="cal-stat work"><div class="lbl">Work days</div><div class="val" id="yrWork">0</div></div><div class="cal-stat off"><div class="lbl">Days off</div><div class="val" id="yrOff">0</div></div></div>
   </section>
   </div><!-- /view-budget -->
 
@@ -518,6 +523,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       <div class="cal-stat inc"><div class="lbl">Net income</div><div class="val" id="calInc">$0</div></div>
       <div class="cal-stat work"><div class="lbl">Work days</div><div class="val" id="calWork">0</div></div>
       <div class="cal-stat exp"><div class="lbl">Net expenses</div><div class="val" id="calExp">$0</div></div>
+      <div class="cal-stat sav"><div class="lbl">Net savings</div><div class="val" id="calSav">$0</div></div>
     </div>
     <p class="hint">Tap any day to log a work shift, day off, bill, one-time expense, or income. Bills you mark “Repeat monthly” appear on that date every following month automatically.</p>
   </div><!-- /view-calendar -->
@@ -729,7 +735,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     for (var m = 0; m < 12; m++) { var im = colTotal(incRows, m), em = colTotal(expRows, m); if (im || em) { months++; netSum += (im - em); } }
     var tiles = [
       { label: "Income", value: money(inc), cls: "pos", sub: "12-mo total" },
-      { label: "Expenses", value: money(exp), cls: "", sub: "excl. cards + investing" },
+      { label: "Expenses", value: money(exp), cls: "neg", sub: "excl. cards + investing" },
       { label: "Net savings", value: signed(net), cls: net >= 0 ? "pos" : "neg", sub: "income − expenses" },
       { label: "Savings rate", value: (inc ? rate.toFixed(0) + "%" : "—"), cls: net >= 0 ? "pos" : "neg", sub: "of income kept" },
       { label: "Avg / month", value: signed(months ? Math.round(netSum / months) : 0), cls: netSum >= 0 ? "pos" : "neg", sub: months + " active months", wide: true }
@@ -790,7 +796,20 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   // Three overlapping series across the 12 months: total income (blue), total
   // expenses (violet), monthly savings = income − expenses (green). Soft area fills
   // to the zero baseline, thin lines on top, grey value gridlines, months beneath.
+  // Year totals for the calendar's work days and days off (weekends count as off unless set), up to today for the current year.
+  function renderYearDays() {
+    var w = document.getElementById("yrWork"), o = document.getElementById("yrOff"); if (!w || !o) return;
+    var y = parseInt(curYear, 10), now = new Date(), wd = 0, od = 0;
+    var end = y < now.getFullYear() ? new Date(y, 11, 31) : y === now.getFullYear() ? now : null;
+    if (end) for (var d = new Date(y, 0, 1); d <= end; d.setDate(d.getDate() + 1)) {
+      var k = ckey(y, d.getMonth(), d.getDate()), ex = calData.work[k], dow = d.getDay();
+      var st = (ex && ex.status) ? ex.status : ((dow === 0 || dow === 6) ? "off" : null);
+      if (st === "work") wd++; else if (st === "off") od++;
+    }
+    w.textContent = wd; o.textContent = od;
+  }
   function renderTrends() {
+    renderYearDays();
     var host = document.getElementById("trendChart");
     if (!host) return;
     var incRows = incomeRows(), expRows = expenseRows();
@@ -1200,6 +1219,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     // The month summary reflects what is on the calendar's days (the single source of every amount).
     document.getElementById("calInc").textContent = money(mInc);
     document.getElementById("calExp").textContent = money(mExp);
+    document.getElementById("calSav").textContent = (mInc - mExp < 0 ? "−" : "") + money(Math.abs(mInc - mExp));
     document.getElementById("calWork").textContent = wDays;
     document.getElementById("calOff").textContent = oDays;
   }
