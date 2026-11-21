@@ -432,9 +432,6 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   /* Dark: navy total tiles with only a colored edge - purple, teal, green, red, neutral (Anna Nov 20) */
   :root[data-theme="dark"] .cal-stat.off { background: #111A2D; border-color: color-mix(in srgb, #9C6BFF 45%, #26324E); box-shadow: none; } :root[data-theme="dark"] .cal-stat.work { background: #111A2D; border-color: color-mix(in srgb, #2FD3E1 45%, #26324E); box-shadow: none; } :root[data-theme="dark"] .cal-stat.inc { background: #111A2D; border-color: color-mix(in srgb, #34D1A6 45%, #26324E); box-shadow: none; } :root[data-theme="dark"] .cal-stat.exp { background: #111A2D; border-color: color-mix(in srgb, #FF5C72 45%, #26324E); box-shadow: none; } :root[data-theme="dark"] .cal-stat.sav { background: #111A2D; border-color: color-mix(in srgb, #8E9BB8 45%, #26324E); box-shadow: none; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme]) .cal-stat.off { background: #111A2D; border-color: color-mix(in srgb, #9C6BFF 45%, #26324E); box-shadow: none; } :root:not([data-theme]) .cal-stat.work { background: #111A2D; border-color: color-mix(in srgb, #2FD3E1 45%, #26324E); box-shadow: none; } :root:not([data-theme]) .cal-stat.inc { background: #111A2D; border-color: color-mix(in srgb, #34D1A6 45%, #26324E); box-shadow: none; } :root:not([data-theme]) .cal-stat.exp { background: #111A2D; border-color: color-mix(in srgb, #FF5C72 45%, #26324E); box-shadow: none; } :root:not([data-theme]) .cal-stat.sav { background: #111A2D; border-color: color-mix(in srgb, #8E9BB8 45%, #26324E); box-shadow: none; } }
-  /* Light: yearly totals use the same light tile color as the calendar totals (Anna Nov 20) */
-  :root[data-theme="light"] .trend-days .cal-stat { background: var(--surface); }
-  @media (prefers-color-scheme: light) { :root:not([data-theme]) .trend-days .cal-stat { background: var(--surface); } }
 </style>
 
 <div class="app">
