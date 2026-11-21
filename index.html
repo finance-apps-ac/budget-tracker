@@ -394,6 +394,9 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-dd-item { padding: 8px 14px; border-radius: 8px; cursor: pointer; color: var(--amber); font-size: 13.5px; font-weight: 700; white-space: nowrap; letter-spacing: .3px; }
   .cal-dd-item:hover { background: color-mix(in srgb, var(--amber) 22%, transparent); }
   .cal-dd-item.sel { background: var(--amber); color: #1a1206; }
+  /* light: the selected month/year in lilac, like the weekend day headers (Anna Nov 21) */
+  :root[data-theme="light"] .cal-dd-item.sel { background: color-mix(in srgb, var(--violet) 22%, transparent); color: var(--violet); }
+  @media (prefers-color-scheme: light) { :root:not([data-theme]) .cal-dd-item.sel { background: color-mix(in srgb, var(--violet) 22%, transparent); color: var(--violet); } }
 
   /* Weekend columns (Sun + Sat) are narrower than weekdays. The header and the day grid share the
      exact same template so their columns stay aligned. */
