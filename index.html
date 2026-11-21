@@ -438,7 +438,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     .cal-summary { grid-template-columns: repeat(2, 1fr); }
     .cal-stat.sav { grid-column: 1 / -1; }   /* phones: Net savings spans the full row under the other four */
     /* Tighter side padding + gaps give the 7-column grid more room on a phone. */
-    .app { padding-left: calc(12px + env(safe-area-inset-left)); padding-right: calc(12px + env(safe-area-inset-right)); }
+    .app { padding-left: calc(22px + env(safe-area-inset-left)); padding-right: calc(22px + env(safe-area-inset-right)); }   /* same 22px gutter as P&L (Anna Nov 21) */
     .cal-dow, .cal-grid { gap: 4px; }
     .cal-dow div { font-size: 10px; padding: 7px 0; }
     .cal-cell { min-height: 66px; padding: 5px 4px; border-radius: 9px; overflow: hidden; }
