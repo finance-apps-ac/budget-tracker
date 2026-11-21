@@ -635,7 +635,7 @@
      The video has no words in it: the caption above it is the step text, so it follows the app language. The player stays dark like the video. ---------------- */
   var HOWTO = {
     len: "1 min, 6 steps",
-    marks: [0, 14.39, 28.64, 39.74, 45.77, 50.43],   // seconds where each step starts in howto.mp4 (lesson-builders/howto/budget)
+    marks: [0, 19.7, 33.95, 45.04, 51.05, 55.71],   // seconds where each step starts in howto.mp4 (lesson-builders/howto/budget)
     steps: [
       "Open the Calendar and tap any day to log a work shift, a day off, income, an expense or a bill.",
       "Mark a bill “Repeat monthly” and it shows up on the same date every month.",
