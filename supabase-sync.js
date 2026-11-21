@@ -635,7 +635,7 @@
      The video has no words in it: the caption above it is the step text, so it follows the app language. The player stays dark like the video. ---------------- */
   var HOWTO = {
     len: "1 min, 6 steps",
-    marks: [0, 14.0, 28.25, 39.35, 45.35, 50.0],   // seconds where each step starts in howto.mp4 (lesson-builders/howto/budget)
+    marks: [0, 14.39, 28.64, 39.74, 45.77, 50.43],   // seconds where each step starts in howto.mp4 (lesson-builders/howto/budget)
     steps: [
       "Open the Calendar and tap any day to log a work shift, a day off, income, an expense or a bill.",
       "Mark a bill “Repeat monthly” and it shows up on the same date every month.",
@@ -924,6 +924,8 @@
       + ".set-stack{display:flex;flex-direction:column;gap:10px;}"
       + "#set-modal{--am:#FFB547;--sent:#2FE79B;}:root[data-theme='light'] #set-modal{--am:#B9821A;--sent:#3F9147;}@media (prefers-color-scheme:light){:root:not([data-theme]) #set-modal{--am:#B9821A;--sent:#3F9147;}}"
       + "#set-modal{--ac:#7FDCCB;--acb:#44AB9F;--acink:#06201C;}:root[data-theme='dark'] #set-modal{--ac:#7FDCCB;--acb:#44AB9F;--acink:#06201C;}"   // settled sea-glass in dark, like Tradeology (Anna Nov 21)
+      + ":root[data-theme='dark'] #set-modal #set-email-save{background:rgba(47,211,225,.2);border-color:rgba(47,211,225,.45);color:#2FD3E1;font-weight:800;text-transform:uppercase;letter-spacing:.4px;}@media (prefers-color-scheme:dark){:root:not([data-theme]) #set-modal #set-email-save{background:rgba(47,211,225,.2);border-color:rgba(47,211,225,.45);color:#2FD3E1;font-weight:800;text-transform:uppercase;letter-spacing:.4px;}}"   // Save = the WORK pill look (Anna Nov 21)
+      + ":root[data-theme='light'] #set-modal #set-email-save{background:linear-gradient(180deg,#D6C6C8,#CCBED5);border-color:#CFC0D1;color:#3A2C48;}@media (prefers-color-scheme:light){:root:not([data-theme]) #set-modal #set-email-save{background:linear-gradient(180deg,#D6C6C8,#CCBED5);border-color:#CFC0D1;color:#3A2C48;}}"   // light Save = soft lilac (Anna Nov 21)
       + "#set-req-type button.on{background:none;color:var(--am);box-shadow:inset 0 0 0 1px var(--am);}"
       + "#set-req-text{display:block;width:100%;box-sizing:border-box;margin:10px 0;min-height:84px;resize:vertical;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;color:inherit;font:400 14px/1.45 -apple-system,BlinkMacSystemFont,sans-serif;}"
       + "#set-req-text:focus{outline:none;border-color:var(--ac);}"
