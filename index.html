@@ -242,6 +242,8 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .grid-wrap tbody tr:not(.total-row) { scroll-snap-align: start; }
   /* Safety net: the page itself never slides sideways (only the tables do). `clip` (not `hidden`) so sticky still works. */
   html, body { overflow-x: hidden; } @supports (overflow: clip) { html, body { overflow-x: clip; } }
+  /* the notch area keeps the page colour: scrolled cards never run under the clock */
+  body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 40; pointer-events: none; }
   /* Phones / touch screens: no box-inside-the-page for up/down. A table nested in the scrolling page
      caught vertical swipes (and snapped row by row), so on Android the page felt stuck. Here the table
      shows at full height and only slides sideways through the months; up/down always moves the page. */
@@ -447,7 +449,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   .cal-stat.sav .val { color: var(--ink); }
   td.gcell.gflash { box-shadow: inset 0 0 0 2px var(--accent); border-radius: 6px; transition: box-shadow .3s; }   /* the cell you just edited, on return from the calendar */   /* monthly net savings: same white/black as the Net savings tile (Anna Nov 20) */
   @media (max-width: 560px) {
-    .cal-summary { grid-template-columns: repeat(2, 1fr); }
+    .cal-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .cal-stat.sav { grid-column: 1 / -1; }   /* phones: Net savings spans the full row under the other four */
     /* Tighter side padding + gaps give the 7-column grid more room on a phone. */
     .app { padding-left: calc(22px + env(safe-area-inset-left)); padding-right: calc(22px + env(safe-area-inset-right)); }   /* same 22px gutter as P&L (Anna Nov 21) */
