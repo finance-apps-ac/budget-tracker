@@ -903,7 +903,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     for (var m = 0; m < 12; m++) vals.push(colTotal(incRows, m) - colTotal(expRows, m));
     var W = 720, H = 220, padL = 58, padR = 12, padT = 12, padB = 30;
     var min = Math.min(0, Math.min.apply(null, vals)), max = Math.max(0, Math.max.apply(null, vals));
-    if (min === max) max = min + 1;
+    if (min === max) max = min + 1000;   // empty year: a calm $0–$1,000 scale, not repeated $0/$1 labels
     // round grid steps ($500, $1k, $2.5k…); a small dip below $0 gets breathing room, not a whole labelled step
     var raw = (max - min) / 3, mag = Math.pow(10, Math.floor(Math.log10(raw))), nstep = [1, 2, 2.5, 5, 10].map(function (f) { return f * mag; }).filter(function (v) { return v >= raw; })[0];
     var rawMin = min; max = Math.ceil(max / nstep) * nstep;
@@ -966,7 +966,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     }
     var W = 720, H = 300, padL = 72, padR = 16, padT = 16, padB = 34;
     var rawMin = Math.min(0, Math.min.apply(null, all)), rawMax = Math.max(0, Math.max.apply(null, all));
-    if (rawMin === rawMax) rawMax = rawMin + 1;
+    if (rawMin === rawMax) rawMax = rawMin + 1000;   // empty year: a calm $0–$1,000 scale, not repeated $0/$1 labels
     // Positive gridlines march up in nice steps from $0. Below zero: a SMALL dip (less than one
     // step) just extends the scale a hair so the line shows — no labeled gridline (which would
     // sit right on top of $0). A LARGER deficit gets its own step-aligned, labeled gridlines.
@@ -1277,10 +1277,10 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
       var isIncome = e.type === "income";
       if (sec === "income" ? isIncome : !isIncome) list.push({ id: e.id, kind: "entry", amount: (+e.amount || 0), date: e.date });
     });
-    if (sec === "expenses") {   // recurring bills count as expenses, from their start month onward
+    if (sec === "expenses") {   // recurring bills count as expenses, from their start month to December of that year
       calData.repeats.forEach(function (r) {
         if ((r.note || "").trim().toLowerCase() !== nm) return;
-        if (r.start && ym < r.start) return;
+        if (!repeatOn(r, ym)) return;
         list.push({ id: r.id, kind: "repeat", amount: (+r.amount || 0), date: ckey(yv, m, r.day) });
       });
     }
@@ -1313,13 +1313,19 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
   function expenseRows() { return effRows("expenses"); }
 
 
+  // A recurring bill runs from its start month through December of that same year. Each new year
+  // starts fresh and empty; past years keep their bills, so old years still read exactly as logged.
+  function repeatOn(r, ym) {
+    if (!r.start) return true;
+    return ym >= r.start && ym.slice(0, 4) === String(r.start).slice(0, 4);
+  }
   // All entries falling on a day: one-time entries on that exact date, plus any recurring
-  // bill whose day-of-month matches and whose start month is on/before this month.
+  // bill whose day-of-month matches and that runs in this month (see repeatOn).
   function calDayEntries(k) {
     var d = +k.slice(8, 10), ym = k.slice(0, 7);
     var list = calData.entries.filter(function (e) { return e.date === k; });
     calData.repeats.forEach(function (r) {
-      if (r.day === d && (!r.start || ym >= r.start)) list.push({ id: r.id, date: k, type: "bill", amount: r.amount, note: r.note, repeat: true });
+      if (r.day === d && repeatOn(r, ym)) list.push({ id: r.id, date: k, type: "bill", amount: r.amount, note: r.note, repeat: true });
     });
     return list;
   }
@@ -1692,6 +1698,7 @@ document.addEventListener("gesturechange", function (e) { e.preventDefault(); },
     document.getElementById("calRepeat").checked = false;
     saveCal(); renderCalList(); renderCal(); render();   // render() so the grid total reflects this entry
     if (gridReturn) closeCalModal();   // launched from a grid cell → hop back to the grid after adding
+    try { if (window.__maybeAskReview) window.__maybeAskReview(); } catch (e) {}   // native-only rating ask
   });
 
   document.getElementById("calClose").addEventListener("click", closeCalModal);
